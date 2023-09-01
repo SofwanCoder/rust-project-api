@@ -17,7 +17,7 @@ mod utilities;
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv::dotenv().ok();
-    env_logger::init_from_env(env_logger::Env::default().default_filter_or("debug"));
+    env_logger::init();
     HttpServer::new(|| {
         App::new()
             .wrap(middlewares::auths::Authorization::default())
