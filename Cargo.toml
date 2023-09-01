@@ -1,5 +1,5 @@
 [package]
-name = "rust-learn"
+name = "rust-project-api"
 version = "0.1.0"
 authors = ["Sofwan Lawal <no@mail.com>"]
 edition = "2021"

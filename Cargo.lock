@@ -1209,7 +1209,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "rust-learn"
+name = "rust-project-api"
 version = "0.1.0"
 dependencies = [
  "actix-cors",
