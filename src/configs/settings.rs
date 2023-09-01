@@ -1,4 +1,4 @@
-pub struct Variables {}
+pub struct Variables;
 
 impl Variables {
     pub fn host() -> String {
@@ -9,5 +9,9 @@ impl Variables {
             .unwrap_or("8080".to_string())
             .parse::<u16>()
             .unwrap_or(8080);
+    }
+
+    pub fn jwt_secret_key() -> String {
+        return std::env::var("JWT_SECRET_KEY").unwrap_or("random_secret_key".to_string());
     }
 }

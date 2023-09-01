@@ -7,6 +7,7 @@ mod configs;
 mod contracts;
 mod controllers;
 mod helpers;
+mod middlewares;
 mod router;
 mod services;
 mod state;
@@ -16,15 +17,16 @@ mod utilities;
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv::dotenv().ok();
-    env_logger::init_from_env(env_logger::Env::new().default_filter_or("debug"));
+    env_logger::init_from_env(env_logger::Env::default().default_filter_or("debug"));
     HttpServer::new(|| {
         App::new()
+            .wrap(middlewares::auths::Authorization::default())
             .wrap(Logger::default())
             .wrap(
                 ErrorHandlers::new()
+                    .default_handler(configs::app::error_default_handler)
                     .handler(StatusCode::NOT_FOUND, configs::app::error_404_handler),
             )
-            .app_data(state::app::config())
             .app_data(configs::json::get_json_config())
             .service(router::get_router_scope())
     })

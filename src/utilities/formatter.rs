@@ -7,12 +7,7 @@ pub fn input_errors(
     let mut fields: HashMap<&str, String> = HashMap::new();
     for (field, error) in errors.iter() {
         if let ValidationErrorsKind::Field(errors) = error {
-            let mut error_message = String::new();
-            for error in errors.iter() {
-                let ers = error.message.clone().unwrap().to_string();
-                error_message.push_str(ers.as_str());
-            }
-            fields.insert(field, error_message);
+            fields.insert(field, errors[0].message.clone().unwrap().to_string());
         }
     }
     return fields;
