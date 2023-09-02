@@ -1,3 +1,4 @@
+use crate::configs::constant;
 use actix_web::http::StatusCode;
 use actix_web::HttpResponse;
 use serde::Serialize;
@@ -15,7 +16,9 @@ pub fn app_http_response<T>(status: StatusCode, app_response: AppResponse<T>) ->
 where
     T: Serialize,
 {
-    HttpResponse::build(status).json(app_response)
+    HttpResponse::build(status)
+        .insert_header((constant::APP_RESPONSE_HEADER, "done"))
+        .json(app_response)
 }
 
 pub fn ok<T>(data: T) -> HttpResponse
