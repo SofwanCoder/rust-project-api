@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  postgres_project_db:
+    image: postgres:15
+#    restart: always
+    environment:
+      POSTGRES_USER: u-wg04z
+      POSTGRES_PASSWORD: wg04zC
+    volumes:
+      - postgres_project_db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+
+  mysql_project_db:
+    image: mysql:8
+    command: --default-authentication-plugin=mysql_native_password
+#    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: database
+      MYSQL_USER: u-wg04z
+      MYSQL_PASSWORD: wg04zC
+    volumes:
+      - mysql_project_db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    env_file:
+      - .env
+
+
+volumes:
+  postgres_project_db_data:
+  mysql_project_db_data:
