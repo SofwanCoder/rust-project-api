@@ -4,8 +4,7 @@ use actix_web::{HttpResponse, ResponseError};
 use derive_more::Display;
 use serde::Serialize;
 use std::collections::HashMap;
-use std::fmt::{Display, Formatter};
-use validator::{ValidationError, ValidationErrorsKind};
+use std::fmt::Display;
 
 #[derive(Display, Debug, Serialize)]
 pub enum AppErrorKind {
@@ -59,7 +58,7 @@ impl ResponseError for AppError {
     }
 
     fn error_response(&self) -> HttpResponse {
-        crate::helpers::response::ret(
+        crate::helpers::response::app_http_response(
             self.status_code(),
             AppResponse::<HashMap<&'static str, String>> {
                 message: self.message.clone(),

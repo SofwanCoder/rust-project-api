@@ -75,7 +75,7 @@ where
 
         if !authenticated_user.is_authenticated() {
             return Box::pin(async move {
-                let unauthorized_response = response::ret(
+                let unauthorized_response = response::app_http_response(
                     StatusCode::UNAUTHORIZED,
                     AppResponse::<()> {
                         message: "No Authorization found".to_string(),
@@ -90,7 +90,7 @@ where
         let either = if authenticated_user.is_cleared(self.level) {
             Either::Right(self.service.call(req))
         } else {
-            let forbidden_response = response::ret(
+            let forbidden_response = response::app_http_response(
                 StatusCode::FORBIDDEN,
                 AppResponse::<()> {
                     message: "Insufficient Access Permission".to_string(),

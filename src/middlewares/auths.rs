@@ -95,7 +95,7 @@ where
 
         let either = match what {
             WhatHappened::NotBearer => {
-                let r = response::ret(
+                let r = response::app_http_response(
                     StatusCode::IM_A_TEAPOT,
                     AppResponse::<()> {
                         message: "Bearer token expected".to_string(),

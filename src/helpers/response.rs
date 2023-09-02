@@ -11,7 +11,7 @@ pub struct AppResponse<T> {
     pub errors: Option<T>,
 }
 
-pub fn ret<T>(status: StatusCode, app_response: AppResponse<T>) -> HttpResponse
+pub fn app_http_response<T>(status: StatusCode, app_response: AppResponse<T>) -> HttpResponse
 where
     T: Serialize,
 {
