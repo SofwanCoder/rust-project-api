@@ -1,4 +1,3 @@
-use argon2::PasswordHash;
 use diesel::{AsChangeset, Insertable, Queryable};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
