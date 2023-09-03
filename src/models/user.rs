@@ -1,11 +1,12 @@
+use argon2::PasswordHash;
 use diesel::{AsChangeset, Insertable, Queryable};
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Queryable, Insertable, AsChangeset)]
 #[diesel(table_name = crate::schema::users)]
 pub struct UserModel {
-    #[serde(default)]
-    pub id: String,
+    pub id: Uuid,
     pub name: String,
     pub email: String,
     pub password: String,
@@ -16,7 +17,7 @@ pub struct UserModel {
 #[derive(Serialize, Deserialize, Debug, Clone, Insertable)]
 #[diesel(table_name = crate::schema::users)]
 pub struct CreateUserModel {
-    pub id: String,
+    pub id: Uuid,
     pub name: String,
     pub email: String,
     pub password: String,

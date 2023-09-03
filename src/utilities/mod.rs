@@ -1,2 +1,2 @@
-pub mod formatter;
+pub mod rand;
 pub mod validation;

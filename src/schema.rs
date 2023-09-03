@@ -2,8 +2,7 @@
 
 diesel::table! {
     users (id) {
-        #[max_length = 255]
-        id -> Varchar,
+        id -> Uuid,
         #[max_length = 255]
         name -> Varchar,
         #[max_length = 255]

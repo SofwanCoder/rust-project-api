@@ -19,10 +19,11 @@ actix-web-validator = "5"
 tokio = "1"
 env_logger = "0.10.0"
 jsonwebtoken = "8"
-ulid = "1"
+ulid = { version = "1", features = ["serde", "uuid"] }
 argon2 = "0.5.1"
 chrono = { version = "0.4", features = ["serde"] }
 futures-util = "0.3.28"
-diesel = { version = "2", features = ["postgres", "r2d2", "chrono"] }
+diesel = { version = "2", features = ["postgres", "extras"] }
+uuid = { version = "1", features = ["serde", "v4"] }
 
 

@@ -1,9 +1,10 @@
 use crate::database::DBConnection;
-use crate::helpers::error::{AppError, AppErrorKind};
+use crate::helpers::error::AppError;
 use crate::models;
 use crate::models::user::{CreateUserModel, UserModel};
 use crate::schema::users::dsl::*;
-use diesel::{QueryDsl, RunQueryDsl};
+use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
+use uuid::Uuid;
 
 pub struct UserRepository {
     connection: DBConnection,
@@ -22,16 +23,11 @@ impl UserRepository {
         results
     }
 
-    pub fn find_user(&mut self, user_id: String) -> Result<Option<UserModel>, AppError> {
+    pub fn find_user_by_id(&mut self, user_id: Uuid) -> Result<Option<UserModel>, AppError> {
         let results = users
             .find(user_id)
             .load::<models::user::UserModel>(&mut self.connection)
-            .map_err(|_err| {
-                AppError::new(
-                    "Error finding user".to_string(),
-                    AppErrorKind::DatabaseError,
-                )
-            })
+            .map_err(|_err| AppError::database_error("Error looking up user".to_string()))
             .map(|user_result| {
                 if user_result.is_empty() {
                     None
@@ -39,7 +35,6 @@ impl UserRepository {
                     Some(user_result.first().unwrap().clone())
                 }
             })?;
-
         Ok(results)
     }
 
@@ -47,19 +42,40 @@ impl UserRepository {
         &mut self,
         data: CreateUserModel,
     ) -> Result<models::user::UserModel, AppError> {
-        let results = diesel::insert_into(users)
+        let result = diesel::insert_into(users)
             .values(&data)
-            .get_results::<models::user::UserModel>(&mut self.connection);
-
-        if results.is_err() {
-            log::error!("Error: {:?}", results.err().unwrap().to_string());
-            return Err(AppError::new(
-                "Error creating user".to_string(),
-                AppErrorKind::DatabaseError,
+            .get_results::<models::user::UserModel>(&mut self.connection)
+            .map_err(|_err| AppError::database_error("Error creating user".to_string()))
+            .map(|user_result| {
+                if user_result.is_empty() {
+                    None
+                } else {
+                    Some(user_result.first().unwrap().clone())
+                }
+            })?;
+        if result.is_none() {
+            return Err(AppError::database_error(
+                "Unable to create user's account".to_string(),
             ));
         }
+        return Ok(result.unwrap());
+    }
 
-        let user = results.unwrap().first().unwrap().clone();
-        return Ok(user);
+    pub fn find_by_email(
+        &mut self,
+        user_email: String,
+    ) -> Result<Option<models::user::UserModel>, AppError> {
+        let user_optional = users
+            .filter(email.eq(user_email))
+            .load::<models::user::UserModel>(&mut self.connection)
+            .map_err(|_err| AppError::database_error("Error finding user".to_string()))
+            .map(|user_result| {
+                if user_result.is_empty() {
+                    None
+                } else {
+                    Some(user_result.first().unwrap().clone())
+                }
+            })?;
+        return Ok(user_optional);
     }
 }

@@ -14,6 +14,7 @@ pub enum AppErrorKind {
     InternalError,
     AuthMissing,
     AuthDenied,
+    ClientError,
 }
 
 #[derive(Display, Debug)]
@@ -45,6 +46,14 @@ impl AppError {
             data,
         }
     }
+
+    pub fn database_error(message: String) -> AppError {
+        AppError {
+            message,
+            kind: AppErrorKind::DatabaseError,
+            data: None,
+        }
+    }
 }
 
 impl ResponseError for AppError {
@@ -57,6 +66,7 @@ impl ResponseError for AppError {
             AppErrorKind::AuthMissing => StatusCode::UNAUTHORIZED,
             AppErrorKind::ResourceNotFound => StatusCode::NOT_FOUND,
             AppErrorKind::AuthDenied => StatusCode::FORBIDDEN,
+            AppErrorKind::ClientError => StatusCode::BAD_REQUEST,
         }
     }
 
