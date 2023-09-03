@@ -14,4 +14,8 @@ impl Variables {
     pub fn jwt_secret_key() -> String {
         return std::env::var("JWT_SECRET_KEY").unwrap_or("random_secret_key".to_string());
     }
+
+    pub fn database_url() -> String {
+        return std::env::var("DATABASE_URL").unwrap_or("unknown_will_throw".to_string());
+    }
 }

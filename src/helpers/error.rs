@@ -4,11 +4,12 @@ use actix_web::{HttpResponse, ResponseError};
 use derive_more::Display;
 use serde::Serialize;
 use std::collections::HashMap;
-use std::fmt::Display;
 
 #[derive(Display, Debug, Serialize)]
 pub enum AppErrorKind {
     ValidationError,
+    DatabaseError,
+    ResourceNotFound,
     UserError,
     InternalError,
     AuthMissing,
@@ -50,9 +51,11 @@ impl ResponseError for AppError {
     fn status_code(&self) -> StatusCode {
         match self.kind {
             AppErrorKind::ValidationError => StatusCode::EXPECTATION_FAILED,
-            AppErrorKind::InternalError => StatusCode::INTERNAL_SERVER_ERROR,
+            AppErrorKind::DatabaseError => StatusCode::INTERNAL_SERVER_ERROR,
+            AppErrorKind::InternalError => StatusCode::NOT_IMPLEMENTED,
             AppErrorKind::UserError => StatusCode::BAD_REQUEST,
             AppErrorKind::AuthMissing => StatusCode::UNAUTHORIZED,
+            AppErrorKind::ResourceNotFound => StatusCode::NOT_FOUND,
             AppErrorKind::AuthDenied => StatusCode::FORBIDDEN,
         }
     }

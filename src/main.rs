@@ -6,9 +6,13 @@ use dotenv;
 mod configs;
 mod contracts;
 mod controllers;
+mod database;
 mod helpers;
 mod middlewares;
+mod models;
+mod repositories;
 mod router;
+mod schema;
 mod services;
 mod state;
 mod types;
@@ -18,7 +22,8 @@ mod utilities;
 async fn main() -> std::io::Result<()> {
     dotenv::dotenv().ok();
     env_logger::init();
-    HttpServer::new(|| {
+    let database = database::ApplicationDatabase::default();
+    HttpServer::new(move || {
         App::new()
             .wrap(middlewares::auths::Authorization::default())
             .wrap(Logger::default())
@@ -27,6 +32,7 @@ async fn main() -> std::io::Result<()> {
                     .default_handler(configs::app::error_default_handler)
                     .handler(StatusCode::NOT_FOUND, configs::app::error_404_handler),
             )
+            .app_data(database.clone())
             .app_data(configs::json::get_json_config())
             .service(router::get_router_scope())
     })

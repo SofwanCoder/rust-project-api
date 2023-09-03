@@ -10,20 +10,29 @@ pub async fn create(
     body: web::Json<CreateUser>,
 ) -> Result<impl Responder, AppError> {
     validate_request_data(body.deref())?;
+    let db = req
+        .app_data::<crate::database::ApplicationDatabase>()
+        .unwrap();
+
+    let result = crate::services::user::register(db, body.into_inner()).await;
+
+    result.map(|user| response::ok(user))
+}
+
+pub async fn fetch(req: HttpRequest) -> Result<impl Responder, AppError> {
     let extensions = req.extensions();
 
     let authenticated_user = extensions
         .deref()
-        .get::<crate::types::auths::AuthenticatedData>();
+        .get::<crate::types::auths::AuthenticatedData>()
+        .unwrap()
+        .clone();
 
-    if authenticated_user.is_some() {
-        println!(
-            "authenticated_user: {:?}",
-            authenticated_user.unwrap().user_id
-        );
-    }
+    let db = req
+        .app_data::<crate::database::ApplicationDatabase>()
+        .unwrap();
 
-    let result = crate::services::user::register(body.into_inner()).await;
+    let result = crate::services::user::fetch(db, authenticated_user.user_id).await;
 
     result.map(|user| response::ok(user))
 }
