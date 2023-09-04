@@ -1320,6 +1320,7 @@ dependencies = [
  "diesel",
  "dotenv",
  "env_logger",
+ "futures",
  "futures-util",
  "jsonwebtoken",
  "log",
