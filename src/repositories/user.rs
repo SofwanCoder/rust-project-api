@@ -18,14 +18,6 @@ impl UserRepository {
         UserRepository { connection }
     }
 
-    pub fn get_users(&mut self) -> Vec<models::user::UserModel> {
-        let results = users
-            .limit(5)
-            .load::<models::user::UserModel>(&mut self.connection)
-            .expect("Error loading users");
-        results
-    }
-
     pub fn find_user_by_id(&mut self, user_id: Uuid) -> Result<Option<UserModel>, AppError> {
         let results = users
             .find(user_id)
