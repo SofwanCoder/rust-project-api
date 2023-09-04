@@ -32,9 +32,16 @@ pub async fn fetch(req: HttpRequest) -> Result<impl Responder, AppError> {
 
     let db = req
         .app_data::<crate::database::ApplicationDatabase>()
-        .unwrap();
+        .unwrap()
+        .clone();
 
-    let result = crate::services::user::fetch(db, authenticated_user.user_id).await;
+    let result =
+        web::block(move || crate::services::user::fetch(&db, authenticated_user.user_id.clone()))
+            .await
+            .map_err(|err| {
+                log::error!("Error: {:?}", err);
+                AppError::internal_server("Error handling request".to_string())
+            })?;
 
     result.map(|user| response::ok(user))
 }

@@ -40,7 +40,7 @@ pub async fn register(
     })
 }
 
-pub async fn fetch(db: &ApplicationDatabase, user_id: Uuid) -> Result<UserModel, AppError> {
+pub fn fetch(db: &ApplicationDatabase, user_id: Uuid) -> Result<UserModel, AppError> {
     let connection = db.get_connection();
     let user = UserRepository::new(connection).find_user_by_id(user_id)?;
 

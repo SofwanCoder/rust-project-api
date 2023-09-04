@@ -54,6 +54,14 @@ impl AppError {
             data: None,
         }
     }
+
+    pub fn internal_server(message: String) -> AppError {
+        AppError {
+            message,
+            kind: AppErrorKind::InternalError,
+            data: None,
+        }
+    }
 }
 
 impl ResponseError for AppError {
