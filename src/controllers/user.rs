@@ -1,9 +1,10 @@
 use crate::contracts::user::CreateUserPayload;
 use crate::helpers::error::AppError;
 use crate::helpers::response;
-use crate::utilities::validation::validate_request_with_database;
+use crate::utilities::validation::map_to_validation_err;
 use actix_web::{web, HttpMessage, HttpRequest, Responder, Result};
 use std::ops::Deref;
+use validator::ValidateArgs;
 
 pub async fn create(
     req: HttpRequest,
@@ -13,7 +14,7 @@ pub async fn create(
         .app_data::<crate::database::ApplicationDatabase>()
         .unwrap();
 
-    validate_request_with_database(body.deref().clone(), db)?;
+    body.validate_args(db).map_err(map_to_validation_err)?;
 
     let result = crate::services::user::register(db, body.into_inner()).await;
 

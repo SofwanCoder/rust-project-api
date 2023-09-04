@@ -2,6 +2,7 @@ use crate::database::DBConnection;
 use crate::helpers::error::AppError;
 use crate::models;
 use crate::models::user::{CreateUserModel, UserModel};
+use crate::repositories::Repository;
 use crate::schema::users::dsl::*;
 use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
 use uuid::Uuid;
@@ -9,6 +10,8 @@ use uuid::Uuid;
 pub struct UserRepository {
     connection: DBConnection,
 }
+
+impl Repository for UserRepository {}
 
 impl UserRepository {
     pub fn new(connection: DBConnection) -> Self {
