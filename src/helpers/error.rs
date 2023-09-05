@@ -12,9 +12,9 @@ pub enum AppErrorKind {
     ResourceNotFound,
     UserError,
     InternalError,
-    AuthMissing,
+    AuthorizationError,
     AuthDenied,
-    ClientError,
+    BadClientError,
 }
 
 #[derive(Display, Debug)]
@@ -71,10 +71,10 @@ impl ResponseError for AppError {
             AppErrorKind::DatabaseError => StatusCode::INTERNAL_SERVER_ERROR,
             AppErrorKind::InternalError => StatusCode::NOT_IMPLEMENTED,
             AppErrorKind::UserError => StatusCode::BAD_REQUEST,
-            AppErrorKind::AuthMissing => StatusCode::UNAUTHORIZED,
+            AppErrorKind::AuthorizationError => StatusCode::UNAUTHORIZED,
             AppErrorKind::ResourceNotFound => StatusCode::NOT_FOUND,
             AppErrorKind::AuthDenied => StatusCode::FORBIDDEN,
-            AppErrorKind::ClientError => StatusCode::BAD_REQUEST,
+            AppErrorKind::BadClientError => StatusCode::BAD_REQUEST,
         }
     }
 

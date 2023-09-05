@@ -1,7 +1,8 @@
 use crate::contracts::user::CreateUserPayload;
 use crate::helpers::error::AppError;
 use crate::helpers::response;
-use crate::utilities::validation::map_to_validation_err;
+use crate::utilities::error::map_blocking_err_to_app_err;
+use crate::utilities::error::map_validation_err_to_app_err;
 use actix_web::{web, HttpMessage, HttpRequest, Responder, Result};
 use std::ops::Deref;
 use validator::ValidateArgs;
@@ -12,13 +13,19 @@ pub async fn create(
 ) -> Result<impl Responder, AppError> {
     let db = req
         .app_data::<crate::database::ApplicationDatabase>()
-        .unwrap();
+        .unwrap()
+        .clone();
 
-    body.validate_args(db).map_err(map_to_validation_err)?;
+    let result = web::block(move || {
+        body.validate_args(&db)
+            .map_err(map_validation_err_to_app_err)?;
 
-    let result = crate::services::user::register(db, body.into_inner()).await;
+        futures::executor::block_on(crate::services::users::register(&db, body.into_inner()))
+    })
+    .await
+    .map_err(map_blocking_err_to_app_err)?;
 
-    result.map(|user| response::ok(user))
+    result.map(response::ok)
 }
 
 pub async fn fetch(req: HttpRequest) -> Result<impl Responder, AppError> {
@@ -35,13 +42,14 @@ pub async fn fetch(req: HttpRequest) -> Result<impl Responder, AppError> {
         .unwrap()
         .clone();
 
-    let result =
-        web::block(move || crate::services::user::fetch(&db, authenticated_user.user_id.clone()))
-            .await
-            .map_err(|err| {
-                log::error!("Error: {:?}", err);
-                AppError::internal_server("Error handling request".to_string())
-            })?;
+    let result = web::block(move || {
+        futures::executor::block_on(crate::services::users::fetch(
+            &db,
+            authenticated_user.user_id.clone(),
+        ))
+    })
+    .await
+    .map_err(map_blocking_err_to_app_err)?;
 
-    result.map(|user| response::ok(user))
+    result.map(response::ok)
 }

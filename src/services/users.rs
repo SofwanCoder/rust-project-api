@@ -17,7 +17,7 @@ pub async fn register(
     let user = UserRepository::new(connection).create_user(CreateUserModel {
         id: generate_uuid(),
         email: body.email,
-        password: helpers::password::hash(body.password.as_bytes())?,
+        password: helpers::password::hash(body.password)?,
         name: body.name,
     })?;
 
@@ -40,7 +40,7 @@ pub async fn register(
     })
 }
 
-pub fn fetch(db: &ApplicationDatabase, user_id: Uuid) -> Result<UserModel, AppError> {
+pub async fn fetch(db: &ApplicationDatabase, user_id: Uuid) -> Result<UserModel, AppError> {
     let connection = db.get_connection();
     let user = UserRepository::new(connection).find_user_by_id(user_id)?;
 
