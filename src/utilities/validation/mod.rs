@@ -1,3 +1,4 @@
+pub mod auths;
 pub mod email;
 
 use std::borrow::Cow;

@@ -6,8 +6,10 @@ use validator::Validate;
 
 #[derive(Debug, Serialize, Deserialize, Validate, Clone)]
 pub struct CreateUserPayload {
+    #[serde(default)]
     #[validate(length(min = 3, message = "Name must be greater than 3 chars"))]
     pub name: String,
+    #[serde(default)]
     #[validate(
         email(message = "Email format is invalid"),
         custom(
@@ -16,6 +18,7 @@ pub struct CreateUserPayload {
         )
     )]
     pub email: String,
+    #[serde(default)]
     #[validate(length(min = 6, message = "Password must be greater than 6 chars"))]
     pub password: String,
 }
