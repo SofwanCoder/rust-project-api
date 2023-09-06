@@ -4,7 +4,8 @@ use crate::helpers::response;
 use crate::utilities::error::map_blocking_err_to_app_err;
 use crate::utilities::error::map_validation_err_to_app_err;
 use actix_web::{web, HttpRequest, Responder, Result};
-use validator::Validate;
+use std::ops::Deref;
+use validator::ValidateArgs;
 
 pub async fn create_tokens(
     req: HttpRequest,
@@ -15,7 +16,8 @@ pub async fn create_tokens(
         .unwrap()
         .clone();
 
-    body.validate().map_err(map_validation_err_to_app_err)?;
+    body.validate_args(body.deref())
+        .map_err(map_validation_err_to_app_err)?;
 
     let result = web::block(move || {
         futures::executor::block_on(crate::services::auths::login(&db, body.into_inner()))

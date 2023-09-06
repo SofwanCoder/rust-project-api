@@ -13,13 +13,16 @@ pub async fn register(
     db: &ApplicationDatabase,
     body: CreateUserPayload,
 ) -> Result<UserWithAuthInfo, AppError> {
-    let connection = db.get_connection();
-    let user = UserRepository::new(connection).create_user(CreateUserModel {
-        id: generate_uuid(),
-        email: body.email,
-        password: helpers::password::hash(body.password)?,
-        name: body.name,
-    })?;
+    let connection = &mut db.get_connection();
+    let (user, _) = UserRepository::create_user(
+        connection,
+        CreateUserModel {
+            id: generate_uuid(),
+            email: body.email,
+            password: helpers::password::hash(body.password)?,
+            name: body.name,
+        },
+    );
 
     let auth_token = helpers::jwt::encode(AuthenticatedData {
         user_id: user.id,
@@ -41,8 +44,8 @@ pub async fn register(
 }
 
 pub async fn fetch(db: &ApplicationDatabase, user_id: Uuid) -> Result<UserModel, AppError> {
-    let connection = db.get_connection();
-    let user = UserRepository::new(connection).find_user_by_id(user_id)?;
+    let connection = &mut db.get_connection();
+    let (user, _) = UserRepository::find_user_by_id(connection, user_id);
 
     if user.is_none() {
         return Err(AppError::new(

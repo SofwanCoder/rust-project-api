@@ -62,6 +62,22 @@ impl AppError {
             data: None,
         }
     }
+
+    pub fn unauthorized(message: String) -> AppError {
+        AppError {
+            message,
+            kind: AppErrorKind::InternalError,
+            data: None,
+        }
+    }
+
+    pub fn forbidden(message: String) -> AppError {
+        AppError {
+            message,
+            kind: AppErrorKind::AuthDenied,
+            data: None,
+        }
+    }
 }
 
 impl ResponseError for AppError {

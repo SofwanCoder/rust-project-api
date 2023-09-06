@@ -1,3 +1,5 @@
+use crate::models::auth::AuthModel;
+use crate::models::user::UserModel;
 use chrono::Duration;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -43,6 +45,17 @@ impl AuthenticatedData {
     }
 }
 
+impl From<&UserModel> for AuthenticatedData {
+    fn from(user: &UserModel) -> Self {
+        AuthenticatedData {
+            user_id: user.id,
+            clearance_level: 0,
+            iat: chrono::Utc::now().timestamp() as usize,
+            exp: (chrono::Utc::now().timestamp() + Duration::days(1).num_seconds()) as usize,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AuthToken {
     pub access_token: String,
@@ -58,6 +71,25 @@ impl AuthToken {
             refresh_token,
             expires_in: Duration::days(1).num_seconds() as usize,
             token_type: "Bearer".to_string(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RefreshTokenData {
+    pub user_id: Uuid,
+    pub token_id: Uuid,
+    iat: usize,
+    exp: usize,
+}
+
+impl From<&AuthModel> for RefreshTokenData {
+    fn from(value: &AuthModel) -> Self {
+        RefreshTokenData {
+            user_id: value.user_id,
+            token_id: value.id,
+            iat: chrono::Utc::now().timestamp() as usize,
+            exp: value.expires_at.timestamp() as usize,
         }
     }
 }

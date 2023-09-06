@@ -34,3 +34,8 @@ pub fn map_validation_err_to_app_err(errors: ValidationErrors) -> AppError {
     let formatted_errors = format_input_errors(errors.errors());
     AppError::validation_error(String::from("Validation error"), Some(formatted_errors))
 }
+
+pub fn map_diesel_err_to_app_err(err: diesel::result::Error) -> AppError {
+    log::error!("Error: {:?}", err);
+    AppError::database_error("Error handling data".to_string())
+}

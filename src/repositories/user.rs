@@ -1,76 +1,58 @@
 use crate::database::DBConnection;
-use crate::helpers::error::AppError;
 use crate::models;
 use crate::models::user::{CreateUserModel, UserModel};
 use crate::repositories::Repository;
 use crate::schema::users::dsl::*;
-use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
+use crate::utilities::error::map_diesel_err_to_app_err;
+use diesel::{ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl};
 use uuid::Uuid;
 
-pub struct UserRepository {
-    connection: DBConnection,
-}
+pub struct UserRepository;
 
 impl Repository for UserRepository {}
 
 impl UserRepository {
-    pub fn new(connection: DBConnection) -> Self {
-        UserRepository { connection }
-    }
-
-    pub fn find_user_by_id(&mut self, user_id: Uuid) -> Result<Option<UserModel>, AppError> {
-        let results = users
-            .find(user_id)
-            .load::<models::user::UserModel>(&mut self.connection)
-            .map_err(|_err| AppError::database_error("Error looking up user".to_string()))
-            .map(|user_result| {
-                if user_result.is_empty() {
-                    None
-                } else {
-                    Some(user_result.first().unwrap().clone())
-                }
-            })?;
-        Ok(results)
-    }
-
-    pub fn create_user(
-        &mut self,
-        data: CreateUserModel,
-    ) -> Result<models::user::UserModel, AppError> {
-        let result = diesel::insert_into(users)
-            .values(&data)
-            .get_results::<models::user::UserModel>(&mut self.connection)
-            .map_err(|_err| AppError::database_error("Error creating user".to_string()))
-            .map(|user_result| {
-                if user_result.is_empty() {
-                    None
-                } else {
-                    Some(user_result.first().unwrap().clone())
-                }
-            })?;
-        if result.is_none() {
-            return Err(AppError::database_error(
-                "Unable to create user's account".to_string(),
-            ));
-        }
-        return Ok(result.unwrap());
+    pub fn find_user_by_id(
+        connection: &mut DBConnection,
+        user_id: Uuid,
+    ) -> (Option<UserModel>, &mut DBConnection) {
+        (
+            users
+                .find(user_id)
+                .first::<models::user::UserModel>(connection)
+                .optional()
+                .map_err(map_diesel_err_to_app_err)
+                .expect("Database error"),
+            connection,
+        )
     }
 
     pub fn find_by_email(
-        &mut self,
+        connection: &mut DBConnection,
         user_email: String,
-    ) -> Result<Option<models::user::UserModel>, AppError> {
-        let user_optional = users
-            .filter(email.eq(user_email))
-            .load::<models::user::UserModel>(&mut self.connection)
-            .map_err(|_err| AppError::database_error("Error finding user".to_string()))
-            .map(|user_result| {
-                if user_result.is_empty() {
-                    None
-                } else {
-                    Some(user_result.first().unwrap().clone())
-                }
-            })?;
-        return Ok(user_optional);
+    ) -> (Option<models::user::UserModel>, &mut DBConnection) {
+        (
+            users
+                .filter(email.eq(user_email))
+                .first::<models::user::UserModel>(connection)
+                .optional()
+                .map_err(map_diesel_err_to_app_err)
+                .expect("Database error"),
+            connection,
+        )
+    }
+
+    pub fn create_user(
+        connection: &mut DBConnection,
+        data: CreateUserModel,
+    ) -> (models::user::UserModel, &mut DBConnection) {
+        (
+            diesel::insert_into(users)
+                .values(&data)
+                .get_result::<models::user::UserModel>(connection)
+                .map_err(map_diesel_err_to_app_err)
+                .expect("Database error"),
+            connection,
+        )
     }
 }
