@@ -2,7 +2,9 @@ use diesel::r2d2::{ConnectionManager, PooledConnection};
 use diesel::{r2d2, PgConnection};
 
 type DBPool = r2d2::Pool<ConnectionManager<PgConnection>>;
-pub type DBConnection = PooledConnection<ConnectionManager<PgConnection>>;
+pub type PooledDatabaseConnection = PooledConnection<ConnectionManager<PgConnection>>;
+
+pub type DBConnection<'a> = &'a mut PooledDatabaseConnection;
 
 #[derive(Clone)]
 pub struct ApplicationDatabase {
@@ -10,7 +12,7 @@ pub struct ApplicationDatabase {
 }
 
 impl ApplicationDatabase {
-    pub fn get_connection(&self) -> DBConnection {
+    pub fn get_connection(&self) -> PooledDatabaseConnection {
         return self.connection_pool.get().unwrap();
     }
 }

@@ -1,3 +1,5 @@
+use crate::models::user::UserModel;
+use crate::utilities::rand::generate_uuid;
 use diesel::{AsChangeset, Insertable, Queryable};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -18,4 +20,14 @@ pub struct CreateAuthModel {
     pub id: Uuid,
     pub user_id: Uuid,
     pub expires_at: chrono::NaiveDateTime,
+}
+
+impl From<&UserModel> for CreateAuthModel {
+    fn from(user: &UserModel) -> Self {
+        CreateAuthModel {
+            id: generate_uuid(),
+            user_id: user.id,
+            expires_at: chrono::Utc::now().naive_utc() + chrono::Duration::days(30),
+        }
+    }
 }

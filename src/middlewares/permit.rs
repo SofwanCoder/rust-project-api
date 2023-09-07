@@ -70,7 +70,7 @@ where
         let authenticated_user = req
             .extensions()
             .get::<AuthenticatedData>()
-            .unwrap_or(&AuthenticatedData::blank())
+            .unwrap_or(&AuthenticatedData::default())
             .clone();
 
         if !authenticated_user.is_authenticated() {

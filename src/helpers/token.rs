@@ -4,12 +4,22 @@ use crate::models::user::UserModel;
 use crate::types::auths::{AuthenticatedData, RefreshTokenData};
 use crate::utilities;
 
-pub fn generate_user_access_token(user: &UserModel) -> Result<String, AppError> {
-    utilities::jwt::encode(AuthenticatedData::from(user))
-        .map_err(|_| AppError::internal_server("Error requesting access token".to_string()))
+pub fn generate_user_session_access_token(
+    user: &UserModel,
+    auth_session: &AuthModel,
+) -> Result<String, AppError> {
+    let expires_in_24_hours = chrono::Utc::now().naive_utc() + chrono::Duration::days(1);
+    utilities::jwt::encode(AuthenticatedData {
+        session_id: auth_session.id,
+        user_id: user.id,
+        clearance_level: 1,
+        iat: chrono::Utc::now().timestamp() as usize,
+        exp: expires_in_24_hours.timestamp() as usize,
+    })
+    .map_err(|_| AppError::internal_server("Error requesting access token".to_string()))
 }
 
-pub fn generate_token_data_for_session(auth_session: &AuthModel) -> Result<String, AppError> {
+pub fn generate_user_session_refresh_token(auth_session: &AuthModel) -> Result<String, AppError> {
     utilities::jwt::encode(RefreshTokenData::from(auth_session))
         .map_err(|_| AppError::internal_server("Error requesting refresh token".to_string()))
 }
