@@ -4,20 +4,18 @@ use diesel::{r2d2, PgConnection};
 type DBPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 pub type PooledDatabaseConnection = PooledConnection<ConnectionManager<PgConnection>>;
 
-pub type DBConnection<'a> = &'a mut PooledDatabaseConnection;
-
 #[derive(Clone)]
-pub struct ApplicationDatabase {
+pub struct ApplicationPgDatabase {
     connection_pool: DBPool,
 }
 
-impl ApplicationDatabase {
+impl ApplicationPgDatabase {
     pub fn get_connection(&self) -> PooledDatabaseConnection {
         return self.connection_pool.get().unwrap();
     }
 }
 
-impl Default for ApplicationDatabase {
+impl Default for ApplicationPgDatabase {
     fn default() -> Self {
         let database_url = crate::configs::settings::Variables::database_url();
         let manager = ConnectionManager::<PgConnection>::new(database_url);
@@ -25,6 +23,6 @@ impl Default for ApplicationDatabase {
             .build(manager)
             .expect("Failed to create pool.");
 
-        ApplicationDatabase { connection_pool }
+        ApplicationPgDatabase { connection_pool }
     }
 }

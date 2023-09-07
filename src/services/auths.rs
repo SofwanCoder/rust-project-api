@@ -1,5 +1,5 @@
 use crate::contracts::auth::CreateTokenPayload;
-use crate::database::ApplicationDatabase;
+use crate::database::pg::ApplicationPgDatabase;
 use crate::helpers;
 use crate::helpers::error::AppError;
 use crate::models::auth::CreateAuthModel;
@@ -8,7 +8,7 @@ use crate::repositories::user::UserRepository;
 use crate::types::auths::{AuthToken, AuthenticatedData};
 
 pub async fn login(
-    db: &ApplicationDatabase,
+    db: &ApplicationPgDatabase,
     body: CreateTokenPayload,
 ) -> Result<AuthToken, AppError> {
     match body.grant_type.as_str() {
@@ -19,7 +19,7 @@ pub async fn login(
 }
 
 pub async fn logout(
-    db: &ApplicationDatabase,
+    db: &ApplicationPgDatabase,
     auth_data: AuthenticatedData,
 ) -> Result<(), AppError> {
     let auth_session =
@@ -35,7 +35,7 @@ pub async fn logout(
 }
 
 pub async fn login_with_password(
-    db: &ApplicationDatabase,
+    db: &ApplicationPgDatabase,
     body: CreateTokenPayload,
 ) -> Result<AuthToken, AppError> {
     let connection = &mut db.get_connection();
@@ -70,7 +70,7 @@ pub async fn login_with_password(
 }
 
 pub async fn login_with_refresh_token(
-    db: &ApplicationDatabase,
+    db: &ApplicationPgDatabase,
     body: CreateTokenPayload,
 ) -> Result<AuthToken, AppError> {
     let refresh_token = body.refresh_token.unwrap();

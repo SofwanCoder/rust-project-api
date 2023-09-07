@@ -12,7 +12,7 @@ pub async fn create_token(
     body: web::Json<CreateTokenPayload>,
 ) -> Result<impl Responder, AppError> {
     let db = req
-        .app_data::<crate::database::ApplicationDatabase>()
+        .app_data::<crate::database::pg::ApplicationPgDatabase>()
         .unwrap()
         .clone();
 
@@ -30,7 +30,7 @@ pub async fn create_token(
 
 pub async fn delete_token(req: HttpRequest) -> Result<impl Responder, AppError> {
     let db = req
-        .app_data::<crate::database::ApplicationDatabase>()
+        .app_data::<crate::database::pg::ApplicationPgDatabase>()
         .unwrap()
         .clone();
 

@@ -11,7 +11,7 @@ pub async fn create(
     body: web::Json<CreateUserPayload>,
 ) -> Result<impl Responder, AppError> {
     let db = req
-        .app_data::<crate::database::ApplicationDatabase>()
+        .app_data::<crate::database::pg::ApplicationPgDatabase>()
         .unwrap()
         .clone();
 
@@ -35,7 +35,7 @@ pub async fn fetch(req: HttpRequest) -> Result<impl Responder, AppError> {
         .clone();
 
     let db = req
-        .app_data::<crate::database::ApplicationDatabase>()
+        .app_data::<crate::database::pg::ApplicationPgDatabase>()
         .unwrap()
         .clone();
 

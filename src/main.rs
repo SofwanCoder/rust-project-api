@@ -1,6 +1,7 @@
 use actix_web::http::StatusCode;
 use actix_web::middleware::{ErrorHandlers, Logger};
 use actix_web::{App, HttpServer};
+use database::pg;
 use dotenv;
 
 mod configs;
@@ -14,7 +15,6 @@ mod repositories;
 mod router;
 mod schema;
 mod services;
-mod state;
 mod types;
 mod utilities;
 
@@ -22,7 +22,7 @@ mod utilities;
 async fn main() -> std::io::Result<()> {
     dotenv::dotenv().ok();
     env_logger::init();
-    let database = database::ApplicationDatabase::default();
+    let database = pg::ApplicationPgDatabase::default();
     HttpServer::new(move || {
         App::new()
             .wrap(middlewares::auths::Authorization::default())

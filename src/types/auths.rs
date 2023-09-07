@@ -3,25 +3,13 @@ use chrono::Duration;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct AuthenticatedData {
     pub session_id: Uuid,
     pub user_id: Uuid,
     pub clearance_level: u8,
     pub iat: usize,
     pub exp: usize,
-}
-
-impl Default for AuthenticatedData {
-    fn default() -> Self {
-        AuthenticatedData {
-            session_id: uuid::Uuid::nil(),
-            user_id: uuid::Uuid::nil(),
-            clearance_level: 0,
-            iat: 0,
-            exp: 0,
-        }
-    }
 }
 
 impl AuthenticatedData {
@@ -34,7 +22,7 @@ impl AuthenticatedData {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct AuthToken {
     pub access_token: String,
     pub refresh_token: String,
@@ -53,7 +41,7 @@ impl AuthToken {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct RefreshTokenData {
     pub user_id: Uuid,
     pub token_id: Uuid,

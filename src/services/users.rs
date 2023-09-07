@@ -1,5 +1,5 @@
 use crate::contracts::user::CreateUserPayload;
-use crate::database::ApplicationDatabase;
+use crate::database::pg::ApplicationPgDatabase;
 use crate::helpers;
 use crate::helpers::error::AppError;
 use crate::models::auth::CreateAuthModel;
@@ -11,7 +11,7 @@ use crate::utilities::rand::generate_uuid;
 use uuid::Uuid;
 
 pub async fn register(
-    db: &ApplicationDatabase,
+    db: &ApplicationPgDatabase,
     body: CreateUserPayload,
 ) -> Result<AuthToken, AppError> {
     let connection = &mut db.get_connection();
@@ -33,7 +33,7 @@ pub async fn register(
     Ok(AuthToken::new(access_token, refresh_token))
 }
 
-pub async fn fetch(db: &ApplicationDatabase, user_id: Uuid) -> Result<UserModel, AppError> {
+pub async fn fetch(db: &ApplicationPgDatabase, user_id: Uuid) -> Result<UserModel, AppError> {
     let connection = &mut db.get_connection();
     let user = UserRepository::find_user_by_id(connection, user_id);
 

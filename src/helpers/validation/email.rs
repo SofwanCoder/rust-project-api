@@ -3,7 +3,7 @@ use crate::repositories::user::UserRepository;
 
 pub fn unique_email_validator(
     email: &str,
-    db: &crate::database::ApplicationDatabase,
+    db: &crate::database::pg::ApplicationPgDatabase,
 ) -> Result<(), validator::ValidationError> {
     let connection = &mut db.get_connection();
     let user = UserRepository::find_by_email(connection, email.to_string());

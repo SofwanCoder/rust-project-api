@@ -34,3 +34,43 @@ pub fn decode_token_data_for_session(token: &String) -> Result<RefreshTokenData,
         AppError::unauthorized(message.to_string())
     })
 }
+
+// tests
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::models::auth::AuthModel;
+    use crate::models::user::UserModel;
+    use chrono::NaiveDateTime;
+
+    #[test]
+    fn test_generate_user_session_access_token() {
+        let user = UserModel {
+            name: "Test User".to_string(),
+            email: "test@test.com".to_string(),
+            password: "password".to_string(),
+            ..UserModel::default()
+        };
+        let auth_session = AuthModel::default();
+        let token = generate_user_session_access_token(&user, &auth_session).unwrap();
+        assert!(token.len() > 0);
+    }
+
+    #[test]
+    fn test_generate_user_session_refresh_token() {
+        let auth_session = AuthModel::default();
+        let token = generate_user_session_refresh_token(&auth_session).unwrap();
+        assert!(token.len() > 0);
+    }
+
+    #[test]
+    fn test_decode_token_data_for_session() {
+        let auth_session = AuthModel {
+            expires_at: NaiveDateTime::MAX,
+            ..AuthModel::default()
+        };
+        let token = generate_user_session_refresh_token(&auth_session).unwrap();
+        let decoded_token = decode_token_data_for_session(&token).unwrap();
+        assert_eq!(decoded_token.token_id, auth_session.id);
+    }
+}

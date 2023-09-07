@@ -4,7 +4,7 @@ use diesel::{AsChangeset, Insertable, Queryable};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Serialize, Deserialize, Debug, Clone, Queryable, Insertable, AsChangeset)]
+#[derive(Serialize, Deserialize, Debug, Clone, Queryable, Insertable, AsChangeset, Default)]
 #[diesel(table_name = crate::schema::auths)]
 pub struct AuthModel {
     pub id: Uuid,
@@ -14,7 +14,7 @@ pub struct AuthModel {
     pub updated_at: chrono::NaiveDateTime,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Insertable)]
+#[derive(Serialize, Deserialize, Debug, Clone, Insertable, Default)]
 #[diesel(table_name = crate::schema::auths)]
 pub struct CreateAuthModel {
     pub id: Uuid,
