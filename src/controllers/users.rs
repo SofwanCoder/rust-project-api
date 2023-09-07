@@ -29,10 +29,8 @@ pub async fn create(
 }
 
 pub async fn fetch(req: HttpRequest) -> Result<impl Responder, AppError> {
-    let extensions = req.extensions();
-
-    let authenticated_user = extensions
-        .deref()
+    let authenticated_user = req
+        .extensions()
         .get::<crate::types::auths::AuthenticatedData>()
         .unwrap()
         .clone();
@@ -45,7 +43,7 @@ pub async fn fetch(req: HttpRequest) -> Result<impl Responder, AppError> {
     let result = web::block(move || {
         futures::executor::block_on(crate::services::users::fetch(
             &db,
-            authenticated_user.user_id.clone(),
+            authenticated_user.user_id,
         ))
     })
     .await

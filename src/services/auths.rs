@@ -29,7 +29,7 @@ pub async fn logout(
         return Err(AppError::unauthorized("Invalid session".to_string()));
     }
 
-    let auth_session = auth_session.unwrap();
+    AuthRepository::delete_auth_by_id(&mut db.get_connection(), auth_data.session_id);
 
     Ok(())
 }
