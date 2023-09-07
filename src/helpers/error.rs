@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use crate::helpers::response::AppResponse;
 use actix_web::http::StatusCode;
 use actix_web::{HttpResponse, ResponseError};

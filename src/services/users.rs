@@ -1,12 +1,12 @@
 use crate::contracts::user::CreateUserPayload;
 use crate::database::ApplicationDatabase;
-use crate::helpers;
 use crate::helpers::error::AppError;
 use crate::models::user::{CreateUserModel, UserModel};
 use crate::repositories::user::UserRepository;
 use crate::types::auths::{AuthToken, AuthenticatedData};
 use crate::types::user::UserWithAuthInfo;
 use crate::utilities::rand::generate_uuid;
+use crate::{helpers, utilities};
 use uuid::Uuid;
 
 pub async fn register(
@@ -24,7 +24,7 @@ pub async fn register(
         },
     );
 
-    let auth_token = helpers::jwt::encode(AuthenticatedData {
+    let auth_token = utilities::jwt::encode(AuthenticatedData {
         user_id: user.id,
         clearance_level: 1,
         ..AuthenticatedData::default()

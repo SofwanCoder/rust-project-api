@@ -76,7 +76,7 @@ where
 
             let authorization_token = authorization_value_split[1];
 
-            let decoded_jwt = crate::helpers::jwt::decode::<crate::types::auths::AuthenticatedData>(
+            let decoded_jwt = crate::utilities::jwt::decode::<crate::types::auths::AuthenticatedData>(
                 authorization_token,
             );
 

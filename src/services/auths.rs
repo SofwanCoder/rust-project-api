@@ -5,7 +5,7 @@ use crate::helpers::error::AppError;
 use crate::models::auth::CreateAuthModel;
 use crate::repositories::auth::AuthRepository;
 use crate::repositories::user::UserRepository;
-use crate::types::auths::{AuthToken, AuthenticatedData, RefreshTokenData};
+use crate::types::auths::AuthToken;
 use crate::utilities::rand::generate_uuid;
 
 pub async fn login(
@@ -56,22 +56,9 @@ pub async fn login_with_password(
         },
     );
 
-    let access_token = helpers::jwt::encode(AuthenticatedData::from(&user)).map_err(|err| {
-        log::error!("Error: {:?}", err);
-        AppError::new(
-            "Error requesting access token".to_string(),
-            helpers::error::AppErrorKind::InternalError,
-        )
-    })?;
+    let access_token = helpers::token::generate_user_access_token(&user)?;
 
-    let refresh_token =
-        helpers::jwt::encode(RefreshTokenData::from(&auth_session)).map_err(|err| {
-            log::error!("Error: {:?}", err);
-            AppError::new(
-                "Unable to create login session".to_string(),
-                helpers::error::AppErrorKind::InternalError,
-            )
-        })?;
+    let refresh_token = helpers::token::generate_token_data_for_session(&auth_session)?;
 
     Ok(AuthToken::new(access_token.clone(), refresh_token.clone()))
 }
@@ -82,17 +69,7 @@ pub async fn login_with_refresh_token(
 ) -> Result<AuthToken, AppError> {
     let refresh_token = body.refresh_token.unwrap();
 
-    let decoded_token = helpers::jwt::decode::<RefreshTokenData>(&refresh_token).map_err(|e| {
-        let error_kind = e.kind();
-        let message = match error_kind {
-            jsonwebtoken::errors::ErrorKind::ExpiredSignature => "Refresh token expired",
-            _ => "Invalid refresh token",
-        };
-        AppError::new(
-            message.to_string(),
-            helpers::error::AppErrorKind::AuthorizationError,
-        )
-    })?;
+    let decoded_token = helpers::token::decode_token_data_for_session(&refresh_token)?;
 
     let connection = &mut db.get_connection();
 
@@ -119,12 +96,7 @@ pub async fn login_with_refresh_token(
 
     let user = user.unwrap();
 
-    let access_token = helpers::jwt::encode(AuthenticatedData::from(&user)).map_err(|_| {
-        AppError::new(
-            "Error requesting access token".to_string(),
-            helpers::error::AppErrorKind::InternalError,
-        )
-    })?;
+    let access_token = helpers::token::generate_user_access_token(&user)?;
 
     Ok(AuthToken::new(access_token, refresh_token))
 }

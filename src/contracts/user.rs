@@ -1,6 +1,6 @@
+use crate::helpers::validation::email::unique_email_validator;
 use crate::types::auths::AuthToken;
 use crate::types::user::UserWithAuthInfo;
-use crate::utilities::validation::email::unique_email_validator;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 

@@ -1,6 +1,6 @@
-use crate::utilities::validation::auths::validate_grant_type;
+use crate::helpers::validation::auths::validate_grant_type;
 use serde::{Deserialize, Serialize};
-use validator::{Validate};
+use validator::Validate;
 
 #[derive(Debug, Serialize, Deserialize, Validate, Clone)]
 pub struct CreateTokenPayload {
