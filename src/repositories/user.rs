@@ -1,4 +1,4 @@
-use crate::database::{DBConnection, PooledDatabaseConnection};
+use crate::database::DBConnection;
 use crate::models;
 use crate::models::user::{CreateUserModel, UserModel};
 use crate::repositories::Repository;
