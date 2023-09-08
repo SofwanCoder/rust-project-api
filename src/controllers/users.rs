@@ -4,7 +4,6 @@ use crate::helpers::response;
 use crate::utilities::error::map_blocking_err_to_app_err;
 use crate::utilities::error::map_validation_err_to_app_err;
 use actix_web::{web, HttpMessage, HttpRequest, Responder, Result};
-use redis::AsyncCommands;
 use validator::ValidateArgs;
 
 pub async fn create(

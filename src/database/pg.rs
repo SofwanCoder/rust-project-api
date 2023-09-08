@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use diesel::r2d2::{ConnectionManager, PooledConnection};
 use diesel::{r2d2, PgConnection};
 

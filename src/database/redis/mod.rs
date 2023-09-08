@@ -1,5 +1,5 @@
+#![allow(dead_code)]
 mod manager;
-
 use crate::helpers::error::AppError;
 use manager::RedisConnectionManager;
 use mobc::Pool;
@@ -8,8 +8,8 @@ use redis;
 const CACHE_POOL_MAX_OPEN: u64 = 16;
 const CACHE_POOL_MAX_IDLE: u64 = 8;
 
-pub type RedisPool = Pool<RedisConnectionManager>;
 pub type RedisConnection = mobc::Connection<RedisConnectionManager>;
+pub type RedisPool = Pool<RedisConnectionManager>;
 
 #[derive(Clone)]
 pub struct ApplicationRedisDatabase {
