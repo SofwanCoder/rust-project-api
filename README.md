@@ -15,11 +15,13 @@ The PROJECT API is the API of [PROJECT API](https://example.com)
 
 ## Database
 
-- [Mysql](https://www.mysql.org/)
+- [MongoDB](https://www.mongodb.com/)
+- [PostgreSQL](https://www.postgresql.org/)
+- [Redis](https://redis.io/)
 
 ---
 
-## Install NodeJS
+## Install Rust
 
 To Install Rust, go to [RustLang](https://www.rust-lang.org/) and follow the necessary instructions required depending on
 your PC Operating System
@@ -37,18 +39,13 @@ your PC Operating System
 Copy the `.env.sample` file and rename it to `.env` and update the values accordingly
 
 ---
-## To install Mysql
-
-Go to [https://www.mysql.org](https://www.mysql.org/)
----
 ## Setup Database
 To set up your database for the project, after creation kindly open the .env file and update as necessary
 
 ```markdown
-DATABASE_NAME=
-DATABASE_HOST=
-DATABASE_USERNAME=
-DATABASE_PASSWORD=
+POSTGRES_URI=
+REDIS_URI=
+MONGO_URI=
 ```
 ---
 ## Development
@@ -76,22 +73,26 @@ cargo build
   - ```markdown
     cargo watch -c -w src -x run
     ```
-
-- To build your app for production
-
-  - ```markdown
-    cargo build --release
-    ```
-
-- To run your app server for production
-
-  - ```markdown
-    cargo run --release
-    ```
-
 - To run test cases
   - ```markdown
     cargo test
+    ```
+
+- To build your app (for production append `--release` to the command)
+
+  - ```markdown
+    cargo build
+    ```
+
+- To run your app server (for production append `--release` to the command)
+
+  - ```markdown
+    cargo run
+    ```
+
+- To validate without building
+  - ```markdown
+    cargo check
     ```
 
 
