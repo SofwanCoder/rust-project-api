@@ -15,11 +15,15 @@ impl Variables {
         return std::env::var("JWT_SECRET_KEY").unwrap_or("random_secret_key".to_string());
     }
 
-    pub fn postgres_url() -> String {
-        return std::env::var("POSTGRES_URL").unwrap_or("unknown_will_throw".to_string());
+    pub fn postgres_uri() -> String {
+        return std::env::var("POSTGRES_URI").unwrap_or("unknown_will_throw".to_string());
     }
 
-    pub fn redis_url() -> String {
-        return std::env::var("REDIS_URL").unwrap_or("unknown_will_throw".to_string());
+    pub fn redis_uri() -> String {
+        return std::env::var("REDIS_URI").unwrap_or("unknown_will_throw".to_string());
+    }
+
+    pub fn mongo_uri() -> String {
+        return std::env::var("MONGO_URI").unwrap_or("unknown_will_throw".to_string());
     }
 }

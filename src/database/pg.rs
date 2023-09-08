@@ -18,7 +18,7 @@ impl ApplicationPgDatabase {
 
 impl Default for ApplicationPgDatabase {
     fn default() -> Self {
-        let database_url = crate::configs::settings::Variables::postgres_url();
+        let database_url = crate::configs::settings::Variables::postgres_uri();
         let manager = ConnectionManager::<PgConnection>::new(database_url);
         let connection_pool: DBPool = r2d2::Pool::builder()
             .build(manager)

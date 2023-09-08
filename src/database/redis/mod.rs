@@ -28,7 +28,7 @@ impl ApplicationRedisDatabase {
 
 impl Default for ApplicationRedisDatabase {
     fn default() -> Self {
-        let database_url = crate::configs::settings::Variables::redis_url();
+        let database_url = crate::configs::settings::Variables::redis_uri();
 
         let client = redis::Client::open(database_url).unwrap();
 
