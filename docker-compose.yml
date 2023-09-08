@@ -40,8 +40,21 @@ services:
     env_file:
       - .env
 
+  mongo_project_db:
+    image: mongo:7
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: u-wg04z
+      MONGO_INITDB_ROOT_PASSWORD: wg04zC
+    volumes:
+      - mongo_project_db_data:/data/db
+    ports:
+      - "27017:27017"
+    env_file:
+      - .env
+
 
 volumes:
   postgres_project_db_data:
   mysql_project_db_data:
   redis_project_db_data:
+  mongo_project_db_data:

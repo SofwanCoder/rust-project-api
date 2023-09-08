@@ -1,5 +1,6 @@
 use crate::pg::PooledDatabaseConnection;
 
+pub mod mongo;
 pub mod pg;
 pub mod redis;
 
