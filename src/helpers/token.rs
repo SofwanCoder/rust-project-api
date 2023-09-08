@@ -16,12 +16,12 @@ pub fn generate_user_session_access_token(
         iat: chrono::Utc::now().timestamp() as usize,
         exp: expires_in_24_hours.timestamp() as usize,
     })
-    .map_err(|_| AppError::internal_server("Error requesting access token".to_string()))
+    .map_err(|_| AppError::internal_server("Error requesting access token"))
 }
 
 pub fn generate_user_session_refresh_token(auth_session: &AuthModel) -> Result<String, AppError> {
     utilities::jwt::encode(RefreshTokenData::from(auth_session))
-        .map_err(|_| AppError::internal_server("Error requesting refresh token".to_string()))
+        .map_err(|_| AppError::internal_server("Error requesting refresh token"))
 }
 
 pub fn decode_token_data_for_session(token: &String) -> Result<RefreshTokenData, AppError> {
@@ -31,7 +31,7 @@ pub fn decode_token_data_for_session(token: &String) -> Result<RefreshTokenData,
             jsonwebtoken::errors::ErrorKind::ExpiredSignature => "Refresh token expired",
             _ => "Invalid refresh token",
         };
-        AppError::unauthorized(message.to_string())
+        AppError::unauthorized(message)
     })
 }
 

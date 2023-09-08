@@ -26,5 +26,8 @@ chrono = { version = "0.4", features = ["serde"] }
 futures-util = "0.3.28"
 diesel = { version = "2", features = ["postgres", "extras"] }
 uuid = { version = "1", features = ["serde", "v4"] }
+redis = { version = "0.23", features = ["json", "async-std-comp"] }
+mobc = { version = "0.8", features = [] }
+mobc-redis = "0.8.0"
 
 

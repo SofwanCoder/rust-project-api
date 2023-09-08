@@ -11,7 +11,7 @@ pub fn hash(password: String) -> Result<String, AppError> {
 
     if hash.is_err() {
         return Err(AppError::new(
-            "Internal error when encrypting password".to_string(),
+            "Internal error when encrypting password",
             helpers::error::AppErrorKind::InternalError,
         ));
     }
@@ -26,18 +26,12 @@ pub fn verify(hash: String, password: String) -> Result<(), AppError> {
             "InternalError::Existing password is an invalid hash: {:?}",
             parsed_hash.err()
         );
-        return Err(AppError::new(
-            "Existing password is invalid!".to_string(),
-            helpers::error::AppErrorKind::InternalError,
-        ));
+        return Err(AppError::internal_server("Existing password is invalid!"));
     }
 
     let result = Argon2::default().verify_password(password.as_bytes(), &parsed_hash.unwrap());
     if result.is_err() {
-        return Err(AppError::new(
-            "Password does not match".to_string(),
-            crate::helpers::error::AppErrorKind::BadClientError,
-        ));
+        return Err(AppError::client_error("Password does not match"));
     }
 
     return Ok(());

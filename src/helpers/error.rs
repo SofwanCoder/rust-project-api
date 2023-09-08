@@ -5,6 +5,7 @@ use actix_web::{HttpResponse, ResponseError};
 use derive_more::Display;
 use serde::Serialize;
 use std::collections::HashMap;
+use std::fmt::Display;
 
 #[derive(Display, Debug, Serialize)]
 pub enum AppErrorKind {
@@ -30,52 +31,68 @@ pub struct AppError {
 }
 
 impl AppError {
-    pub fn new(message: String, kind: AppErrorKind) -> AppError {
+    pub fn new<T: Display>(message: T, kind: AppErrorKind) -> AppError {
         AppError {
-            message,
+            message: message.to_string(),
             kind,
             data: None,
         }
     }
-    pub fn validation_error(
-        message: String,
+    pub fn validation_error<T: Display>(
+        message: T,
         data: Option<HashMap<&'static str, String>>,
     ) -> AppError {
         AppError {
-            message,
+            message: message.to_string(),
             kind: AppErrorKind::ValidationError,
             data,
         }
     }
 
-    pub fn database_error(message: String) -> AppError {
+    pub fn database_error<T: Display>(message: T) -> AppError {
         AppError {
-            message,
+            message: message.to_string(),
             kind: AppErrorKind::DatabaseError,
             data: None,
         }
     }
 
-    pub fn internal_server(message: String) -> AppError {
+    pub fn internal_server<T: Display>(message: T) -> AppError {
         AppError {
-            message,
+            message: message.to_string(),
             kind: AppErrorKind::InternalError,
             data: None,
         }
     }
 
-    pub fn unauthorized(message: String) -> AppError {
+    pub fn unauthorized<T: Display>(message: T) -> AppError {
         AppError {
-            message,
-            kind: AppErrorKind::InternalError,
+            message: message.to_string(),
+            kind: AppErrorKind::AuthorizationError,
             data: None,
         }
     }
 
-    pub fn forbidden(message: String) -> AppError {
+    pub fn forbidden<T: Display>(message: T) -> AppError {
         AppError {
-            message,
+            message: message.to_string(),
             kind: AppErrorKind::AuthDenied,
+            data: None,
+        }
+    }
+
+    pub fn client_error<T: Display>(message: T) -> AppError {
+        AppError {
+            message: message.to_string(),
+            kind: AppErrorKind::BadClientError,
+            data: None,
+        }
+    }
+
+    pub fn not_found<T: Display>(message: T) -> AppError {
+        AppError {
+            message: message.to_string(),
+            kind: AppErrorKind::BadClientError,
             data: None,
         }
     }

@@ -38,10 +38,10 @@ pub async fn fetch(db: &ApplicationPgDatabase, user_id: Uuid) -> Result<UserMode
     let user = UserRepository::find_user_by_id(connection, user_id);
 
     if user.is_none() {
-        return Err(AppError::new(
-            format!("User not found for {}", user_id.clone()),
-            crate::helpers::error::AppErrorKind::DatabaseError,
-        ));
+        return Err(AppError::not_found(format!(
+            "User not found for {}",
+            user_id.clone()
+        )));
     }
 
     Ok(user.unwrap())

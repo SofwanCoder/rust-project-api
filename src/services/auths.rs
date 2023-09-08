@@ -26,7 +26,7 @@ pub async fn logout(
         AuthRepository::find_auth_by_id(&mut db.get_connection(), auth_data.session_id);
 
     if auth_session.is_none() {
-        return Err(AppError::unauthorized("Invalid session".to_string()));
+        return Err(AppError::unauthorized("Invalid session"));
     }
 
     AuthRepository::delete_auth_by_id(&mut db.get_connection(), auth_data.session_id);
@@ -43,10 +43,7 @@ pub async fn login_with_password(
     let user = UserRepository::find_by_email(connection, body.email.unwrap());
 
     if user.is_none() {
-        return Err(AppError::new(
-            "Invalid Account or password".to_string(),
-            helpers::error::AppErrorKind::AuthorizationError,
-        ));
+        return Err(AppError::unauthorized("Invalid Account or password"));
     }
 
     let user = user.unwrap();
@@ -54,10 +51,7 @@ pub async fn login_with_password(
     let verify_result = helpers::password::verify(user.password.clone(), body.password.unwrap());
 
     if verify_result.is_err() {
-        return Err(AppError::new(
-            "Invalid account or Password".to_string(),
-            helpers::error::AppErrorKind::AuthorizationError,
-        ));
+        return Err(AppError::unauthorized("Invalid account or Password"));
     }
 
     let auth_session = AuthRepository::create_auth(connection, CreateAuthModel::from(&user));
@@ -82,21 +76,19 @@ pub async fn login_with_refresh_token(
     let auth_session = AuthRepository::find_auth_by_id(connection, decoded_token.token_id);
 
     if auth_session.is_none() {
-        return Err(AppError::unauthorized("Refresh token invalid".to_string()));
+        return Err(AppError::unauthorized("Refresh token invalid"));
     }
 
     let auth_session = auth_session.unwrap();
 
     if auth_session.expires_at.lt(&chrono::Utc::now().naive_utc()) {
-        return Err(AppError::unauthorized("Refresh token expired".to_string()));
+        return Err(AppError::unauthorized("Refresh token expired"));
     }
 
     let user = UserRepository::find_user_by_id(connection, decoded_token.user_id);
 
     if user.is_none() {
-        return Err(AppError::unauthorized(
-            "Referenced user does not exist".to_string(),
-        ));
+        return Err(AppError::unauthorized("Referenced user does not exist"));
     }
 
     let user = user.unwrap();
