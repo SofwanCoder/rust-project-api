@@ -1,5 +1,5 @@
 use crate::contracts::auth::CreateTokenPayload;
-use crate::database::pg::ApplicationPgDatabase;
+use crate::database::ApplicationDatabase;
 use crate::helpers;
 use crate::helpers::error::AppError;
 use crate::models::auth::CreateAuthModel;
@@ -8,7 +8,7 @@ use crate::repositories::user::UserRepository;
 use crate::types::auths::{AuthToken, AuthenticatedData};
 
 pub async fn login(
-    db: &ApplicationPgDatabase,
+    db: &ApplicationDatabase,
     body: CreateTokenPayload,
 ) -> Result<AuthToken, AppError> {
     match body.grant_type.as_str() {
@@ -19,26 +19,26 @@ pub async fn login(
 }
 
 pub async fn logout(
-    db: &ApplicationPgDatabase,
+    db: &ApplicationDatabase,
     auth_data: AuthenticatedData,
 ) -> Result<(), AppError> {
     let auth_session =
-        AuthRepository::find_auth_by_id(&mut db.get_connection(), auth_data.session_id);
+        AuthRepository::find_auth_by_id(&mut db.pg.get_connection(), auth_data.session_id);
 
     if auth_session.is_none() {
         return Err(AppError::unauthorized("Invalid session"));
     }
 
-    AuthRepository::delete_auth_by_id(&mut db.get_connection(), auth_data.session_id);
+    AuthRepository::delete_auth_by_id(&mut db.pg.get_connection(), auth_data.session_id);
 
     Ok(())
 }
 
 pub async fn login_with_password(
-    db: &ApplicationPgDatabase,
+    db: &ApplicationDatabase,
     body: CreateTokenPayload,
 ) -> Result<AuthToken, AppError> {
-    let connection = &mut db.get_connection();
+    let connection = &mut db.pg.get_connection();
 
     let user = UserRepository::find_by_email(connection, body.email.unwrap());
 
@@ -64,14 +64,14 @@ pub async fn login_with_password(
 }
 
 pub async fn login_with_refresh_token(
-    db: &ApplicationPgDatabase,
+    db: &ApplicationDatabase,
     body: CreateTokenPayload,
 ) -> Result<AuthToken, AppError> {
     let refresh_token = body.refresh_token.unwrap();
 
     let decoded_token = helpers::token::decode_token_data_for_session(&refresh_token)?;
 
-    let connection = &mut db.get_connection();
+    let connection = &mut db.pg.get_connection();
 
     let auth_session = AuthRepository::find_auth_by_id(connection, decoded_token.token_id);
 

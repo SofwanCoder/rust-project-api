@@ -3,9 +3,9 @@ use crate::repositories::user::UserRepository;
 
 pub fn unique_email_validator(
     email: &str,
-    db: &crate::database::pg::ApplicationPgDatabase,
+    db: &crate::database::ApplicationDatabase,
 ) -> Result<(), validator::ValidationError> {
-    let connection = &mut db.get_connection();
+    let connection = &mut db.pg.get_connection();
     let user = UserRepository::find_by_email(connection, email.to_string());
 
     if user.is_some() {

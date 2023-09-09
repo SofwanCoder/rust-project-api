@@ -14,7 +14,7 @@ pub struct CreateUserPayload {
         email(message = "Email format is invalid"),
         custom(
             function = "unique_email_validator",
-            arg = "&'v_a crate::database::pg::ApplicationPgDatabase",
+            arg = "&'v_a crate::database::ApplicationDatabase",
         )
     )]
     pub email: String,
