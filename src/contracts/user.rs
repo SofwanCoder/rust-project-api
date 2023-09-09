@@ -56,7 +56,4 @@ pub struct UpdateUserPayload {
         )
     )]
     pub email: Option<String>,
-    #[serde(default)]
-    #[validate(length(min = 6, message = "Password must be greater than 6 chars"))]
-    pub password: Option<String>,
 }

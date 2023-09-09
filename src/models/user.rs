@@ -48,14 +48,7 @@ impl From<UpdateUserPayload> for UpdateUserModel {
         UpdateUserModel {
             name: payload.name,
             email: payload.email,
-            password: if payload.password.is_some() {
-                Some(
-                    crate::helpers::password::hash(payload.password.unwrap())
-                        .unwrap_or("".to_string()),
-                )
-            } else {
-                None
-            },
+            password: None,
         }
     }
 }
