@@ -17,6 +17,10 @@ impl AuthenticatedData {
         self.clearance_level >= level
     }
 
+    pub fn is_admin(&self) -> bool {
+        self.clearance_level >= 5
+    }
+
     pub fn is_authenticated(&self) -> bool {
         !self.user_id.is_nil()
     }

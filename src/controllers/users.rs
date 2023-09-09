@@ -3,7 +3,8 @@ use crate::helpers::error::AppError;
 use crate::helpers::response;
 use crate::utilities::error::map_blocking_err_to_app_err;
 use crate::utilities::error::map_validation_err_to_app_err;
-use actix_web::{web, HttpMessage, HttpRequest, Responder, Result};
+use actix_web::{web, HttpRequest, Responder, Result};
+use uuid::Uuid;
 use validator::ValidateArgs;
 
 pub async fn create(
@@ -27,23 +28,19 @@ pub async fn create(
     result.map(response::ok)
 }
 
-pub async fn fetch(req: HttpRequest) -> Result<impl Responder, AppError> {
-    let authenticated_user = req
-        .extensions()
-        .get::<crate::types::auths::AuthenticatedData>()
-        .unwrap()
-        .clone();
-
+pub async fn fetch_user(
+    req: HttpRequest,
+    user_id: web::Path<Uuid>,
+) -> Result<impl Responder, AppError> {
     let db = req
         .app_data::<crate::database::ApplicationDatabase>()
         .unwrap()
         .clone();
 
+    let user_id = user_id.into_inner();
+
     let result = web::block(move || {
-        futures::executor::block_on(crate::services::users::fetch(
-            &db,
-            authenticated_user.user_id,
-        ))
+        futures::executor::block_on(crate::services::users::fetch_user(&db, user_id))
     })
     .await
     .map_err(map_blocking_err_to_app_err)?;

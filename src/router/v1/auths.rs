@@ -1,3 +1,4 @@
+use crate::middlewares::permit::Authenticated;
 use actix_web::{web, Scope};
 
 const SCOPE: &str = "auths";
@@ -11,6 +12,6 @@ pub fn get_routes() -> Scope {
             "tokens/this",
             web::delete()
                 .to(crate::controllers::auths::delete_token)
-                .wrap(crate::middlewares::permit::Permission::allow(1)),
+                .wrap(crate::middlewares::permit::Permission::<Authenticated>::allow(1)),
         )
 }

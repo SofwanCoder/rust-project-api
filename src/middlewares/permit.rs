@@ -9,27 +9,57 @@ use actix_web::{
 use futures_util::future::{Either, LocalBoxFuture};
 use std::future::{ready, Ready};
 
-pub struct Clearance;
+pub struct Authenticated; // Only the resource owner can access
+pub struct Administrator; // Only the admin can access
 
-pub struct Permission<T = Clearance> {
-    pub level: u8,
+#[derive(Debug, Clone)]
+enum PermissionKind {
+    Authenticated,
+    Administrator,
+}
+
+pub struct Permission<T = Authenticated> {
+    level: u8,
+    kind: PermissionKind,
     _marker: std::marker::PhantomData<T>,
+}
+
+impl Permission {
+    pub fn allow(level: u8) -> Self {
+        Permission::<Authenticated> {
+            level,
+            kind: PermissionKind::Authenticated,
+            ..Default::default()
+        }
+    }
+}
+
+impl Permission<Administrator> {
+    pub fn allow(level: u8) -> Self {
+        Permission::<Administrator> {
+            level,
+            kind: PermissionKind::Administrator,
+            ..Default::default()
+        }
+    }
 }
 
 impl Default for Permission {
     fn default() -> Self {
         Permission {
-            level: 0,
+            level: 1,
+            kind: PermissionKind::Authenticated, // Only the resource owner can access
             _marker: std::marker::PhantomData,
         }
     }
 }
 
-impl Permission<Clearance> {
-    pub fn allow(level: u8) -> Self {
+impl Default for Permission<Administrator> {
+    fn default() -> Self {
         Permission {
-            level,
-            ..Default::default()
+            level: 1,
+            kind: PermissionKind::Administrator, // Only the admin can access
+            _marker: std::marker::PhantomData,
         }
     }
 }
@@ -47,6 +77,7 @@ where
     fn new_transform(&self, service: S) -> Self::Future {
         ready(Ok(PermissionMiddleware {
             service,
+            kind: self.kind.clone(),
             level: self.level,
         }))
     }
@@ -54,6 +85,7 @@ where
 pub struct PermissionMiddleware<S> {
     service: S,
     level: u8,
+    kind: PermissionKind,
 }
 impl<S> Service<ServiceRequest> for PermissionMiddleware<S>
 where
@@ -87,7 +119,30 @@ where
             });
         }
 
-        let either = if authenticated_user.is_cleared(self.level) {
+        // check if the user_id in the url path is the same as the authenticated user
+        let is_cross_access_request = {
+            let request_user_id = req.match_info().get("user_id");
+            match request_user_id {
+                None => false,
+                Some(requested_user_id) => {
+                    let authenticated_user_id = authenticated_user.user_id.to_string();
+                    requested_user_id != authenticated_user_id
+                }
+            }
+        };
+
+        let is_permitted = {
+            if is_cross_access_request {
+                match self.kind {
+                    PermissionKind::Authenticated => false,
+                    PermissionKind::Administrator => authenticated_user.is_admin(),
+                }
+            } else {
+                authenticated_user.is_cleared(self.level)
+            }
+        };
+
+        let either = if is_permitted {
             Either::Right(self.service.call(req))
         } else {
             let forbidden_response = response::app_http_response(
