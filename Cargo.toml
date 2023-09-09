@@ -30,5 +30,7 @@ redis = { version = "0.23", features = ["json", "tokio-comp"] }
 mobc = { version = "0.8", features = [] }
 mobc-redis = "0.8.0"
 mongodb = { version = "2.6", features = ["bson-chrono-0_4", "bson-uuid-1", "bson-serde_with"] }
+actix = "0.13.1"
+actix-web-actors = "4.2.0"
 
 
