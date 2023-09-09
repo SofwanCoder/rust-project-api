@@ -40,4 +40,16 @@ impl UserRepository {
             .map_err(map_diesel_err_to_app_err)
             .expect("Database error")
     }
+
+    pub fn update_user(
+        connection: DBConnection,
+        user_id: Uuid,
+        data: models::user::UpdateUserModel,
+    ) -> models::user::UserModel {
+        diesel::update(users.find(user_id))
+            .set(&data)
+            .get_result::<models::user::UserModel>(connection)
+            .map_err(map_diesel_err_to_app_err)
+            .expect("Database error")
+    }
 }

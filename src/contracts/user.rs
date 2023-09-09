@@ -41,3 +41,22 @@ impl From<&UserWithAuthInfo> for CreateUserResponse {
         }
     }
 }
+
+#[derive(Debug, Serialize, Deserialize, Validate, Clone)]
+pub struct UpdateUserPayload {
+    #[serde(default)]
+    #[validate(length(min = 3, message = "Name must be greater than 3 chars"))]
+    pub name: Option<String>,
+    #[serde(default)]
+    #[validate(
+        email(message = "Email format is invalid"),
+        custom(
+            function = "unique_email_validator",
+            arg = "&'v_a crate::database::ApplicationDatabase",
+        )
+    )]
+    pub email: Option<String>,
+    #[serde(default)]
+    #[validate(length(min = 6, message = "Password must be greater than 6 chars"))]
+    pub password: Option<String>,
+}
