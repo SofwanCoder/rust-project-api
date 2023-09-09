@@ -1,4 +1,3 @@
-use crate::contracts::user::{CreateUserPayload, UpdateUserPayload};
 use crate::database::ApplicationDatabase;
 use crate::helpers;
 use crate::helpers::error::AppError;
@@ -7,7 +6,6 @@ use crate::models::user::{CreateUserModel, UpdateUserModel, UserModel};
 use crate::repositories::auth::AuthRepository;
 use crate::repositories::user::UserRepository;
 use crate::types::auths::AuthToken;
-use crate::utilities::rand::generate_uuid;
 use uuid::Uuid;
 
 pub async fn register(
