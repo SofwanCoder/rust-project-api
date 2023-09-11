@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use crate::helpers::response;
 use crate::helpers::response::AppResponse;
 use crate::types::auths::AuthenticatedData;

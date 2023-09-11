@@ -1,6 +1,4 @@
 use crate::helpers::validation::email::unique_email_validator;
-use crate::types::auths::AuthToken;
-use crate::types::user::UserWithAuthInfo;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
@@ -23,25 +21,6 @@ pub struct CreateUserPayload {
     pub password: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct CreateUserResponse {
-    pub id: uuid::Uuid,
-    pub name: String,
-    pub email: String,
-    pub authentication: AuthToken,
-}
-
-impl From<&UserWithAuthInfo> for CreateUserResponse {
-    fn from(u: &UserWithAuthInfo) -> Self {
-        CreateUserResponse {
-            id: u.user.id,
-            name: u.user.name.clone(),
-            email: u.user.email.clone(),
-            authentication: u.authentication.clone(),
-        }
-    }
-}
-
 #[derive(Debug, Serialize, Deserialize, Validate, Clone)]
 pub struct UpdateUserPayload {
     #[serde(default)]
@@ -56,4 +35,14 @@ pub struct UpdateUserPayload {
         )
     )]
     pub email: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Validate, Clone)]
+pub struct UpdatePasswordPayload {
+    #[serde(default)]
+    #[validate(length(min = 3, message = "Password must be greater than 3 chars"))]
+    pub current_password: String,
+    #[serde(default)]
+    #[validate(length(min = 3, message = "New password must be greater than 3 chars"))]
+    pub new_password: String,
 }

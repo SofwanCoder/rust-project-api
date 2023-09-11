@@ -48,11 +48,8 @@ pub async fn login_with_password(
 
     let user = user.unwrap();
 
-    let verify_result = helpers::password::verify(user.password.clone(), body.password.unwrap());
-
-    if verify_result.is_err() {
-        return Err(AppError::unauthorized("Invalid account or Password"));
-    }
+    helpers::password::verify(user.password.clone(), body.password.unwrap())
+        .map_err(|_| AppError::unauthorized("Invalid account or Password"))?;
 
     let auth_session = AuthRepository::create_auth(connection, CreateAuthModel::from(&user));
 

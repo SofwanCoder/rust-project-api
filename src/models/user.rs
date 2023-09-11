@@ -1,4 +1,4 @@
-use crate::contracts::user::{CreateUserPayload, UpdateUserPayload};
+use crate::contracts::user::{CreateUserPayload, UpdatePasswordPayload, UpdateUserPayload};
 use crate::utilities::rand::generate_uuid;
 use diesel::{AsChangeset, Identifiable, Insertable, Queryable};
 use serde::{Deserialize, Serialize};
@@ -12,6 +12,7 @@ pub struct UserModel {
     pub id: Uuid,
     pub name: String,
     pub email: String,
+    #[serde(skip_serializing)]
     pub password: String,
     pub created_at: chrono::NaiveDateTime,
     pub updated_at: chrono::NaiveDateTime,
@@ -49,6 +50,21 @@ impl From<UpdateUserPayload> for UpdateUserModel {
             name: payload.name,
             email: payload.email,
             password: None,
+        }
+    }
+}
+
+pub struct UpdatePasswordModel {
+    pub current_password: String,
+    pub new_password: String,
+}
+
+impl From<UpdatePasswordPayload> for UpdatePasswordModel {
+    fn from(payload: UpdatePasswordPayload) -> Self {
+        UpdatePasswordModel {
+            current_password: payload.current_password,
+            new_password: crate::helpers::password::hash(payload.new_password)
+                .unwrap_or("".to_string()),
         }
     }
 }

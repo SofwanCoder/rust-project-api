@@ -5,5 +5,7 @@ CREATE TABLE IF NOT EXISTS auths(
     expires_at    TIMESTAMP        NOT NULL,
     created_at    TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at    TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP
-)
+);
 
+
+CREATE TRIGGER update_last_updated_at BEFORE UPDATE ON auths FOR EACH ROW EXECUTE PROCEDURE diesel_set_updated_at();

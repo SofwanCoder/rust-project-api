@@ -12,6 +12,15 @@ pub struct UserRepository;
 impl Repository for UserRepository {}
 
 impl UserRepository {
+    pub fn find_users(connection: DBConnection) -> Vec<UserModel> {
+        users
+            .load::<models::user::UserModel>(connection)
+            .optional()
+            .map_err(map_diesel_err_to_app_err)
+            .expect("Database error")
+            .unwrap()
+    }
+
     pub fn find_user_by_id(connection: DBConnection, user_id: Uuid) -> Option<UserModel> {
         users
             .find(user_id)
