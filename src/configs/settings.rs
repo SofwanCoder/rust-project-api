@@ -26,4 +26,8 @@ impl Variables {
     pub fn mongo_uri() -> String {
         return std::env::var("MONGO_URI").unwrap_or("unknown_will_throw".to_string());
     }
+
+    pub fn smtp_uri() -> String {
+        return std::env::var("SMTP_URI").unwrap_or("unknown_will_throw".to_string());
+    }
 }

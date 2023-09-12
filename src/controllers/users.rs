@@ -10,17 +10,14 @@ pub async fn create_user(
     req: HttpRequest,
     body: web::Json<CreateUserPayload>,
 ) -> Result<impl Responder, AppError> {
-    let db = req
-        .app_data::<crate::database::ApplicationDatabase>()
-        .unwrap()
-        .clone();
+    let ctx = req.app_data::<crate::ApplicationContext>().unwrap().clone();
 
     let result = web::block(move || {
-        body.validate_args(&db)
+        body.validate_args(&ctx.db)
             .map_err(map_validation_err_to_app_err)?;
 
         futures::executor::block_on(crate::services::users::register(
-            &db,
+            &ctx,
             body.into_inner().into(),
         ))
     })
@@ -34,15 +31,12 @@ pub async fn fetch_user(
     req: HttpRequest,
     user_id: web::Path<Uuid>,
 ) -> Result<impl Responder, AppError> {
-    let db = req
-        .app_data::<crate::database::ApplicationDatabase>()
-        .unwrap()
-        .clone();
+    let ctx = req.app_data::<crate::ApplicationContext>().unwrap().clone();
 
     let user_id = user_id.into_inner();
 
     let result = web::block(move || {
-        futures::executor::block_on(crate::services::users::fetch_user(&db, user_id))
+        futures::executor::block_on(crate::services::users::fetch_user(&ctx.db, user_id))
     })
     .await
     .map_err(map_blocking_err_to_app_err)?;
@@ -51,15 +45,13 @@ pub async fn fetch_user(
 }
 
 pub async fn fetch_users(req: HttpRequest) -> Result<impl Responder, AppError> {
-    let db = req
-        .app_data::<crate::database::ApplicationDatabase>()
-        .unwrap()
-        .clone();
+    let ctx = req.app_data::<crate::ApplicationContext>().unwrap().clone();
 
-    let result =
-        web::block(move || futures::executor::block_on(crate::services::users::fetch_users(&db)))
-            .await
-            .map_err(map_blocking_err_to_app_err)?;
+    let result = web::block(move || {
+        futures::executor::block_on(crate::services::users::fetch_users(&ctx.db))
+    })
+    .await
+    .map_err(map_blocking_err_to_app_err)?;
 
     result.map(response::ok)
 }
@@ -69,18 +61,15 @@ pub async fn update_user(
     user_id: web::Path<Uuid>,
     body: web::Json<UpdateUserPayload>,
 ) -> Result<impl Responder, AppError> {
-    let db = req
-        .app_data::<crate::database::ApplicationDatabase>()
-        .unwrap()
-        .clone();
+    let ctx = req.app_data::<crate::ApplicationContext>().unwrap().clone();
     let user_id = user_id.into_inner();
 
     let result = web::block(move || {
-        body.validate_args(&db)
+        body.validate_args(&ctx.db)
             .map_err(map_validation_err_to_app_err)?;
 
         futures::executor::block_on(crate::services::users::update_user(
-            &db,
+            &ctx.db,
             user_id,
             body.into_inner().into(),
         ))
@@ -98,16 +87,13 @@ pub async fn update_password(
 ) -> Result<impl Responder, AppError> {
     body.validate().map_err(map_validation_err_to_app_err)?;
 
-    let db = req
-        .app_data::<crate::database::ApplicationDatabase>()
-        .unwrap()
-        .clone();
+    let ctx = req.app_data::<crate::ApplicationContext>().unwrap().clone();
 
     let user_id = user_id.into_inner();
 
     let result = web::block(move || {
         futures::executor::block_on(crate::services::users::update_password(
-            &db,
+            &ctx.db,
             user_id,
             body.into_inner().into(),
         ))

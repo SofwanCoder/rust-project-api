@@ -11,16 +11,13 @@ pub async fn create_token(
     req: HttpRequest,
     body: web::Json<CreateTokenPayload>,
 ) -> Result<impl Responder, AppError> {
-    let db = req
-        .app_data::<crate::database::ApplicationDatabase>()
-        .unwrap()
-        .clone();
+    let ctx = req.app_data::<crate::ApplicationContext>().unwrap().clone();
 
     body.validate_args(body.deref())
         .map_err(map_validation_err_to_app_err)?;
 
     let result = web::block(move || {
-        futures::executor::block_on(crate::services::auths::login(&db, body.into_inner()))
+        futures::executor::block_on(crate::services::auths::login(&ctx.db, body.into_inner()))
     })
     .await
     .map_err(map_blocking_err_to_app_err)?;
@@ -29,10 +26,7 @@ pub async fn create_token(
 }
 
 pub async fn delete_token(req: HttpRequest) -> Result<impl Responder, AppError> {
-    let db = req
-        .app_data::<crate::database::ApplicationDatabase>()
-        .unwrap()
-        .clone();
+    let ctx = req.app_data::<crate::ApplicationContext>().unwrap().clone();
 
     let authenticated_user = req
         .extensions()
@@ -41,7 +35,7 @@ pub async fn delete_token(req: HttpRequest) -> Result<impl Responder, AppError> 
         .clone();
 
     let result = web::block(move || {
-        futures::executor::block_on(crate::services::auths::logout(&db, authenticated_user))
+        futures::executor::block_on(crate::services::auths::logout(&ctx.db, authenticated_user))
     })
     .await
     .map_err(map_blocking_err_to_app_err)?;

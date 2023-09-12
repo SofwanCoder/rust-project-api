@@ -1,3 +1,3 @@
-pub mod auths;
-pub mod users;
-pub mod wsocket;
+pub(crate) mod auths;
+pub(crate) mod users;
+pub(crate) mod wsocket;

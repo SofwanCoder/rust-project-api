@@ -1,10 +1,10 @@
 use crate::pg::PooledDatabaseConnection;
 
-pub mod mongo;
-pub mod pg;
-pub mod redis;
+pub(crate) mod mongo;
+pub(crate) mod pg;
+pub(crate) mod redis;
 
-pub type DBConnection<'a> = &'a mut PooledDatabaseConnection;
+pub(crate) type DBConnection<'a> = &'a mut PooledDatabaseConnection;
 
 #[derive(Clone, Default)]
 pub struct ApplicationDatabase {

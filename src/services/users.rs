@@ -1,24 +1,37 @@
 use crate::database::ApplicationDatabase;
-use crate::helpers;
+use crate::emails::welcome_email::WelcomeEmail;
+use crate::emails::Email;
 use crate::helpers::error::AppError;
 use crate::models::auth::CreateAuthModel;
 use crate::models::user::{CreateUserModel, UpdatePasswordModel, UpdateUserModel, UserModel};
 use crate::repositories::auth::AuthRepository;
 use crate::repositories::user::UserRepository;
 use crate::types::auths::AuthToken;
+use crate::{helpers, ApplicationContext};
 use uuid::Uuid;
 
 pub async fn register(
-    db: &ApplicationDatabase,
+    ctx: &ApplicationContext,
     body: CreateUserModel,
 ) -> Result<AuthToken, AppError> {
-    let connection = &mut db.pg.get_connection();
+    let connection = &mut ctx.db.pg.get_connection();
     let user = UserRepository::create_user(connection, body);
 
     let auth_session = AuthRepository::create_auth(connection, CreateAuthModel::from(&user));
 
     let access_token = helpers::token::generate_user_session_access_token(&user, &auth_session)?;
     let refresh_token = helpers::token::generate_user_session_refresh_token(&auth_session)?;
+
+    let welcome_email = WelcomeEmail {
+        to: user.email,
+        name: user.name,
+    };
+
+    welcome_email
+        .send(ctx.email.smtp.sender.clone())
+        .await
+        .map(|_| println!("Welcome email sent"))
+        .map_err(|_| AppError::internal_server("Failed to send welcome email".to_string()))?;
 
     Ok(AuthToken::new(access_token, refresh_token))
 }

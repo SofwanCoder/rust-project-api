@@ -1,4 +1,3 @@
-pub mod auth;
-pub mod user;
-
-pub trait Repository {}
+pub(crate) mod auth;
+pub(crate) mod user;
+pub(crate) trait Repository {}

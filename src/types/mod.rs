@@ -1,2 +1,2 @@
-pub mod auths;
-pub mod user;
+pub(crate) mod auths;
+pub(crate) mod user;
