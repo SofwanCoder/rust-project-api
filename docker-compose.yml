@@ -52,9 +52,23 @@ services:
     env_file:
       - .env
 
+  rabbitmq_project_db:
+    image: rabbitmq:3
+    environment:
+      RABBITMQ_DEFAULT_USER: u-wg04z
+      RABBITMQ_DEFAULT_PASS: wg04zC
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_project_db_data:/var/lib/rabbitmq
+    env_file:
+      - .env
+
 
 volumes:
   postgres_project_db_data:
   mysql_project_db_data:
   redis_project_db_data:
   mongo_project_db_data:
+  rabbitmq_project_db_data:

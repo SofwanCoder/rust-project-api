@@ -36,5 +36,7 @@ handlebars = "4"
 lettre = { version = "0.10.4", features = ["tokio1", "tokio1-native-tls"] }
 async-trait = "0.1"
 url = "2.4"
+lapin = { version = "2.3", features = ["serde_json"] }
+async-global-executor = { version = "2.3", features = ["tokio"] }
 
 

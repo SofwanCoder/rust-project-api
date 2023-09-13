@@ -1,6 +1,4 @@
 use crate::database::ApplicationDatabase;
-use crate::emails::welcome_email::WelcomeEmail;
-use crate::emails::Email;
 use crate::helpers::error::AppError;
 use crate::models::auth::CreateAuthModel;
 use crate::models::user::{CreateUserModel, UpdatePasswordModel, UpdateUserModel, UserModel};
@@ -22,16 +20,11 @@ pub async fn register(
     let access_token = helpers::token::generate_user_session_access_token(&user, &auth_session)?;
     let refresh_token = helpers::token::generate_user_session_refresh_token(&auth_session)?;
 
-    let welcome_email = WelcomeEmail {
-        to: user.email,
-        name: user.name,
-    };
-
-    welcome_email
-        .send(ctx.email.smtp.sender.clone())
-        .await
-        .map(|_| println!("Welcome email sent"))
-        .map_err(|_| AppError::internal_server("Failed to send welcome email".to_string()))?;
+    crate::events::users::UserRegistered::publish(
+        ctx.db.ampq.get_connection().await?.into_inner(),
+        &user,
+    )
+    .await?;
 
     Ok(AuthToken::new(access_token, refresh_token))
 }

@@ -1,3 +1,4 @@
+use crate::events::AppEvents;
 use actix_web::http::StatusCode;
 use actix_web::middleware::{ErrorHandlers, Logger};
 use actix_web::{App, HttpServer};
@@ -9,6 +10,7 @@ mod contracts;
 mod controllers;
 mod database;
 mod emails;
+mod events;
 mod helpers;
 mod middlewares;
 mod models;
@@ -31,6 +33,9 @@ async fn main() -> std::io::Result<()> {
     env_logger::init();
 
     let app_context = ApplicationContext::default();
+    AppEvents::init(app_context.clone())
+        .await
+        .expect("Unable to initialize events");
 
     HttpServer::new(move || {
         App::new()
