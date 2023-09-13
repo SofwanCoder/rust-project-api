@@ -1,4 +1,5 @@
 use crate::database::ApplicationDatabase;
+use crate::events::AppEvent;
 use crate::helpers::error::AppError;
 use crate::models::auth::CreateAuthModel;
 use crate::models::user::{CreateUserModel, UpdatePasswordModel, UpdateUserModel, UserModel};
@@ -20,11 +21,9 @@ pub async fn register(
     let access_token = helpers::token::generate_user_session_access_token(&user, &auth_session)?;
     let refresh_token = helpers::token::generate_user_session_refresh_token(&auth_session)?;
 
-    crate::events::users::UserRegistered::publish(
-        ctx.db.ampq.get_connection().await?.into_inner(),
-        &user,
-    )
-    .await?;
+    crate::events::users::UserRegistered::new(user.id, user.name, user.email)
+        .publish(ctx.db.ampq.get_connection().await?.into_inner())
+        .await?;
 
     Ok(AuthToken::new(access_token, refresh_token))
 }
