@@ -1,3 +1,4 @@
+use log::debug;
 use mobc::{async_trait, Manager};
 use redis::aio::Connection;
 use redis::Client;
@@ -19,6 +20,7 @@ impl Manager for RedisConnectionManager {
     type Error = redis::RedisError;
 
     async fn connect(&self) -> Result<Self::Connection, Self::Error> {
+        debug!("Creating new redis connection");
         let c = self.client.get_async_connection().await?;
         Ok(c)
     }

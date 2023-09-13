@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 use diesel::r2d2::{ConnectionManager, PooledConnection};
 use diesel::{r2d2, PgConnection};
+use log::debug;
 
 type DBPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 pub type PooledDatabaseConnection = PooledConnection<ConnectionManager<PgConnection>>;
@@ -12,12 +13,14 @@ pub struct ApplicationPgDatabase {
 
 impl ApplicationPgDatabase {
     pub fn get_connection(&self) -> PooledDatabaseConnection {
+        debug!("Getting PG connection from pool");
         return self.connection_pool.get().unwrap();
     }
 }
 
 impl Default for ApplicationPgDatabase {
     fn default() -> Self {
+        debug!("Initializing PG database with default settings");
         let database_url = crate::configs::settings::Variables::postgres_uri();
         let manager = ConnectionManager::<PgConnection>::new(database_url);
         let connection_pool: DBPool = r2d2::Pool::builder()

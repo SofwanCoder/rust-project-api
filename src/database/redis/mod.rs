@@ -1,6 +1,8 @@
 #![allow(dead_code)]
 mod manager;
+
 use crate::helpers::error::AppError;
+use log::debug;
 use manager::RedisConnectionManager;
 use mobc::Pool;
 use redis;
@@ -18,6 +20,7 @@ pub struct ApplicationRedisDatabase {
 
 impl ApplicationRedisDatabase {
     pub async fn get_connection(&self) -> Result<RedisConnection, AppError> {
+        debug!("Getting redis connection");
         return self
             .connection_pool
             .get()
@@ -28,6 +31,7 @@ impl ApplicationRedisDatabase {
 
 impl Default for ApplicationRedisDatabase {
     fn default() -> Self {
+        debug!("Initializing redis database with default settings");
         let database_url = crate::configs::settings::Variables::redis_uri();
 
         let client = redis::Client::open(database_url).unwrap();
