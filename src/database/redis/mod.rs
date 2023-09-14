@@ -1,14 +1,12 @@
 #![allow(dead_code)]
 mod manager;
 
+use crate::configs::constant::{CONNECTION_POOL_MAX_IDLE, CONNECTION_POOL_MAX_OPEN};
 use crate::helpers::error::AppError;
 use log::debug;
 use manager::RedisConnectionManager;
 use mobc::Pool;
 use redis;
-
-const CACHE_POOL_MAX_OPEN: u64 = 16;
-const CACHE_POOL_MAX_IDLE: u64 = 8;
 
 pub type RedisConnection = mobc::Connection<RedisConnectionManager>;
 pub type RedisPool = Pool<RedisConnectionManager>;
@@ -31,7 +29,7 @@ impl ApplicationRedisDatabase {
 
 impl Default for ApplicationRedisDatabase {
     fn default() -> Self {
-        debug!("Initializing redis database with default settings");
+        debug!("Initializing Redis database with default settings");
         let database_url = crate::configs::settings::Variables::redis_uri();
 
         let client = redis::Client::open(database_url).unwrap();
@@ -39,8 +37,8 @@ impl Default for ApplicationRedisDatabase {
         let manager = RedisConnectionManager::new(client);
 
         let connection_pool = Pool::builder()
-            .max_open(CACHE_POOL_MAX_OPEN)
-            .max_idle(CACHE_POOL_MAX_IDLE)
+            .max_open(CONNECTION_POOL_MAX_OPEN as u64)
+            .max_idle(CONNECTION_POOL_MAX_IDLE)
             .build(manager);
 
         ApplicationRedisDatabase { connection_pool }

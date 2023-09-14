@@ -1,5 +1,6 @@
 pub mod users;
 
+use crate::database::ampq::AmpqConnection;
 use crate::helpers::error::AppError;
 use crate::ApplicationContext;
 use async_trait::async_trait;
@@ -8,7 +9,7 @@ use lapin::options::{
     BasicAckOptions, BasicConsumeOptions, BasicPublishOptions, QueueDeclareOptions,
 };
 use lapin::types::FieldTable;
-use lapin::{BasicProperties, Connection};
+use lapin::BasicProperties;
 use log::debug;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -16,7 +17,7 @@ use std::any::type_name;
 
 #[async_trait]
 pub trait AppEvent: DeserializeOwned + Serialize {
-    async fn init(conn: &Connection, ctx: ApplicationContext) {
+    async fn init(conn: &AmpqConnection, ctx: ApplicationContext) {
         let queue_name = Self::name();
         let channel = conn.create_channel().await;
         if channel.is_err() {
@@ -88,7 +89,7 @@ pub trait AppEvent: DeserializeOwned + Serialize {
         })
         .detach();
     }
-    async fn publish(&self, conn: Connection) -> Result<(), AppError> {
+    async fn publish(&self, conn: &AmpqConnection) -> Result<(), AppError> {
         let queue_name = Self::name();
         let serialized_data = serde_json::to_string(&self).map_err(|_| {
             AppError::internal_server("Unable to serialize data for publishing to RabbitMQ")
@@ -125,7 +126,7 @@ pub struct AppEvents;
 
 impl AppEvents {
     pub async fn init(ctx: ApplicationContext) -> Result<(), AppError> {
-        let conn = ctx.db.ampq.get_connection().await?.into_inner();
+        let conn = ctx.db.ampq.get_connection().await?;
         users::UserRegistered::init(&conn, ctx).await;
         Ok(())
     }

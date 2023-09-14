@@ -30,6 +30,7 @@ pub fn error_default_handler<B, E>(
     let has_already_responded = response
         .headers()
         .contains_key(constant::APP_RESPONSE_HEADER);
+
     if has_already_responded {
         return Ok(ErrorHandlerResponse::Response(ServiceResponse::new(
             request,

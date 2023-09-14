@@ -4,6 +4,7 @@ use actix_web::middleware::{ErrorHandlers, Logger};
 use actix_web::{App, HttpServer};
 use database::pg;
 use dotenv;
+use log::info;
 
 mod configs;
 mod contracts;
@@ -37,6 +38,11 @@ async fn main() -> std::io::Result<()> {
         .await
         .expect("Unable to initialize events");
 
+    let host = configs::settings::Variables::host();
+    let port = configs::settings::Variables::port();
+
+    info!("Starting server at http://{}:{}", host, port);
+
     HttpServer::new(move || {
         App::new()
             .wrap(middlewares::auths::Authorization::default())
@@ -50,10 +56,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(configs::json::get_json_config())
             .service(router::get_router_scope())
     })
-    .bind((
-        configs::settings::Variables::host(),
-        configs::settings::Variables::port(),
-    ))?
+    .bind((host, port))?
     .run()
     .await
 }

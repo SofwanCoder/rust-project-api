@@ -22,7 +22,7 @@ pub async fn register(
     let refresh_token = helpers::token::generate_user_session_refresh_token(&auth_session)?;
 
     crate::events::users::UserRegistered::new(user.id, user.name, user.email)
-        .publish(ctx.db.ampq.get_connection().await?.into_inner())
+        .publish(&ctx.db.ampq.get_connection().await?)
         .await?;
 
     Ok(AuthToken::new(access_token, refresh_token))

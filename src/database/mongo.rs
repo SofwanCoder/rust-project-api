@@ -1,4 +1,5 @@
 use crate::configs;
+use crate::configs::constant::{CONNECTION_POOL_MAX_IDLE, CONNECTION_POOL_MAX_OPEN};
 use futures;
 use log::debug;
 use mongodb::{options::ClientOptions, Client, Database};
@@ -10,9 +11,11 @@ pub struct ApplicationMongoDatabase {
 
 impl Default for ApplicationMongoDatabase {
     fn default() -> Self {
-        debug!("Initializing mongo database with default settings");
+        debug!("Initializing Mongo database with default settings");
         let database_url = configs::settings::Variables::mongo_uri();
-        let manager = futures::executor::block_on(ClientOptions::parse(database_url)).unwrap();
+        let mut manager = futures::executor::block_on(ClientOptions::parse(database_url)).unwrap();
+        manager.max_pool_size = Some(CONNECTION_POOL_MAX_OPEN as u32);
+        manager.min_pool_size = Some(CONNECTION_POOL_MAX_IDLE as u32);
         let client: Client = Client::with_options(manager).unwrap();
         let _db = client
             .default_database()

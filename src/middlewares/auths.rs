@@ -52,7 +52,7 @@ where
             Malformed,
         }
 
-        fn act(req: &ServiceRequest) -> WhatHappened {
+        let decrypt_authorization_fn = || -> WhatHappened {
             let authorization_value = req.headers().get("Authorization");
             if authorization_value.is_none() {
                 return WhatHappened::Nothing;
@@ -89,9 +89,9 @@ where
             req.extensions_mut().insert(auth_data);
 
             return WhatHappened::Nothing;
-        }
+        };
 
-        let what = act(&req);
+        let what = decrypt_authorization_fn();
 
         let either = match what {
             WhatHappened::NotBearer => {

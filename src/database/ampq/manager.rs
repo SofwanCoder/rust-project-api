@@ -19,8 +19,8 @@ impl Manager for AmpqConnectionManager {
     type Error = Error;
 
     async fn connect(&self) -> Result<Self::Connection, Self::Error> {
+        debug!("Establishing new AMPQ connection");
         let conn = Connection::connect(&self.client, ConnectionProperties::default()).await?;
-        debug!("AMPQ connection established");
         Ok(conn)
     }
 
