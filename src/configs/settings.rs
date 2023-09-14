@@ -16,22 +16,22 @@ impl Variables {
     }
 
     pub fn postgres_uri() -> String {
-        return std::env::var("POSTGRES_URI").unwrap_or("unknown_will_throw".to_string());
+        return std::env::var("POSTGRES_URI").unwrap_or("http://localhost:5432".to_string());
     }
 
     pub fn redis_uri() -> String {
-        return std::env::var("REDIS_URI").unwrap_or("unknown_will_throw".to_string());
+        return std::env::var("REDIS_URI").unwrap_or("http://localhost:6379".to_string());
     }
 
     pub fn mongo_uri() -> String {
-        return std::env::var("MONGO_URI").unwrap_or("unknown_will_throw".to_string());
+        return std::env::var("MONGO_URI").unwrap_or("http://localhost:27017".to_string());
     }
 
     pub fn smtp_uri() -> String {
-        return std::env::var("SMTP_URI").unwrap_or("unknown_will_throw".to_string());
+        return std::env::var("SMTP_URI").unwrap_or("smtp://localhost:1025".to_string());
     }
 
     pub fn ampq_uri() -> String {
-        return std::env::var("AMPQ_URI").unwrap_or("unknown_will_throw".to_string());
+        return std::env::var("AMPQ_URI").unwrap_or("amqp://localhost:5672".to_string());
     }
 }

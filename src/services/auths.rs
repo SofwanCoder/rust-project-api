@@ -23,13 +23,13 @@ pub async fn logout(
     auth_data: AuthenticatedData,
 ) -> Result<(), AppError> {
     let auth_session =
-        AuthRepository::find_auth_by_id(&mut db.pg.get_connection(), auth_data.session_id);
+        AuthRepository::find_auth_by_id(&mut db.postgres.get_connection(), auth_data.session_id);
 
     if auth_session.is_none() {
         return Err(AppError::unauthorized("Invalid session"));
     }
 
-    AuthRepository::delete_auth_by_id(&mut db.pg.get_connection(), auth_data.session_id);
+    AuthRepository::delete_auth_by_id(&mut db.postgres.get_connection(), auth_data.session_id);
 
     Ok(())
 }
@@ -38,7 +38,7 @@ pub async fn login_with_password(
     db: &ApplicationDatabase,
     body: CreateTokenPayload,
 ) -> Result<AuthToken, AppError> {
-    let connection = &mut db.pg.get_connection();
+    let connection = &mut db.postgres.get_connection();
 
     let user = UserRepository::find_by_email(connection, body.email.unwrap());
 
@@ -68,7 +68,7 @@ pub async fn login_with_refresh_token(
 
     let decoded_token = helpers::token::decode_token_data_for_session(&refresh_token)?;
 
-    let connection = &mut db.pg.get_connection();
+    let connection = &mut db.postgres.get_connection();
 
     let auth_session = AuthRepository::find_auth_by_id(connection, decoded_token.token_id);
 

@@ -13,7 +13,7 @@ pub async fn register(
     ctx: &ApplicationContext,
     body: CreateUserModel,
 ) -> Result<AuthToken, AppError> {
-    let connection = &mut ctx.db.pg.get_connection();
+    let connection = &mut ctx.db.postgres.get_connection();
     let user = UserRepository::create_user(connection, body);
 
     let auth_session = AuthRepository::create_auth(connection, CreateAuthModel::from(&user));
@@ -29,7 +29,7 @@ pub async fn register(
 }
 
 pub async fn fetch_user(db: &ApplicationDatabase, user_id: Uuid) -> Result<UserModel, AppError> {
-    let connection = &mut db.pg.get_connection();
+    let connection = &mut db.postgres.get_connection();
     let user = UserRepository::find_user_by_id(connection, user_id);
 
     if user.is_none() {
@@ -43,7 +43,7 @@ pub async fn fetch_user(db: &ApplicationDatabase, user_id: Uuid) -> Result<UserM
 }
 
 pub async fn fetch_users(db: &ApplicationDatabase) -> Result<Vec<UserModel>, AppError> {
-    let connection = &mut db.pg.get_connection();
+    let connection = &mut db.postgres.get_connection();
     let users = UserRepository::find_users(connection);
 
     Ok(users)
@@ -54,7 +54,7 @@ pub async fn update_user(
     user_id: Uuid,
     data: UpdateUserModel,
 ) -> Result<UserModel, AppError> {
-    let connection = &mut db.pg.get_connection();
+    let connection = &mut db.postgres.get_connection();
     let user = UserRepository::find_user_by_id(connection, user_id);
 
     if user.is_none() {
@@ -74,7 +74,7 @@ pub async fn update_password(
     user_id: Uuid,
     data: UpdatePasswordModel,
 ) -> Result<UserModel, AppError> {
-    let connection = &mut db.pg.get_connection();
+    let connection = &mut db.postgres.get_connection();
     let user = UserRepository::find_user_by_id(connection, user_id);
 
     if user.is_none() {

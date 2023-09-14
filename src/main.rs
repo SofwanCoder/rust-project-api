@@ -2,7 +2,7 @@ use crate::events::AppEvents;
 use actix_web::http::StatusCode;
 use actix_web::middleware::{ErrorHandlers, Logger};
 use actix_web::{App, HttpServer};
-use database::pg;
+use database::postgres;
 use dotenv;
 use log::info;
 
