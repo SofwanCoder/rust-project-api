@@ -18,6 +18,7 @@ The PROJECT API is the API of [PROJECT API](https://example.com)
 - [MongoDB](https://www.mongodb.com/)
 - [PostgreSQL](https://www.postgresql.org/)
 - [Redis](https://redis.io/)
+- [RabbitMQ](https://www.rabbitmq.com/)
 
 ---
 
@@ -46,6 +47,7 @@ To set up your database for the project, after creation kindly open the .env fil
 POSTGRES_URI=
 REDIS_URI=
 MONGO_URI=
+AMPQ_URI=
 ```
 ---
 ## Development
