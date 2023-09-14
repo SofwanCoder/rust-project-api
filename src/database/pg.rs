@@ -21,11 +21,16 @@ impl ApplicationPgDatabase {
 impl Default for ApplicationPgDatabase {
     fn default() -> Self {
         debug!("Initializing Postgres database with default settings");
+
         let database_url = crate::configs::settings::Variables::postgres_uri();
+
         let manager = ConnectionManager::<PgConnection>::new(database_url);
+
         let connection_pool: DBPool = r2d2::Pool::builder()
             .build(manager)
             .expect("Failed to create pool.");
+
+        debug!("Postgres connection pool established");
 
         ApplicationPgDatabase { connection_pool }
     }

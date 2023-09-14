@@ -41,6 +41,8 @@ impl Default for ApplicationRedisDatabase {
             .max_idle(CONNECTION_POOL_MAX_IDLE)
             .build(manager);
 
+        debug!("Redis connection pool established");
+
         ApplicationRedisDatabase { connection_pool }
     }
 }

@@ -14,11 +14,13 @@ pub fn map_validation_err_to_app_err(errors: ValidationErrors) -> AppError {
         errors: &HashMap<&'static str, ValidationErrorsKind>,
     ) -> HashMap<&'static str, String> {
         let mut fields: HashMap<&str, String> = HashMap::new();
-        for (field, error) in errors.iter() {
+
+        errors.iter().for_each(|(field, error)| {
             if let ValidationErrorsKind::Field(errors) = error {
                 if errors.len() == 0 {
-                    continue;
+                    return;
                 }
+
                 let message = errors[0]
                     .message
                     .clone()
@@ -27,7 +29,8 @@ pub fn map_validation_err_to_app_err(errors: ValidationErrors) -> AppError {
 
                 fields.insert(field, message);
             }
-        }
+        });
+
         return fields;
     }
 

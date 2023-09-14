@@ -5,8 +5,6 @@ use actix_web::http::StatusCode;
 use actix_web::{web, Error};
 use std::ops::Add;
 
-const JSON_PAYLOAD_LIMIT: usize = 4096;
-
 fn error_handler(err: JsonPayloadError, _req: &actix_web::HttpRequest) -> Error {
     let response = match &err {
         JsonPayloadError::Deserialize(json_err) => {
@@ -47,6 +45,6 @@ fn error_handler(err: JsonPayloadError, _req: &actix_web::HttpRequest) -> Error 
 
 pub fn get_json_config() -> web::JsonConfig {
     web::JsonConfig::default()
-        .limit(JSON_PAYLOAD_LIMIT)
+        .limit(4096)
         .error_handler(error_handler)
 }

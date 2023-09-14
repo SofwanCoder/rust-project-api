@@ -29,6 +29,7 @@ impl ApplicationAmpqDatabase {
 impl Default for ApplicationAmpqDatabase {
     fn default() -> Self {
         debug!("Initializing AMPQ connection with default settings");
+
         let database_url = crate::configs::settings::Variables::ampq_uri();
 
         let manager = AmpqConnectionManager::new(database_url);
