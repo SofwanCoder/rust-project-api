@@ -1,10 +1,13 @@
 use crate::events::AppEvents;
+use crate::utilities::rand::generate_ulid;
 use actix_web::http::StatusCode;
 use actix_web::middleware::{ErrorHandlers, Logger};
 use actix_web::{App, HttpServer};
 use database::postgres;
+use derive_more::Display;
 use dotenv;
 use log::info;
+use ulid::Ulid;
 
 mod configs;
 mod contracts;
@@ -22,6 +25,18 @@ mod services;
 mod types;
 mod utilities;
 
+#[derive(Debug, Clone, Display)]
+pub struct RequestId {
+    id: Ulid,
+}
+impl Default for RequestId {
+    fn default() -> Self {
+        Self {
+            id: generate_ulid(),
+        }
+    }
+}
+
 #[derive(Clone, Default)]
 pub struct ApplicationContext {
     pub(crate) db: database::ApplicationDatabase,
@@ -31,7 +46,7 @@ pub struct ApplicationContext {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv::dotenv().ok();
-    env_logger::init();
+    tracing_subscriber::fmt::init();
 
     let app_context = ApplicationContext::default();
     AppEvents::init(app_context.clone())
@@ -46,12 +61,13 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .wrap(middlewares::auths::Authorization::default())
-            .wrap(Logger::default())
             .wrap(
                 ErrorHandlers::new()
                     .default_handler(configs::app::error_default_handler)
                     .handler(StatusCode::NOT_FOUND, configs::app::error_404_handler),
             )
+            .wrap(Logger::default())
+            .wrap(middlewares::request::AppRequest::default())
             .app_data(app_context.clone())
             .app_data(configs::json::get_json_config())
             .service(router::get_router_scope())

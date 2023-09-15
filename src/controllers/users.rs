@@ -1,8 +1,9 @@
 use crate::contracts::user::{CreateUserPayload, UpdatePasswordPayload, UpdateUserPayload};
 use crate::helpers::error::AppError;
 use crate::helpers::response;
+use crate::types::auths::AuthenticatedData;
 use crate::utilities::error::{map_blocking_err_to_app_err, map_validation_err_to_app_err};
-use actix_web::{web, HttpRequest, Responder, Result};
+use actix_web::{web, HttpMessage, HttpRequest, Responder, Result};
 use uuid::Uuid;
 use validator::{Validate, ValidateArgs};
 
@@ -42,6 +43,20 @@ pub async fn fetch_user(
     .map_err(map_blocking_err_to_app_err)?;
 
     result.map(response::ok)
+}
+
+pub async fn fetch_me(req: HttpRequest) -> Result<impl Responder, AppError> {
+    let user_id = req.extensions().get::<AuthenticatedData>().unwrap().user_id;
+
+    let web_path_user_id = web::Path::try_from(user_id.clone());
+
+    if web_path_user_id.is_err() {
+        return Err(AppError::internal_server(web_path_user_id.err().unwrap()));
+    }
+
+    let web_path_user_id = web_path_user_id.unwrap();
+
+    fetch_user(req, web_path_user_id).await
 }
 
 pub async fn fetch_users(req: HttpRequest) -> Result<impl Responder, AppError> {

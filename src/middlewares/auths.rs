@@ -12,7 +12,7 @@ pub struct Authorization;
 
 impl Default for Authorization {
     fn default() -> Self {
-        Authorization {}
+        Authorization
     }
 }
 

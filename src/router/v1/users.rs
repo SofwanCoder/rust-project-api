@@ -12,6 +12,12 @@ pub fn get_routes() -> Scope {
                         .wrap(crate::middlewares::permit::Permission::default()),
                 ),
         )
+        .route(
+            "me",
+            web::get()
+                .to(crate::controllers::users::fetch_me)
+                .wrap(crate::middlewares::permit::Permission::default()),
+        )
         .service(
             web::scope("{user_id}")
                 .service(
