@@ -6,6 +6,7 @@ use crate::helpers::error::AppError;
 use log::debug;
 use manager::AmpqConnectionManager;
 use mobc::Pool;
+use std::fmt::Debug;
 
 pub type AmpqConnection = mobc::Connection<AmpqConnectionManager>;
 pub type AmpqPool = Pool<AmpqConnectionManager>;
@@ -15,19 +16,16 @@ pub struct ApplicationAmpqDatabase {
     connection_pool: AmpqPool,
 }
 
-impl ApplicationAmpqDatabase {
-    pub async fn get_connection(&self) -> Result<AmpqConnection, AppError> {
-        debug!("Getting ampq connection from pool");
-        return self
-            .connection_pool
-            .get()
-            .await
-            .map_err(|e| AppError::database_error(e));
+impl Debug for ApplicationAmpqDatabase {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ApplicationAmpqDatabase")
+            .field("connection_pool", &"AmpqPool")
+            .finish()
     }
 }
 
-impl Default for ApplicationAmpqDatabase {
-    fn default() -> Self {
+impl ApplicationAmpqDatabase {
+    pub(super) async fn init() -> Self {
         debug!("Initializing AMPQ connection with default settings");
 
         let database_url = crate::configs::settings::Variables::ampq_uri();
@@ -42,5 +40,14 @@ impl Default for ApplicationAmpqDatabase {
         debug!("AMPQ connection pool established");
 
         ApplicationAmpqDatabase { connection_pool }
+    }
+
+    pub(crate) async fn get_connection(&self) -> Result<AmpqConnection, AppError> {
+        debug!("Getting AMPQ connection from pool");
+        return self
+            .connection_pool
+            .get()
+            .await
+            .map_err(|e| AppError::connection_error(e));
     }
 }

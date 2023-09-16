@@ -1,10 +1,14 @@
-use crate::database::DBConnection;
-use crate::models;
-use crate::models::auth::{AuthModel, CreateAuthModel};
-use crate::repositories::Repository;
-use crate::schema::auths::dsl::*;
-use crate::utilities::error::map_diesel_err_to_app_err;
-use diesel::{ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl};
+use crate::{
+    database::DBConnection,
+    helpers::error::AppError,
+    models,
+    models::auth::{Entity as AuthEntity, Model as AuthModel},
+    repositories::Repository,
+    types::auth_types::CreateAuthModel,
+    utilities::rand::generate_uuid,
+};
+use futures_util::TryFutureExt;
+use sea_orm::{ActiveModelTrait, ActiveValue::Set, EntityTrait};
 use uuid::Uuid;
 
 pub struct AuthRepository;
@@ -12,28 +16,37 @@ pub struct AuthRepository;
 impl Repository for AuthRepository {}
 
 impl AuthRepository {
-    pub fn find_auth_by_id(connection: DBConnection, auth_id: Uuid) -> Option<AuthModel> {
-        auths
-            .find(auth_id)
-            .first::<models::auth::AuthModel>(connection)
-            .optional()
-            .map_err(map_diesel_err_to_app_err)
+    pub async fn find_auth_by_id<C: DBConnection>(
+        connection: &C,
+        auth_id: Uuid,
+    ) -> Option<AuthModel> {
+        AuthEntity::find_by_id(auth_id)
+            .one(connection)
+            .map_err(|_| AppError::database_error("Database error"))
+            .await
             .expect("Database error")
     }
 
-    pub fn create_auth(connection: DBConnection, auth_data: CreateAuthModel) -> AuthModel {
-        diesel::insert_into(auths)
-            .values(&auth_data)
-            .get_result::<models::auth::AuthModel>(connection)
-            .map_err(map_diesel_err_to_app_err)
-            .expect("Database error")
+    pub async fn create_auth<C: DBConnection>(
+        connection: &C,
+        auth_data: CreateAuthModel,
+    ) -> Result<AuthModel, AppError> {
+        let auth = models::auth::ActiveModel {
+            id: Set(generate_uuid()),
+            user_id: Set(auth_data.user_id),
+            expires_at: Set(auth_data.expires_at),
+            ..Default::default()
+        };
+        auth.insert(connection)
+            .await
+            .map_err(|e| AppError::database_error(e))
     }
 
-    pub fn delete_auth_by_id(connection: DBConnection, auth_id: Uuid) -> () {
-        diesel::delete(auths)
-            .filter(id.eq(auth_id))
-            .execute(connection)
-            .map_err(map_diesel_err_to_app_err)
+    pub async fn delete_auth_by_id<C: DBConnection>(connection: &C, auth_id: Uuid) -> () {
+        AuthEntity::delete_by_id(auth_id)
+            .exec(connection)
+            .map_err(|_| AppError::database_error("Database error"))
+            .await
             .expect("Database error");
     }
 }

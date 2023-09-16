@@ -1,14 +1,15 @@
-use crate::contracts::user::{CreateUserPayload, UpdatePasswordPayload, UpdateUserPayload};
+use crate::helpers::password::hash;
 use crate::utilities::rand::generate_uuid;
-use diesel::{AsChangeset, Identifiable, Insertable, Queryable};
+use async_trait::async_trait;
+use sea_orm::entity::prelude::*;
+use sea_orm::ActiveValue::Set;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(
-    Default, Serialize, Deserialize, Debug, Clone, Queryable, Insertable, AsChangeset, Identifiable,
-)]
-#[diesel(table_name = crate::schema::users)]
-pub struct UserModel {
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq, DeriveEntityModel)]
+#[sea_orm(table_name = "users")]
+pub struct Model {
+    #[sea_orm(primary_key)]
     pub id: Uuid,
     pub name: String,
     pub email: String,
@@ -18,54 +19,28 @@ pub struct UserModel {
     pub updated_at: chrono::NaiveDateTime,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Insertable, Default)]
-#[diesel(table_name = crate::schema::users)]
-pub struct CreateUserModel {
-    pub id: Uuid,
-    pub name: String,
-    pub email: String,
-    pub password: String,
+#[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
+pub enum Relation {
+    #[sea_orm(has_many = "super::auth::Entity")]
+    Auth,
 }
-impl From<CreateUserPayload> for CreateUserModel {
-    fn from(payload: CreateUserPayload) -> Self {
-        CreateUserModel {
-            id: generate_uuid(),
-            name: payload.name,
-            email: payload.email,
-            password: crate::helpers::password::hash(payload.password).unwrap_or("".to_string()),
-        }
+
+impl Related<super::auth::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Auth.def()
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Insertable, AsChangeset, Default)]
-#[diesel(table_name = crate::schema::users)]
-pub struct UpdateUserModel {
-    pub name: Option<String>,
-    pub email: Option<String>,
-    pub password: Option<String>,
-}
-impl From<UpdateUserPayload> for UpdateUserModel {
-    fn from(payload: UpdateUserPayload) -> Self {
-        UpdateUserModel {
-            name: payload.name,
-            email: payload.email,
-            password: None,
+#[async_trait]
+impl ActiveModelBehavior for ActiveModel {
+    async fn before_save<C>(mut self, _db: &C, insert: bool) -> Result<Self, DbErr>
+    where
+        C: ConnectionTrait,
+    {
+        if insert {
+            self.password = Set(hash(self.password.unwrap()).unwrap());
+            self.id = Set(generate_uuid());
         }
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct UpdatePasswordModel {
-    pub current_password: String,
-    pub new_password: String,
-}
-
-impl From<UpdatePasswordPayload> for UpdatePasswordModel {
-    fn from(payload: UpdatePasswordPayload) -> Self {
-        UpdatePasswordModel {
-            current_password: payload.current_password,
-            new_password: crate::helpers::password::hash(payload.new_password)
-                .unwrap_or("".to_string()),
-        }
+        Ok(self)
     }
 }

@@ -1,8 +1,9 @@
-use crate::contracts::user::{CreateUserPayload, UpdatePasswordPayload, UpdateUserPayload};
-use crate::helpers::error::AppError;
-use crate::helpers::response;
-use crate::types::auths::AuthenticatedData;
-use crate::utilities::error::{map_blocking_err_to_app_err, map_validation_err_to_app_err};
+use crate::{
+    contracts::user::{CreateUserPayload, UpdatePasswordPayload, UpdateUserPayload},
+    helpers::{error::AppError, response},
+    types::auth_types::AuthenticatedData,
+    utilities::error::{map_blocking_err_to_app_err, map_validation_err_to_app_err},
+};
 use actix_web::{web, HttpMessage, HttpRequest, Responder, Result};
 use uuid::Uuid;
 use validator::{Validate, ValidateArgs};
@@ -17,7 +18,7 @@ pub async fn create_user_controller(
         body.validate_args(&ctx.db)
             .map_err(map_validation_err_to_app_err)?;
 
-        futures::executor::block_on(crate::services::users::register(
+        futures::executor::block_on(crate::services::user_service::register(
             &ctx,
             body.into_inner().into(),
         ))
@@ -36,11 +37,7 @@ pub async fn fetch_user_controller(
 
     let user_id = user_id.into_inner();
 
-    let result = web::block(move || {
-        futures::executor::block_on(crate::services::users::fetch_user(&ctx.db, user_id))
-    })
-    .await
-    .map_err(map_blocking_err_to_app_err)?;
+    let result = crate::services::user_service::fetch_user(&ctx, user_id).await;
 
     result.map(response::ok)
 }
@@ -62,11 +59,7 @@ pub async fn fetch_me_controller(req: HttpRequest) -> Result<impl Responder, App
 pub async fn fetch_users_controller(req: HttpRequest) -> Result<impl Responder, AppError> {
     let ctx = req.app_data::<crate::ApplicationContext>().unwrap().clone();
 
-    let result = web::block(move || {
-        futures::executor::block_on(crate::services::users::fetch_users(&ctx.db))
-    })
-    .await
-    .map_err(map_blocking_err_to_app_err)?;
+    let result = crate::services::user_service::fetch_users(&ctx.db).await;
 
     result.map(response::ok)
 }
@@ -83,7 +76,7 @@ pub async fn update_user_controller(
         body.validate_args(&ctx.db)
             .map_err(map_validation_err_to_app_err)?;
 
-        futures::executor::block_on(crate::services::users::update_user(
+        futures::executor::block_on(crate::services::user_service::update_user(
             &ctx.db,
             user_id,
             body.into_inner().into(),
@@ -106,15 +99,9 @@ pub async fn update_password_controller(
 
     let user_id = user_id.into_inner();
 
-    let result = web::block(move || {
-        futures::executor::block_on(crate::services::users::update_password(
-            &ctx.db,
-            user_id,
-            body.into_inner().into(),
-        ))
-    })
-    .await
-    .map_err(map_blocking_err_to_app_err)?;
+    let result =
+        crate::services::user_service::update_password(&ctx.db, user_id, body.into_inner().into())
+            .await;
 
     result.map(response::ok)
 }

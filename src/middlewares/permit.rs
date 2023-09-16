@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 use crate::helpers::response;
 use crate::helpers::response::AppResponse;
-use crate::types::auths::AuthenticatedData;
+use crate::types::auth_types::AuthenticatedData;
 use actix_web::http::StatusCode;
 use actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},

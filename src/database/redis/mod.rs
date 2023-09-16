@@ -16,19 +16,16 @@ pub struct ApplicationRedisDatabase {
     connection_pool: RedisPool,
 }
 
-impl ApplicationRedisDatabase {
-    pub async fn get_connection(&self) -> Result<RedisConnection, AppError> {
-        debug!("Getting redis connection");
-        return self
-            .connection_pool
-            .get()
-            .await
-            .map_err(|e| AppError::database_error(e));
+impl std::fmt::Debug for ApplicationRedisDatabase {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ApplicationRedisDatabase")
+            .field("connection_pool", &"RedisPool")
+            .finish()
     }
 }
 
-impl Default for ApplicationRedisDatabase {
-    fn default() -> Self {
+impl ApplicationRedisDatabase {
+    pub(super) async fn init() -> Self {
         debug!("Initializing Redis database with default settings");
         let database_url = crate::configs::settings::Variables::redis_uri();
 
@@ -44,5 +41,14 @@ impl Default for ApplicationRedisDatabase {
         debug!("Redis connection pool established");
 
         ApplicationRedisDatabase { connection_pool }
+    }
+
+    pub(crate) async fn get_connection(&self) -> Result<RedisConnection, AppError> {
+        debug!("Getting redis connection");
+        return self
+            .connection_pool
+            .get()
+            .await
+            .map_err(|e| AppError::connection_error(e));
     }
 }

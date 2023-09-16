@@ -1,12 +1,16 @@
-use crate::events::AppEvents;
-use crate::utilities::rand::generate_ulid;
-use actix_web::http::StatusCode;
-use actix_web::middleware::{ErrorHandlers, Logger};
-use actix_web::{App, HttpServer};
-use database::postgres;
+#![feature(trait_alias)]
+use crate::{events::AppEvents, utilities::rand::generate_ulid};
+use actix_web::{
+    http::StatusCode,
+    middleware::{ErrorHandlers, Logger},
+    App,
+    HttpServer,
+};
 use derive_more::Display;
 use dotenv;
 use log::info;
+use std::fmt::Debug;
+use tracing_log::LogTracer;
 use ulid::Ulid;
 
 mod configs;
@@ -20,7 +24,6 @@ mod middlewares;
 mod models;
 mod repositories;
 mod router;
-mod schema;
 mod services;
 mod types;
 mod utilities;
@@ -37,18 +40,30 @@ impl Default for RequestId {
     }
 }
 
-#[derive(Clone, Default)]
+#[derive(Clone, Display)]
+#[display(fmt = "Application Context")]
 pub struct ApplicationContext {
     pub(crate) db: database::ApplicationDatabase,
     pub(crate) email: emails::transports::Transports,
 }
 
+impl Debug for ApplicationContext {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ApplicationContext").finish()
+    }
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv::dotenv().ok();
+    LogTracer::init().expect("Unable to setup logger");
     register_tracing_logger();
 
-    let app_context = ApplicationContext::default();
+    let app_context = ApplicationContext {
+        db: database::ApplicationDatabase::init().await,
+        email: Default::default(),
+    };
+
     AppEvents::init(app_context.clone())
         .await
         .expect("Unable to initialize events");

@@ -1,5 +1,7 @@
+#![allow(dead_code)]
 use crate::configs;
 use crate::configs::constant::{CONNECTION_POOL_MAX_IDLE, CONNECTION_POOL_MAX_OPEN};
+use crate::helpers::error::AppError;
 use futures;
 use log::debug;
 use mongodb::{options::ClientOptions, Client, Database};
@@ -9,8 +11,8 @@ pub struct ApplicationMongoDatabase {
     pub _db: Database,
 }
 
-impl Default for ApplicationMongoDatabase {
-    fn default() -> Self {
+impl ApplicationMongoDatabase {
+    pub(super) async fn init() -> Self {
         debug!("Initializing Mongo database with default settings");
 
         let database_url = configs::settings::Variables::mongo_uri();
@@ -28,5 +30,10 @@ impl Default for ApplicationMongoDatabase {
         debug!("Mongo connection pool established");
 
         ApplicationMongoDatabase { _db }
+    }
+
+    pub(crate) async fn get_connection(&self) -> Result<Database, AppError> {
+        debug!("Getting Mongo connection from pool");
+        return Ok(self._db.clone());
     }
 }

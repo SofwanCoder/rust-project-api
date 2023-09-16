@@ -1,4 +1,6 @@
-use crate::models::auth::AuthModel;
+use crate::models::auth::Model as AuthModel;
+use crate::models::user::Model as UserModel;
+use crate::utilities::rand::generate_uuid;
 use chrono::Duration;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -10,6 +12,29 @@ pub struct AuthenticatedData {
     pub clearance_level: u8,
     pub iat: usize,
     pub exp: usize,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct AuthToken {
+    pub access_token: String,
+    pub refresh_token: String,
+    pub expires_in: usize,
+    pub token_type: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct RefreshTokenData {
+    pub user_id: Uuid,
+    pub token_id: Uuid,
+    iat: usize,
+    exp: usize,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+pub struct CreateAuthModel {
+    pub id: Uuid,
+    pub user_id: Uuid,
+    pub expires_at: chrono::NaiveDateTime,
 }
 
 impl AuthenticatedData {
@@ -26,14 +51,6 @@ impl AuthenticatedData {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct AuthToken {
-    pub access_token: String,
-    pub refresh_token: String,
-    pub expires_in: usize,
-    pub token_type: String,
-}
-
 impl AuthToken {
     pub fn new(access_token: String, refresh_token: String) -> Self {
         AuthToken {
@@ -45,14 +62,6 @@ impl AuthToken {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct RefreshTokenData {
-    pub user_id: Uuid,
-    pub token_id: Uuid,
-    iat: usize,
-    exp: usize,
-}
-
 impl From<&AuthModel> for RefreshTokenData {
     fn from(value: &AuthModel) -> Self {
         RefreshTokenData {
@@ -60,6 +69,16 @@ impl From<&AuthModel> for RefreshTokenData {
             token_id: value.id,
             iat: chrono::Utc::now().timestamp() as usize,
             exp: value.expires_at.timestamp() as usize,
+        }
+    }
+}
+
+impl From<&UserModel> for CreateAuthModel {
+    fn from(user: &UserModel) -> Self {
+        CreateAuthModel {
+            id: generate_uuid(),
+            user_id: user.id,
+            expires_at: chrono::Utc::now().naive_utc() + chrono::Duration::days(30),
         }
     }
 }

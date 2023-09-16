@@ -76,9 +76,9 @@ where
 
             let authorization_token = authorization_value_split[1];
 
-            let decoded_jwt = crate::utilities::jwt::decode::<crate::types::auths::AuthenticatedData>(
-                authorization_token,
-            );
+            let decoded_jwt = crate::utilities::jwt::decode::<
+                crate::types::auth_types::AuthenticatedData,
+            >(authorization_token);
 
             if decoded_jwt.is_err() {
                 return WhatHappened::Unauthorized;

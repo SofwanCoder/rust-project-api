@@ -1,12 +1,11 @@
-use crate::models::user::UserModel;
-use crate::utilities::rand::generate_uuid;
-use diesel::{AsChangeset, Insertable, Queryable};
+use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Serialize, Deserialize, Debug, Clone, Queryable, Insertable, AsChangeset, Default)]
-#[diesel(table_name = crate::schema::auths)]
-pub struct AuthModel {
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq, DeriveEntityModel)]
+#[sea_orm(table_name = "auths")]
+pub struct Model {
+    #[sea_orm(primary_key)]
     pub id: Uuid,
     pub user_id: Uuid,
     pub expires_at: chrono::NaiveDateTime,
@@ -14,20 +13,20 @@ pub struct AuthModel {
     pub updated_at: chrono::NaiveDateTime,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Insertable, Default)]
-#[diesel(table_name = crate::schema::auths)]
-pub struct CreateAuthModel {
-    pub id: Uuid,
-    pub user_id: Uuid,
-    pub expires_at: chrono::NaiveDateTime,
+#[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
+pub enum Relation {
+    #[sea_orm(
+        belongs_to = "super::user::Entity",
+        from = "Column::Id",
+        to = "super::user::Column::Id"
+    )]
+    User,
 }
 
-impl From<&UserModel> for CreateAuthModel {
-    fn from(user: &UserModel) -> Self {
-        CreateAuthModel {
-            id: generate_uuid(),
-            user_id: user.id,
-            expires_at: chrono::Utc::now().naive_utc() + chrono::Duration::days(30),
-        }
+impl Related<super::user::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::User.def()
     }
 }
+
+impl ActiveModelBehavior for ActiveModel {}

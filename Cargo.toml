@@ -16,7 +16,6 @@ argon2 = "0.5.1"
 async-global-executor = { version = "2.3", features = ["tokio"] }
 async-trait = "0.1"
 chrono = { version = "0.4", features = ["serde"] }
-diesel = { version = "2", features = ["postgres", "extras"] }
 derive_more = "0.99"
 dotenv = "0.15"
 futures-util = "0.3"
@@ -31,7 +30,9 @@ mongodb = { version = "2", features = ["bson-chrono-0_4", "bson-uuid-1", "bson-s
 redis = { version = "0.23", features = ["json", "tokio-comp", "log", "ahash", "connection-manager"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1"
+sea-orm = { version = "0.12", features = [ "sqlx-postgres", "runtime-tokio", "runtime-tokio-rustls", "macros", "debug-print" ] }
 tracing = { version = "0.1", features = ["log", "async-await"] }
+tracing-log = { version = "0.1" }
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt", "json", "tracing-log"] }
 tokio = "1"
 url = "2"

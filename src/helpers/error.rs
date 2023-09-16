@@ -1,11 +1,9 @@
 #![allow(dead_code)]
 use crate::helpers::response::AppResponse;
-use actix_web::http::StatusCode;
-use actix_web::{HttpResponse, ResponseError};
+use actix_web::{http::StatusCode, HttpResponse, ResponseError};
 use derive_more::Display;
-use serde::Serialize;
-use std::collections::HashMap;
-use std::fmt::Display;
+use serde::{de::StdError, Serialize};
+use std::{collections::HashMap, fmt::Display};
 
 #[derive(Display, Debug, Serialize)]
 pub enum AppErrorKind {
@@ -38,6 +36,7 @@ impl AppError {
             data: None,
         }
     }
+
     pub fn validation_error<T: Display>(
         message: T,
         data: Option<HashMap<&'static str, String>>,
@@ -53,6 +52,14 @@ impl AppError {
         AppError {
             message: message.to_string(),
             kind: AppErrorKind::DatabaseError,
+            data: None,
+        }
+    }
+
+    pub fn connection_error<T: Display>(message: T) -> AppError {
+        AppError {
+            message: message.to_string(),
+            kind: AppErrorKind::InternalError,
             data: None,
         }
     }
@@ -121,5 +128,11 @@ impl ResponseError for AppError {
                 errors: None,
             },
         )
+    }
+}
+
+impl StdError for AppError {
+    fn source(&self) -> Option<&(dyn StdError + 'static)> {
+        None
     }
 }

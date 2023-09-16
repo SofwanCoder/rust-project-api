@@ -6,11 +6,11 @@ use log::debug;
 pub type PooledDatabaseConnection = sea_orm::DatabaseConnection;
 
 #[derive(Debug, Clone)]
-pub struct ApplicationPostgresDatabase {
+pub struct ApplicationMysqlDatabase {
     connection_pool: PooledDatabaseConnection,
 }
 
-impl ApplicationPostgresDatabase {
+impl ApplicationMysqlDatabase {
     pub(super) async fn init() -> Self {
         debug!("Initializing Mysql database with default settings");
 
@@ -29,7 +29,7 @@ impl ApplicationPostgresDatabase {
         Self { connection_pool }
     }
 
-    pub(crate) async fn get_connection(&self) -> Result<PooledDatabaseConnection, AppError> {
+    pub(crate) fn get_connection(&self) -> Result<PooledDatabaseConnection, AppError> {
         debug!("Getting Mysql connection from pool");
         return Ok(self.connection_pool.clone());
     }
