@@ -1,7 +1,7 @@
 use actix_web::{web, Scope};
 
 const SCOPE: &str = "users";
-pub fn get_routes() -> Scope {
+pub(super) fn get_routes() -> Scope {
     web::scope(SCOPE)
         .service(
             web::resource("")
