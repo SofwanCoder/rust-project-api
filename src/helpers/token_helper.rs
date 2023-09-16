@@ -1,8 +1,9 @@
-use crate::helpers::error::AppError;
-use crate::models::auth::Model as AuthModel;
-use crate::models::user::Model as UserModel;
-use crate::types::auth_types::{AuthenticatedData, RefreshTokenData};
-use crate::utilities;
+use crate::{
+    helpers::error_helper::AppError,
+    models::{auth::Model as AuthModel, user::Model as UserModel},
+    types::auth_types::{AuthenticatedData, RefreshTokenData},
+    utilities,
+};
 
 pub fn generate_user_session_access_token(
     user: &UserModel,
@@ -39,8 +40,7 @@ pub fn decode_token_data_for_session(token: &String) -> Result<RefreshTokenData,
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::auth::Model as AuthModel;
-    use crate::models::user::Model as UserModel;
+    use crate::models::{auth::Model as AuthModel, user::Model as UserModel};
     use chrono::NaiveDateTime;
 
     #[test]

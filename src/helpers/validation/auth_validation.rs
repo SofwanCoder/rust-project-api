@@ -1,4 +1,4 @@
-use crate::contracts::auth::CreateTokenPayload;
+use crate::contracts::auth_contract::CreateTokenPayload;
 
 pub fn validate_grant_type(
     grant_type: &str,

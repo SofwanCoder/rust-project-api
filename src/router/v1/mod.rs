@@ -7,10 +7,14 @@ const SCOPE: &str = "v1";
 
 pub(super) fn get_web_scope() -> actix_web::Scope {
     web::scope(SCOPE)
+        .route(
+            "health",
+            web::get().to(crate::controllers::health_controller::check_health_controller),
+        )
         .service(users::get_routes())
         .service(auths::get_routes())
         .route(
             "/wsocket",
-            web::get().to(crate::controllers::wsocket::index),
+            web::get().to(crate::controllers::wsocket_controller::index),
         )
 }

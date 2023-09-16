@@ -1,7 +1,9 @@
 #![allow(dead_code)]
-use crate::configs;
-use crate::configs::constant::{CONNECTION_POOL_MAX_IDLE, CONNECTION_POOL_MAX_OPEN};
-use crate::helpers::error::AppError;
+use crate::{
+    configs,
+    configs::constant::{CONNECTION_POOL_MAX_IDLE, CONNECTION_POOL_MAX_OPEN},
+    helpers::error_helper::AppError,
+};
 use futures;
 use log::debug;
 use mongodb::{options::ClientOptions, Client, Database};

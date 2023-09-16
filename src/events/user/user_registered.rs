@@ -1,10 +1,12 @@
-use crate::emails::welcome_email::WelcomeEmail;
-use crate::emails::Email;
-use crate::events::AppEvent;
-use crate::helpers::error::AppError;
-use crate::ApplicationContext;
+use crate::{
+    emails::{welcome_email::WelcomeEmail, Email},
+    events::AppEvent,
+    helpers::error_helper::AppError,
+    ApplicationContext,
+};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
+use tracing::info;
 use uuid::Uuid;
 
 #[derive(Serialize, Deserialize)]
@@ -33,12 +35,10 @@ impl AppEvent for UserRegistered {
             name: self.name.clone(),
         };
 
-        let _ = welcome_email
+        welcome_email
             .send(ctx.email.smtp.sender.clone())
             .await
-            .map(|_| println!("Welcome email sent"))
-            .map_err(|_| AppError::internal_server("Failed to send welcome email".to_string()));
-
-        Ok(())
+            .map(|_| info!("Welcome email sent to {}", self.email))
+            .map_err(|e| AppError::internal_server(e))
     }
 }

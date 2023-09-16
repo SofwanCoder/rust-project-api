@@ -1,4 +1,4 @@
-use crate::contracts::user::CreateUserPayload;
+use crate::contracts::user_contract::CreateUserPayload;
 use derive_more::Display;
 use serde::Serialize;
 

@@ -1,8 +1,5 @@
-use crate::helpers::response;
-use crate::helpers::response::AppResponse;
-use actix_web::error::JsonPayloadError;
-use actix_web::http::StatusCode;
-use actix_web::{web, Error};
+use crate::helpers::{response_helper, response_helper::AppResponse};
+use actix_web::{error::JsonPayloadError, http::StatusCode, web, Error};
 use std::ops::Add;
 
 fn error_handler(err: JsonPayloadError, _req: &actix_web::HttpRequest) -> Error {
@@ -22,7 +19,7 @@ fn error_handler(err: JsonPayloadError, _req: &actix_web::HttpRequest) -> Error 
                 message = message.add("Unknown Error: ");
             }
 
-            response::app_http_response(
+            response_helper::app_http_response(
                 StatusCode::BAD_REQUEST,
                 AppResponse::<()> {
                     message: message.add(json_err.to_string().as_str()),
@@ -31,7 +28,7 @@ fn error_handler(err: JsonPayloadError, _req: &actix_web::HttpRequest) -> Error 
                 },
             )
         }
-        _ => response::app_http_response(
+        _ => response_helper::app_http_response(
             StatusCode::INTERNAL_SERVER_ERROR,
             AppResponse::<()> {
                 message: "JSON: Unknown Error".to_string(),

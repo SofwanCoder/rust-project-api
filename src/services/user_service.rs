@@ -1,11 +1,11 @@
 use crate::{
-    contracts::user::{UpdatePasswordPayload, UpdateUserPayload},
+    contracts::user_contract::{UpdatePasswordPayload, UpdateUserPayload},
     database::ApplicationDatabase,
     events::AppEvent,
     helpers,
-    helpers::error::AppError,
+    helpers::error_helper::AppError,
     models::user::Model as UserModel,
-    repositories::{auth::AuthRepository, user_repository::UserRepository},
+    repositories::{auth_repository::AuthRepository, user_repository::UserRepository},
     types::{
         auth_types::{AuthToken, CreateAuthModel},
         user_types::CreateUser,
@@ -46,10 +46,11 @@ pub async fn register(ctx: &ApplicationContext, body: CreateUser) -> Result<Auth
 
     let (user, auth_session) = transaction_result;
 
-    let access_token = helpers::token::generate_user_session_access_token(&user, &auth_session)?;
-    let refresh_token = helpers::token::generate_user_session_refresh_token(&auth_session)?;
+    let access_token =
+        helpers::token_helper::generate_user_session_access_token(&user, &auth_session)?;
+    let refresh_token = helpers::token_helper::generate_user_session_refresh_token(&auth_session)?;
 
-    crate::events::users::UserRegistered::new(user.id, user.name, user.email)
+    crate::events::user::user_registered::UserRegistered::new(user.id, user.name, user.email)
         .publish(&ctx.db.ampq.get_connection().await?)
         .await?;
 
@@ -118,7 +119,7 @@ pub async fn update_password(
 
     let user = user.unwrap();
 
-    helpers::password::verify(user.password.clone(), data.current_password.clone())
+    helpers::password_helper::verify(user.password.clone(), data.current_password.clone())
         .map_err(|_| AppError::unauthorized("Invalid account or Password"))?;
 
     // let user = UserRepository::update_user(

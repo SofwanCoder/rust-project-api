@@ -1,11 +1,13 @@
 #![allow(dead_code)]
-use crate::helpers::response;
-use crate::helpers::response::AppResponse;
-use crate::types::auth_types::AuthenticatedData;
-use actix_web::http::StatusCode;
+use crate::{
+    helpers::{response_helper, response_helper::AppResponse},
+    types::auth_types::AuthenticatedData,
+};
 use actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
-    Error, HttpMessage,
+    http::StatusCode,
+    Error,
+    HttpMessage,
 };
 use futures_util::future::{Either, LocalBoxFuture};
 use std::future::{ready, Ready};
@@ -70,11 +72,12 @@ where
     S: Service<ServiceRequest, Response = ServiceResponse, Error = Error>,
     S::Future: 'static,
 {
-    type Response = S::Response;
     type Error = S::Error;
-    type Transform = PermissionMiddleware<S>;
-    type InitError = ();
     type Future = Ready<Result<Self::Transform, Self::InitError>>;
+    type InitError = ();
+    type Response = S::Response;
+    type Transform = PermissionMiddleware<S>;
+
     fn new_transform(&self, service: S) -> Self::Future {
         ready(Ok(PermissionMiddleware {
             service,
@@ -93,9 +96,9 @@ where
     S: Service<ServiceRequest, Response = ServiceResponse, Error = Error>,
     S::Future: 'static,
 {
-    type Response = S::Response;
     type Error = S::Error;
     type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
+    type Response = S::Response;
 
     forward_ready!(service);
 
@@ -108,7 +111,7 @@ where
 
         if !authenticated_user.is_authenticated() {
             return Box::pin(async move {
-                let unauthorized_response = response::app_http_response(
+                let unauthorized_response = response_helper::app_http_response(
                     StatusCode::UNAUTHORIZED,
                     AppResponse::<()> {
                         message: "No Authorization found".to_string(),
@@ -146,7 +149,7 @@ where
         let either = if is_permitted {
             Either::Right(self.service.call(req))
         } else {
-            let forbidden_response = response::app_http_response(
+            let forbidden_response = response_helper::app_http_response(
                 StatusCode::FORBIDDEN,
                 AppResponse::<()> {
                     message: "Insufficient Access Permission".to_string(),

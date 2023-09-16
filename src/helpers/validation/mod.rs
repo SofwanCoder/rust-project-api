@@ -1,8 +1,7 @@
-pub mod auths;
-pub mod email;
+pub mod auth_validation;
+pub mod email_validation;
 
-use std::borrow::Cow;
-use std::collections::HashMap;
+use std::{borrow::Cow, collections::HashMap};
 
 pub fn gen_validation_error(message: &str) -> validator::ValidationError {
     validator::ValidationError {

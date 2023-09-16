@@ -1,8 +1,6 @@
-use crate::helpers::password::hash;
-use crate::utilities::rand::generate_uuid;
+use crate::{helpers::password_helper::hash, utilities::rand::generate_uuid};
 use async_trait::async_trait;
-use sea_orm::entity::prelude::*;
-use sea_orm::ActiveValue::Set;
+use sea_orm::{entity::prelude::*, ActiveValue::Set};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 

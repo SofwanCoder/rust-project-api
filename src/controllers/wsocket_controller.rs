@@ -1,5 +1,4 @@
-use crate::helpers::error::AppError;
-use crate::services::wsocket;
+use crate::{helpers::error_helper::AppError, services::wsocket};
 use actix_web::{web, HttpRequest, Responder, Result};
 use actix_web_actors::ws;
 

@@ -75,14 +75,14 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
-            .wrap(middlewares::auths::Authorization::default())
+            .wrap(middlewares::auth_middleware::Authorization::default())
             .wrap(
                 ErrorHandlers::new()
                     .default_handler(configs::app::error_default_handler)
                     .handler(StatusCode::NOT_FOUND, configs::app::error_404_handler),
             )
             .wrap(Logger::default())
-            .wrap(middlewares::request::AppRequest::default())
+            .wrap(middlewares::request_middleware::AppRequest::default())
             .app_data(app_context.clone())
             .app_data(configs::json::get_json_config())
             .service(router::get_router_scope())

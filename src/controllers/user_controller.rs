@@ -1,6 +1,6 @@
 use crate::{
-    contracts::user::{CreateUserPayload, UpdatePasswordPayload, UpdateUserPayload},
-    helpers::{error::AppError, response},
+    contracts::user_contract::{CreateUserPayload, UpdatePasswordPayload, UpdateUserPayload},
+    helpers::{error_helper::AppError, response_helper},
     types::auth_types::AuthenticatedData,
     utilities::error::{map_blocking_err_to_app_err, map_validation_err_to_app_err},
 };
@@ -26,7 +26,7 @@ pub async fn create_user_controller(
     .await
     .map_err(map_blocking_err_to_app_err)?;
 
-    result.map(response::ok)
+    result.map(response_helper::ok)
 }
 
 pub async fn fetch_user_controller(
@@ -39,7 +39,7 @@ pub async fn fetch_user_controller(
 
     let result = crate::services::user_service::fetch_user(&ctx, user_id).await;
 
-    result.map(response::ok)
+    result.map(response_helper::ok)
 }
 
 pub async fn fetch_me_controller(req: HttpRequest) -> Result<impl Responder, AppError> {
@@ -61,7 +61,7 @@ pub async fn fetch_users_controller(req: HttpRequest) -> Result<impl Responder, 
 
     let result = crate::services::user_service::fetch_users(&ctx.db).await;
 
-    result.map(response::ok)
+    result.map(response_helper::ok)
 }
 
 pub async fn update_user_controller(
@@ -85,7 +85,7 @@ pub async fn update_user_controller(
     .await
     .map_err(map_blocking_err_to_app_err)?;
 
-    result.map(response::ok)
+    result.map(response_helper::ok)
 }
 
 pub async fn update_password_controller(
@@ -103,5 +103,5 @@ pub async fn update_password_controller(
         crate::services::user_service::update_password(&ctx.db, user_id, body.into_inner().into())
             .await;
 
-    result.map(response::ok)
+    result.map(response_helper::ok)
 }

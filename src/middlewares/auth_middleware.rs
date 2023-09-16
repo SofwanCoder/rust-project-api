@@ -1,9 +1,9 @@
-use crate::helpers::response;
-use crate::helpers::response::AppResponse;
-use actix_web::http::StatusCode;
+use crate::helpers::{response_helper, response_helper::AppResponse};
 use actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
-    Error, HttpMessage,
+    http::StatusCode,
+    Error,
+    HttpMessage,
 };
 use futures_util::future::{Either, LocalBoxFuture};
 use std::future::{ready, Ready};
@@ -21,11 +21,12 @@ where
     S: Service<ServiceRequest, Response = ServiceResponse, Error = Error>,
     S::Future: 'static,
 {
-    type Response = S::Response;
     type Error = S::Error;
-    type Transform = AuthorizationMiddleware<S>;
-    type InitError = ();
     type Future = Ready<Result<Self::Transform, Self::InitError>>;
+    type InitError = ();
+    type Response = S::Response;
+    type Transform = AuthorizationMiddleware<S>;
+
     fn new_transform(&self, service: S) -> Self::Future {
         ready(Ok(AuthorizationMiddleware { service }))
     }
@@ -38,9 +39,9 @@ where
     S: Service<ServiceRequest, Response = ServiceResponse, Error = Error>,
     S::Future: 'static,
 {
-    type Response = S::Response;
     type Error = S::Error;
     type Future = LocalBoxFuture<'static, Result<Self::Response, Self::Error>>;
+    type Response = S::Response;
 
     forward_ready!(service);
 
@@ -95,7 +96,7 @@ where
 
         let either = match what {
             WhatHappened::NotBearer => {
-                let r = response::app_http_response(
+                let r = response_helper::app_http_response(
                     StatusCode::IM_A_TEAPOT,
                     AppResponse::<()> {
                         message: "Bearer token expected".to_string(),

@@ -1,7 +1,7 @@
 use crate::{
-    contracts::user::UpdateUserPayload,
+    contracts::user_contract::UpdateUserPayload,
     database::DBConnection,
-    helpers::error::AppError,
+    helpers::error_helper::AppError,
     models,
     models::user::{Entity as UserEntity, Model as UserModel},
     repositories::Repository,

@@ -1,9 +1,9 @@
 use crate::{
-    contracts::auth::CreateTokenPayload,
+    contracts::auth_contract::CreateTokenPayload,
     database::ApplicationDatabase,
     helpers,
-    helpers::error::AppError,
-    repositories::{auth::AuthRepository, user_repository::UserRepository},
+    helpers::error_helper::AppError,
+    repositories::{auth_repository::AuthRepository, user_repository::UserRepository},
     types::auth_types::{AuthToken, AuthenticatedData, CreateAuthModel},
 };
 
@@ -48,15 +48,16 @@ pub async fn login_with_password(
 
     let user = user.unwrap();
 
-    helpers::password::verify(user.password.clone(), body.password.unwrap())
+    helpers::password_helper::verify(user.password.clone(), body.password.unwrap())
         .map_err(|_| AppError::unauthorized("Invalid account or Password"))?;
 
     let auth_session =
         AuthRepository::create_auth(connection, CreateAuthModel::from(&user)).await?;
 
-    let access_token = helpers::token::generate_user_session_access_token(&user, &auth_session)?;
+    let access_token =
+        helpers::token_helper::generate_user_session_access_token(&user, &auth_session)?;
 
-    let refresh_token = helpers::token::generate_user_session_refresh_token(&auth_session)?;
+    let refresh_token = helpers::token_helper::generate_user_session_refresh_token(&auth_session)?;
 
     Ok(AuthToken::new(access_token, refresh_token))
 }
@@ -67,7 +68,7 @@ pub async fn login_with_refresh_token(
 ) -> Result<AuthToken, AppError> {
     let refresh_token = body.refresh_token.unwrap();
 
-    let decoded_token = helpers::token::decode_token_data_for_session(&refresh_token)?;
+    let decoded_token = helpers::token_helper::decode_token_data_for_session(&refresh_token)?;
 
     let connection = &mut db.postgres.get_connection().await?;
 
@@ -91,7 +92,8 @@ pub async fn login_with_refresh_token(
 
     let user = user.unwrap();
 
-    let access_token = helpers::token::generate_user_session_access_token(&user, &auth_session)?;
+    let access_token =
+        helpers::token_helper::generate_user_session_access_token(&user, &auth_session)?;
 
     Ok(AuthToken::new(access_token, refresh_token))
 }

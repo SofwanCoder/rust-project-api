@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use crate::helpers::error::AppError;
+use crate::helpers::error_helper::AppError;
 use log::debug;
 
 pub type PooledDatabaseConnection = sea_orm::DatabaseConnection;

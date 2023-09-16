@@ -1,4 +1,4 @@
-use crate::helpers::validation::auths::validate_grant_type;
+use crate::helpers::validation::auth_validation::validate_grant_type;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 

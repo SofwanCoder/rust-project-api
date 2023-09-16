@@ -1,19 +1,17 @@
-pub mod users;
+pub mod user;
 
-use crate::database::ampq::AmpqConnection;
-use crate::helpers::error::AppError;
-use crate::ApplicationContext;
+use crate::{database::ampq::AmpqConnection, helpers::error_helper::AppError, ApplicationContext};
 use async_trait::async_trait;
 use futures_util::StreamExt;
-use lapin::options::{
-    BasicAckOptions, BasicConsumeOptions, BasicPublishOptions, QueueDeclareOptions,
+use lapin::{
+    options::{BasicAckOptions, BasicConsumeOptions, BasicPublishOptions, QueueDeclareOptions},
+    types::FieldTable,
+    BasicProperties,
 };
-use lapin::types::FieldTable;
-use lapin::BasicProperties;
 use log::debug;
-use serde::de::DeserializeOwned;
-use serde::Serialize;
+use serde::{de::DeserializeOwned, Serialize};
 use std::any::type_name;
+use user::user_registered;
 
 #[async_trait]
 pub trait AppEvent: DeserializeOwned + Serialize {
@@ -127,7 +125,7 @@ pub struct AppEvents;
 impl AppEvents {
     pub async fn init(ctx: ApplicationContext) -> Result<(), AppError> {
         let conn = ctx.db.ampq.get_connection().await?;
-        users::UserRegistered::init(&conn, ctx).await;
+        user_registered::UserRegistered::init(&conn, ctx).await;
         Ok(())
     }
 }

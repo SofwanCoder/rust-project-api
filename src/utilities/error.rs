@@ -1,7 +1,6 @@
-use crate::helpers::error::AppError;
+use crate::helpers::error_helper::AppError;
 use actix_web::error::BlockingError;
-use std::borrow::Cow;
-use std::collections::HashMap;
+use std::{borrow::Cow, collections::HashMap};
 use validator::{ValidationErrors, ValidationErrorsKind};
 
 pub fn map_blocking_err_to_app_err(err: BlockingError) -> AppError {

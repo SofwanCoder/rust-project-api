@@ -1,8 +1,10 @@
 #![allow(dead_code)]
 mod manager;
 
-use crate::configs::constant::{CONNECTION_POOL_MAX_IDLE, CONNECTION_POOL_MAX_OPEN};
-use crate::helpers::error::AppError;
+use crate::{
+    configs::constant::{CONNECTION_POOL_MAX_IDLE, CONNECTION_POOL_MAX_OPEN},
+    helpers::error_helper::AppError,
+};
 use log::debug;
 use manager::AmpqConnectionManager;
 use mobc::Pool;
