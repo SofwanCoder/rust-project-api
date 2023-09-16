@@ -7,8 +7,10 @@ use crate::repositories::auth::AuthRepository;
 use crate::repositories::user::UserRepository;
 use crate::types::auths::AuthToken;
 use crate::{helpers, ApplicationContext};
+use tracing::instrument;
 use uuid::Uuid;
 
+#[instrument(skip(ctx))]
 pub async fn register(
     ctx: &ApplicationContext,
     body: CreateUserModel,
@@ -28,6 +30,7 @@ pub async fn register(
     Ok(AuthToken::new(access_token, refresh_token))
 }
 
+#[instrument(skip(db))]
 pub async fn fetch_user(db: &ApplicationDatabase, user_id: Uuid) -> Result<UserModel, AppError> {
     let connection = &mut db.postgres.get_connection();
     let user = UserRepository::find_user_by_id(connection, user_id);
@@ -42,6 +45,7 @@ pub async fn fetch_user(db: &ApplicationDatabase, user_id: Uuid) -> Result<UserM
     Ok(user.unwrap())
 }
 
+#[instrument(skip(db))]
 pub async fn fetch_users(db: &ApplicationDatabase) -> Result<Vec<UserModel>, AppError> {
     let connection = &mut db.postgres.get_connection();
     let users = UserRepository::find_users(connection);
@@ -49,6 +53,7 @@ pub async fn fetch_users(db: &ApplicationDatabase) -> Result<Vec<UserModel>, App
     Ok(users)
 }
 
+#[instrument(skip(db))]
 pub async fn update_user(
     db: &ApplicationDatabase,
     user_id: Uuid,
@@ -69,6 +74,7 @@ pub async fn update_user(
     Ok(user)
 }
 
+#[instrument(skip(db))]
 pub async fn update_password(
     db: &ApplicationDatabase,
     user_id: Uuid,

@@ -7,7 +7,7 @@ use actix_web::{web, HttpMessage, HttpRequest, Responder, Result};
 use uuid::Uuid;
 use validator::{Validate, ValidateArgs};
 
-pub async fn create_user(
+pub async fn create_user_controller(
     req: HttpRequest,
     body: web::Json<CreateUserPayload>,
 ) -> Result<impl Responder, AppError> {
@@ -28,7 +28,7 @@ pub async fn create_user(
     result.map(response::ok)
 }
 
-pub async fn fetch_user(
+pub async fn fetch_user_controller(
     req: HttpRequest,
     user_id: web::Path<Uuid>,
 ) -> Result<impl Responder, AppError> {
@@ -45,7 +45,7 @@ pub async fn fetch_user(
     result.map(response::ok)
 }
 
-pub async fn fetch_me(req: HttpRequest) -> Result<impl Responder, AppError> {
+pub async fn fetch_me_controller(req: HttpRequest) -> Result<impl Responder, AppError> {
     let user_id = req.extensions().get::<AuthenticatedData>().unwrap().user_id;
 
     let web_path_user_id = web::Path::try_from(user_id.clone());
@@ -56,10 +56,10 @@ pub async fn fetch_me(req: HttpRequest) -> Result<impl Responder, AppError> {
 
     let web_path_user_id = web_path_user_id.unwrap();
 
-    fetch_user(req, web_path_user_id).await
+    fetch_user_controller(req, web_path_user_id).await
 }
 
-pub async fn fetch_users(req: HttpRequest) -> Result<impl Responder, AppError> {
+pub async fn fetch_users_controller(req: HttpRequest) -> Result<impl Responder, AppError> {
     let ctx = req.app_data::<crate::ApplicationContext>().unwrap().clone();
 
     let result = web::block(move || {
@@ -71,7 +71,7 @@ pub async fn fetch_users(req: HttpRequest) -> Result<impl Responder, AppError> {
     result.map(response::ok)
 }
 
-pub async fn update_user(
+pub async fn update_user_controller(
     req: HttpRequest,
     user_id: web::Path<Uuid>,
     body: web::Json<UpdateUserPayload>,
@@ -95,7 +95,7 @@ pub async fn update_user(
     result.map(response::ok)
 }
 
-pub async fn update_password(
+pub async fn update_password_controller(
     req: HttpRequest,
     user_id: web::Path<Uuid>,
     body: web::Json<UpdatePasswordPayload>,

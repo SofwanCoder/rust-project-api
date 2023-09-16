@@ -54,6 +54,7 @@ impl From<UpdateUserPayload> for UpdateUserModel {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct UpdatePasswordModel {
     pub current_password: String,
     pub new_password: String,

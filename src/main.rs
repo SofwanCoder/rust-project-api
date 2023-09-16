@@ -46,7 +46,7 @@ pub struct ApplicationContext {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv::dotenv().ok();
-    tracing_subscriber::fmt::init();
+    register_tracing_logger();
 
     let app_context = ApplicationContext::default();
     AppEvents::init(app_context.clone())
@@ -75,4 +75,21 @@ async fn main() -> std::io::Result<()> {
     .bind((host, port))?
     .run()
     .await
+}
+
+fn register_tracing_logger() {
+    use tracing::subscriber::set_global_default;
+    use tracing_subscriber::{fmt, prelude::*, EnvFilter, Registry};
+
+    let layer = if configs::settings::Variables::environment().eq("production") {
+        fmt::layer().json().boxed()
+    } else {
+        fmt::layer().boxed()
+    };
+
+    let subscriber = Registry::default()
+        .with(EnvFilter::from_default_env())
+        .with(layer);
+
+    set_global_default(subscriber).unwrap();
 }

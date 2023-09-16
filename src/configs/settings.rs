@@ -11,6 +11,10 @@ impl Variables {
             .unwrap_or(8080);
     }
 
+    pub fn environment() -> String {
+        return std::env::var("ENVIRONMENT").unwrap_or("development".to_string());
+    }
+
     pub fn jwt_secret_key() -> String {
         return std::env::var("JWT_SECRET_KEY").unwrap_or("random_secret_key".to_string());
     }

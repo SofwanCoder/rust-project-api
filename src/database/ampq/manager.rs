@@ -25,11 +25,16 @@ impl Manager for AmpqConnectionManager {
     }
 
     async fn check(&self, conn: Self::Connection) -> Result<Self::Connection, Self::Error> {
-        debug!("Checking AMPQ connection status");
+        debug!("Checking AMPQ connection");
         let connection_status = conn.status();
         if connection_status.state() != ConnectionState::Connected {
+            debug!(
+                "AMPQ connection is not connected ({:?})",
+                connection_status.state()
+            );
             return Err(Error::InvalidConnectionState(ConnectionState::Closed));
         }
+        debug!("AMPQ connection is ok");
         Ok(conn)
     }
 }
