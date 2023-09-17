@@ -5,6 +5,7 @@ use crate::{
     configs::constant::{CONNECTION_POOL_MAX_IDLE, CONNECTION_POOL_MAX_OPEN},
     helpers::error_helper::AppError,
 };
+use derive_more::DebugCustom;
 use log::debug;
 use manager::RedisConnectionManager;
 use mobc::Pool;
@@ -13,17 +14,10 @@ use redis;
 pub type RedisConnection = mobc::Connection<RedisConnectionManager>;
 pub type RedisPool = Pool<RedisConnectionManager>;
 
-#[derive(Clone)]
+#[derive(Clone, DebugCustom)]
+#[debug(fmt = "ApplicationRedisDatabase")]
 pub struct ApplicationRedisDatabase {
     connection_pool: RedisPool,
-}
-
-impl std::fmt::Debug for ApplicationRedisDatabase {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("ApplicationRedisDatabase")
-            .field("connection_pool", &"RedisPool")
-            .finish()
-    }
 }
 
 impl ApplicationRedisDatabase {

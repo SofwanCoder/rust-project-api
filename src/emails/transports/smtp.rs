@@ -3,11 +3,12 @@ use lettre::{
         authentication::{Credentials, Mechanism},
         PoolConfig,
     },
-    AsyncSmtpTransport, Tokio1Executor,
+    AsyncSmtpTransport,
+    Tokio1Executor,
 };
 use url::Url;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct SmtpAppTransport {
     pub sender: AsyncSmtpTransport<Tokio1Executor>,
 }

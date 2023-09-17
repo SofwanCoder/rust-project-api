@@ -6,7 +6,7 @@ use actix_web::{
     App,
     HttpServer,
 };
-use derive_more::Display;
+use derive_more::{DebugCustom, Display};
 use dotenv;
 use log::info;
 use std::fmt::Debug;
@@ -40,17 +40,11 @@ impl Default for RequestId {
     }
 }
 
-#[derive(Clone, Display)]
-#[display(fmt = "Application Context")]
+#[derive(Clone, DebugCustom)]
+#[debug(fmt = "ApplicationDatabase")]
 pub struct ApplicationContext {
     pub(crate) db: database::ApplicationDatabase,
     pub(crate) email: emails::transports::Transports,
-}
-
-impl Debug for ApplicationContext {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("ApplicationContext").finish()
-    }
 }
 
 #[actix_web::main]

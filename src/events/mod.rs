@@ -11,7 +11,6 @@ use lapin::{
 use log::debug;
 use serde::{de::DeserializeOwned, Serialize};
 use std::any::type_name;
-use user::user_registered;
 
 #[async_trait]
 pub trait AppEvent: DeserializeOwned + Serialize {
@@ -125,7 +124,8 @@ pub struct AppEvents;
 impl AppEvents {
     pub async fn init(ctx: ApplicationContext) -> Result<(), AppError> {
         let conn = ctx.db.ampq.get_connection().await?;
-        user_registered::UserRegistered::init(&conn, ctx).await;
+        user::registered::UserRegistered::init(&conn, ctx.clone()).await;
+        user::password_changed::UserPasswordChanged::init(&conn, ctx.clone()).await;
         Ok(())
     }
 }

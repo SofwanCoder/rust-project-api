@@ -1,14 +1,14 @@
 use crate::{
-    contracts::user_contract::UpdateUserPayload,
     database::DBConnection,
     helpers::error_helper::AppError,
     models,
     models::user::{Entity as UserEntity, Model as UserModel},
     repositories::Repository,
-    types::user_types::CreateUser,
+    types::user_types::{CreateUser, UpdateUser},
 };
 use futures_util::TryFutureExt;
 use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, EntityTrait, QueryFilter};
+use tracing::instrument;
 use uuid::Uuid;
 
 pub struct UserRepository;
@@ -16,25 +16,28 @@ pub struct UserRepository;
 impl Repository for UserRepository {}
 
 impl UserRepository {
+    #[instrument(skip(connection))]
     pub async fn find_users<C: DBConnection>(connection: &C) -> Vec<UserModel> {
         UserEntity::find()
             .all(connection)
-            .map_err(|_| AppError::database_error("Database error"))
+            .map_err(|e| AppError::database_error(e))
             .await
             .expect("Database error")
     }
 
+    #[instrument(skip(connection))]
     pub async fn find_user_by_id<C: DBConnection>(
         connection: &C,
         user_id: Uuid,
     ) -> Option<UserModel> {
         UserEntity::find_by_id(user_id)
             .one(connection)
-            .map_err(|_| AppError::database_error("Database error"))
+            .map_err(|e| AppError::database_error(e))
             .await
             .expect("Database error")
     }
 
+    #[instrument(skip(connection))]
     pub async fn find_by_email<C: DBConnection>(
         connection: &C,
         user_email: String,
@@ -42,11 +45,12 @@ impl UserRepository {
         UserEntity::find()
             .filter(models::user::Column::Email.eq(user_email))
             .one(connection)
-            .map_err(|_| AppError::database_error("Database error"))
+            .map_err(|e| AppError::database_error(e))
             .await
             .expect("Database error")
     }
 
+    #[instrument(skip(connection))]
     pub async fn create_user<C: DBConnection>(
         connection: &C,
         data: CreateUser,
@@ -62,20 +66,21 @@ impl UserRepository {
             .map_err(|e| AppError::database_error(e))
     }
 
+    #[instrument(skip(connection))]
     pub async fn update_user<C: DBConnection>(
         connection: &C,
         user_id: Uuid,
-        data: UpdateUserPayload,
-    ) -> UserModel {
+        data: UpdateUser,
+    ) -> Result<UserModel, AppError> {
         let user = models::user::ActiveModel {
             id: Set(user_id),
-            name: if data.name.is_some() {
-                Set(data.name.unwrap())
-            } else {
-                Default::default()
-            },
+            name: data.name.map(Set).unwrap_or_default(),
+            password: data.password.map(Set).unwrap_or_default(),
+            email: data.email.map(Set).unwrap_or_default(),
             ..Default::default()
         };
-        user.update(connection).await.expect("Database error")
+        user.update(connection)
+            .await
+            .map_err(|e| AppError::database_error(e))
     }
 }

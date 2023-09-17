@@ -5,6 +5,7 @@ use crate::{
     utilities::error::{map_blocking_err_to_app_err, map_validation_err_to_app_err},
 };
 use actix_web::{web, HttpMessage, HttpRequest, Responder, Result};
+use tracing::instrument;
 use uuid::Uuid;
 use validator::{Validate, ValidateArgs};
 
@@ -18,7 +19,7 @@ pub async fn create_user_controller(
         body.validate_args(&ctx.db)
             .map_err(map_validation_err_to_app_err)?;
 
-        futures::executor::block_on(crate::services::user_service::register(
+        futures::executor::block_on(crate::services::user_service::register_a_user(
             &ctx,
             body.into_inner().into(),
         ))
@@ -37,7 +38,7 @@ pub async fn fetch_user_controller(
 
     let user_id = user_id.into_inner();
 
-    let result = crate::services::user_service::fetch_user(&ctx, user_id).await;
+    let result = crate::services::user_service::fetch_a_user(&ctx, user_id).await;
 
     result.map(response_helper::ok)
 }
@@ -59,7 +60,7 @@ pub async fn fetch_me_controller(req: HttpRequest) -> Result<impl Responder, App
 pub async fn fetch_users_controller(req: HttpRequest) -> Result<impl Responder, AppError> {
     let ctx = req.app_data::<crate::ApplicationContext>().unwrap().clone();
 
-    let result = crate::services::user_service::fetch_users(&ctx.db).await;
+    let result = crate::services::user_service::fetch_some_users(&ctx.db).await;
 
     result.map(response_helper::ok)
 }
@@ -76,7 +77,7 @@ pub async fn update_user_controller(
         body.validate_args(&ctx.db)
             .map_err(map_validation_err_to_app_err)?;
 
-        futures::executor::block_on(crate::services::user_service::update_user(
+        futures::executor::block_on(crate::services::user_service::update_a_user(
             &ctx.db,
             user_id,
             body.into_inner().into(),
@@ -88,6 +89,7 @@ pub async fn update_user_controller(
     result.map(response_helper::ok)
 }
 
+#[instrument(skip_all)]
 pub async fn update_password_controller(
     req: HttpRequest,
     user_id: web::Path<Uuid>,
@@ -99,9 +101,12 @@ pub async fn update_password_controller(
 
     let user_id = user_id.into_inner();
 
-    let result =
-        crate::services::user_service::update_password(&ctx.db, user_id, body.into_inner().into())
-            .await;
+    let result = crate::services::user_service::update_a_user_password(
+        &ctx.db,
+        user_id,
+        body.into_inner().into(),
+    )
+    .await;
 
     result.map(response_helper::ok)
 }

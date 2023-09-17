@@ -1,1 +1,2 @@
-pub(crate) mod user_registered;
+pub(crate) mod password_changed;
+pub(crate) mod registered;

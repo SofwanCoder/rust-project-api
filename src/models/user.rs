@@ -38,6 +38,10 @@ impl ActiveModelBehavior for ActiveModel {
         if insert {
             self.password = Set(hash(self.password.unwrap()).unwrap());
             self.id = Set(generate_uuid());
+        } else {
+            if self.password.is_set() {
+                self.password = Set(hash(self.password.unwrap()).unwrap());
+            }
         }
         Ok(self)
     }

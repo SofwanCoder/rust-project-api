@@ -5,17 +5,20 @@ use std::fmt::Debug;
 use tracing::{error, instrument};
 
 #[derive(Debug)]
-pub struct WelcomeEmail {
+pub struct PasswordChangedEmail {
     pub to: String,
     pub name: String,
 }
 #[async_trait::async_trait]
-impl Email for WelcomeEmail {
+impl Email for PasswordChangedEmail {
     #[instrument]
     async fn build(&self) -> Result<String, Box<dyn std::error::Error>> {
         let mut handlebars = Handlebars::new();
         let templates = [
-            ("templates.welcome-email", "./templates/welcome-email.hbs"),
+            (
+                "templates.password-changed",
+                "./templates/password-changed.hbs",
+            ),
             ("partials.styles", "./templates/partials/styles.hbs"),
             ("layouts.base", "./templates/layouts/base.hbs"),
         ];
@@ -26,15 +29,13 @@ impl Email for WelcomeEmail {
 
         let data = serde_json::json!({
             "name": &self.name,
-            "code": "2367"
         });
 
-        let body = handlebars.render("templates.welcome-email", &data)?;
+        let body = handlebars.render("templates.password-changed", &data)?;
 
         Ok(body)
     }
 
-    #[instrument]
     async fn send(
         &self,
         mailer: impl AsyncTransport + Send + Sync + Debug,
@@ -44,7 +45,7 @@ impl Email for WelcomeEmail {
             .from("Sofwan <hello@sofwan.com>".parse()?)
             .to(self.to.parse()?)
             .to(self.to.parse()?)
-            .subject("Welcome to project")
+            .subject("Your password has been changed")
             .header(ContentType::TEXT_HTML)
             .body(body)?;
 
