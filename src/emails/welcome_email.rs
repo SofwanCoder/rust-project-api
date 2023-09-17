@@ -2,7 +2,7 @@ use crate::emails::Email;
 use handlebars::Handlebars;
 use lettre::{message::header::ContentType, AsyncTransport, Message};
 use std::fmt::Debug;
-use tracing::{error, instrument};
+use tracing::{debug, error, instrument};
 
 #[derive(Debug)]
 pub struct WelcomeEmail {
@@ -13,6 +13,7 @@ pub struct WelcomeEmail {
 impl Email for WelcomeEmail {
     #[instrument]
     async fn build(&self) -> Result<String, Box<dyn std::error::Error>> {
+        debug!("Building WelcomeEmail");
         let mut handlebars = Handlebars::new();
         let templates = [
             ("templates.welcome-email", "./templates/welcome-email.hbs"),
@@ -39,6 +40,7 @@ impl Email for WelcomeEmail {
         &self,
         mailer: impl AsyncTransport + Send + Sync + Debug,
     ) -> Result<(), Box<dyn std::error::Error>> {
+        debug!("Sending WelcomeEmail");
         let body = self.build().await?;
         let email = Message::builder()
             .from("Sofwan <hello@sofwan.com>".parse()?)
@@ -49,7 +51,7 @@ impl Email for WelcomeEmail {
             .body(body)?;
 
         match mailer.send(email).await {
-            Ok(_) => {}
+            Ok(_) => debug!("Email sent"),
             Err(_) => error!("Could not send email"),
         };
 

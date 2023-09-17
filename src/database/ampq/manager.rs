@@ -1,6 +1,6 @@
 use lapin::{Connection, ConnectionProperties, ConnectionState, Error};
-use log::debug;
 use mobc::{async_trait, Manager};
+use tracing::debug;
 
 #[derive(Debug, Clone)]
 pub struct AmpqConnectionManager {

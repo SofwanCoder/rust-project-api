@@ -8,8 +8,8 @@ use actix_web::{
 };
 use derive_more::{DebugCustom, Display};
 use dotenv;
-use log::info;
 use std::fmt::Debug;
+use tracing::info;
 use tracing_log::LogTracer;
 use ulid::Ulid;
 

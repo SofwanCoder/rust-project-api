@@ -3,12 +3,14 @@ use argon2::{
     password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
     Argon2,
 };
+use tracing::error;
 
 pub fn hash(password: String) -> Result<String, AppError> {
     let salt = SaltString::generate(&mut OsRng);
     let hash = Argon2::default().hash_password(password.as_bytes(), &salt);
 
     if hash.is_err() {
+        error!("Internal error when encrypting password: {:?}", hash.err());
         return Err(AppError::new(
             "Internal error when encrypting password",
             helpers::error_helper::AppErrorKind::InternalError,
@@ -21,7 +23,7 @@ pub fn hash(password: String) -> Result<String, AppError> {
 pub fn verify(hash: String, password: String) -> Result<(), AppError> {
     let parsed_hash = PasswordHash::new(hash.as_str());
     if parsed_hash.is_err() {
-        log::debug!(
+        error!(
             "InternalError::Existing password is an invalid hash: {:?}",
             parsed_hash.err()
         );

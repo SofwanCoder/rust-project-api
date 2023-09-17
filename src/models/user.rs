@@ -1,7 +1,9 @@
 use crate::{helpers::password_helper::hash, utilities::rand::generate_uuid};
 use async_trait::async_trait;
+use log::trace;
 use sea_orm::{entity::prelude::*, ActiveValue::Set};
 use serde::{Deserialize, Serialize};
+use tracing::{debug, instrument};
 use uuid::Uuid;
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq, DeriveEntityModel)]
@@ -31,18 +33,23 @@ impl Related<super::auth::Entity> for Entity {
 
 #[async_trait]
 impl ActiveModelBehavior for ActiveModel {
+    #[instrument(skip_all, fields(model = "users::Model"))]
     async fn before_save<C>(mut self, _db: &C, insert: bool) -> Result<Self, DbErr>
     where
         C: ConnectionTrait,
     {
         if insert {
+            trace!("New user, hashing password and generating uuid");
             self.password = Set(hash(self.password.unwrap()).unwrap());
             self.id = Set(generate_uuid());
         } else {
+            trace!("Existing user, checking if password has changed");
             if self.password.is_set() {
+                trace!("Password has changed, hashing new password");
                 self.password = Set(hash(self.password.unwrap()).unwrap());
             }
         }
+        debug!("Saved user: {:?}", self);
         Ok(self)
     }
 }

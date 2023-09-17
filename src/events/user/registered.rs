@@ -6,10 +6,10 @@ use crate::{
 };
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
-use tracing::info;
+use tracing::{info, instrument};
 use uuid::Uuid;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct UserRegistered {
     pub user_id: Uuid,
     pub name: String,
@@ -29,6 +29,7 @@ impl UserRegistered {
 
 #[async_trait]
 impl AppEvent for UserRegistered {
+    #[instrument]
     async fn handle(&self, ctx: ApplicationContext) -> Result<(), AppError> {
         let welcome_email = WelcomeEmail {
             to: self.email.clone(),

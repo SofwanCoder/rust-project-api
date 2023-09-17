@@ -7,6 +7,7 @@ use actix_web::{
 };
 use futures_util::future::{Either, LocalBoxFuture};
 use std::future::{ready, Ready};
+use tracing::{error, instrument, trace, warn};
 
 pub struct Authorization;
 
@@ -45,7 +46,9 @@ where
 
     forward_ready!(service);
 
+    #[instrument(fields(middlware = "AuthorizationMiddleware::call"), skip_all)]
     fn call(&self, req: ServiceRequest) -> Self::Future {
+        trace!("Processing authorization middleware");
         enum WhatHappened {
             Nothing,
             Unauthorized,
@@ -54,8 +57,10 @@ where
         }
 
         let decrypt_authorization_fn = || -> WhatHappened {
+            trace!("Decrypting authorization header");
             let authorization_value = req.headers().get("Authorization");
             if authorization_value.is_none() {
+                trace!("Authorization header is not present");
                 return WhatHappened::Nothing;
             }
 
@@ -68,10 +73,15 @@ where
                 .collect::<Vec<&str>>();
 
             if authorization_value_split[0].ne("Bearer") {
+                warn!(
+                    "Bearer token expected; found {:?}",
+                    authorization_value_split[0]
+                );
                 return WhatHappened::NotBearer;
             }
 
             if authorization_value_split.len() != 2 {
+                warn!("Malformed authorization header");
                 return WhatHappened::Malformed;
             }
 
@@ -82,6 +92,7 @@ where
             >(authorization_token);
 
             if decoded_jwt.is_err() {
+                error!("JWT token is invalid with error: {:?}", decoded_jwt.err());
                 return WhatHappened::Unauthorized;
             }
 

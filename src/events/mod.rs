@@ -8,12 +8,13 @@ use lapin::{
     types::FieldTable,
     BasicProperties,
 };
-use log::debug;
 use serde::{de::DeserializeOwned, Serialize};
 use std::any::type_name;
+use tracing::{debug, instrument};
 
 #[async_trait]
 pub trait AppEvent: DeserializeOwned + Serialize {
+    #[instrument[skip(conn)]]
     async fn init(conn: &AmpqConnection, ctx: ApplicationContext) {
         let queue_name = Self::name();
         let channel = conn.create_channel().await;
@@ -86,6 +87,7 @@ pub trait AppEvent: DeserializeOwned + Serialize {
         })
         .detach();
     }
+    #[instrument[skip(conn, self)]]
     async fn publish(&self, conn: &AmpqConnection) -> Result<(), AppError> {
         let queue_name = Self::name();
         let serialized_data = serde_json::to_string(&self).map_err(|_| {

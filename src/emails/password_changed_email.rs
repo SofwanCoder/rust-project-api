@@ -2,7 +2,7 @@ use crate::emails::Email;
 use handlebars::Handlebars;
 use lettre::{message::header::ContentType, AsyncTransport, Message};
 use std::fmt::Debug;
-use tracing::{error, instrument};
+use tracing::{debug, error, instrument};
 
 #[derive(Debug)]
 pub struct PasswordChangedEmail {
@@ -13,6 +13,7 @@ pub struct PasswordChangedEmail {
 impl Email for PasswordChangedEmail {
     #[instrument]
     async fn build(&self) -> Result<String, Box<dyn std::error::Error>> {
+        debug!("Building PasswordChangedEmail");
         let mut handlebars = Handlebars::new();
         let templates = [
             (
@@ -33,9 +34,11 @@ impl Email for PasswordChangedEmail {
 
         let body = handlebars.render("templates.password-changed", &data)?;
 
+        debug!("PasswordChangedEmail built");
         Ok(body)
     }
 
+    #[instrument(skip(mailer))]
     async fn send(
         &self,
         mailer: impl AsyncTransport + Send + Sync + Debug,
@@ -50,7 +53,7 @@ impl Email for PasswordChangedEmail {
             .body(body)?;
 
         match mailer.send(email).await {
-            Ok(_) => {}
+            Ok(_) => debug!("Email sent"),
             Err(_) => error!("Could not send email"),
         };
 

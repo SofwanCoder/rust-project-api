@@ -10,7 +10,9 @@ use actix_web::{
     HttpMessage,
 };
 use futures_util::future::{Either, LocalBoxFuture};
+use log::debug;
 use std::future::{ready, Ready};
+use tracing::{instrument, trace};
 
 pub struct Authenticated; // Only the resource owner can access
 pub struct Administrator; // Only the admin can access
@@ -102,6 +104,7 @@ where
 
     forward_ready!(service);
 
+    #[instrument(fields(middlware = "PermissionMiddleware::call"), skip_all)]
     fn call(&self, req: ServiceRequest) -> Self::Future {
         let authenticated_user = req
             .extensions()
@@ -110,6 +113,7 @@ where
             .clone();
 
         if !authenticated_user.is_authenticated() {
+            trace!("Authorization header is not present");
             return Box::pin(async move {
                 let unauthorized_response = response_helper::app_http_response(
                     StatusCode::UNAUTHORIZED,
@@ -123,8 +127,12 @@ where
             });
         }
 
+        // log the authenticated user
+        debug!("Authenticated user: {:?}", authenticated_user);
+
         // check if the user_id in the url path is the same as the authenticated user
         let is_cross_access_request = {
+            trace!("Checking if the user_id in the url path is the same as the authenticated user");
             let request_user_id = req.match_info().get("user_id");
             match request_user_id {
                 None => false,
@@ -136,10 +144,18 @@ where
         };
 
         let is_permitted = {
+            trace!("Checking if the user is permitted to access the resource");
             if is_cross_access_request {
+                trace!("User is trying to access a resource that is not his/hers");
                 match self.kind {
-                    PermissionKind::Authenticated => false,
-                    PermissionKind::Administrator => authenticated_user.is_admin(),
+                    PermissionKind::Authenticated => {
+                        trace!("User is not permitted to access the resource");
+                        false
+                    }
+                    PermissionKind::Administrator => {
+                        trace!("User is an administrator permitted to access the resource");
+                        authenticated_user.is_admin()
+                    }
                 }
             } else {
                 authenticated_user.is_cleared(self.level)
@@ -147,8 +163,10 @@ where
         };
 
         let either = if is_permitted {
+            trace!("User is permitted to access the resource");
             Either::Right(self.service.call(req))
         } else {
+            trace!("User is not permitted to access the resource");
             let forbidden_response = response_helper::app_http_response(
                 StatusCode::FORBIDDEN,
                 AppResponse::<()> {
