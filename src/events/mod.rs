@@ -10,7 +10,7 @@ use lapin::{
 };
 use serde::{de::DeserializeOwned, Serialize};
 use std::any::type_name;
-use tracing::{debug, error, instrument};
+use tracing::{debug, error, info, instrument};
 
 #[async_trait]
 pub trait AppEvent: DeserializeOwned + Serialize {
@@ -95,18 +95,22 @@ pub trait AppEvent: DeserializeOwned + Serialize {
     #[instrument[skip(conn, self)]]
     async fn publish(&self, conn: &AmpqConnection) -> Result<(), AppError> {
         let queue_name = Self::name();
+        debug!("Publishing event to queue: {}", queue_name);
         let serialized_data = serde_json::to_string(&self).map_err(|_| {
             error!("Unable to serialize data for publishing to RabbitMQ");
             AppError::internal_server("Unable to serialize data for publishing to RabbitMQ")
         })?;
 
+        debug!("Serialized data for publishing: {}", serialized_data);
         let payload = serialized_data.as_bytes();
 
+        debug!("Creating publish channel");
         let channel = conn
             .create_channel()
             .await
             .map_err(|_| AppError::internal_server("Unable to find queue channel"))?;
 
+        debug!("Publishing message to queue");
         channel
             .basic_publish(
                 "",
@@ -133,7 +137,9 @@ pub trait AppEvent: DeserializeOwned + Serialize {
 pub struct AppEvents;
 
 impl AppEvents {
+    #[instrument]
     pub async fn init(ctx: ApplicationContext) -> Result<(), AppError> {
+        info!("Initializing all event listeners and handlers");
         let conn = ctx.db.ampq.get_connection().await?;
         user::registered::UserRegistered::init(&conn, ctx.clone()).await;
         user::password_changed::UserPasswordChanged::init(&conn, ctx.clone()).await;

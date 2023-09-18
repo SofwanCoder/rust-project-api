@@ -1,4 +1,4 @@
-use crate::{helpers::password_helper::hash, utilities::rand::generate_uuid};
+use crate::{helpers::password_helper::hash_password, utilities::rand::generate_uuid};
 use async_trait::async_trait;
 use log::trace;
 use sea_orm::{entity::prelude::*, ActiveValue::Set};
@@ -40,13 +40,13 @@ impl ActiveModelBehavior for ActiveModel {
     {
         if insert {
             trace!("New user, hashing password and generating uuid");
-            self.password = Set(hash(self.password.unwrap()).unwrap());
+            self.password = Set(hash_password(self.password.unwrap()).unwrap());
             self.id = Set(generate_uuid());
         } else {
             trace!("Existing user, checking if password has changed");
             if self.password.is_set() {
                 trace!("Password has changed, hashing new password");
-                self.password = Set(hash(self.password.unwrap()).unwrap());
+                self.password = Set(hash_password(self.password.unwrap()).unwrap());
             }
         }
         debug!("Saved user: {:?}", self);

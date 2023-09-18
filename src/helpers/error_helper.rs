@@ -10,11 +10,11 @@ pub enum AppErrorKind {
     ValidationError,
     DatabaseError,
     ResourceNotFound,
-    UserError,
     InternalError,
     AuthorizationError,
     AuthDenied,
     BadClientError,
+    DataExpired,
 }
 
 #[derive(Display, Debug)]
@@ -103,6 +103,14 @@ impl AppError {
             data: None,
         }
     }
+
+    pub fn expired_data<T: Display>(message: T) -> AppError {
+        AppError {
+            message: message.to_string(),
+            kind: AppErrorKind::BadClientError,
+            data: None,
+        }
+    }
 }
 
 impl ResponseError for AppError {
@@ -111,11 +119,11 @@ impl ResponseError for AppError {
             AppErrorKind::ValidationError => StatusCode::EXPECTATION_FAILED,
             AppErrorKind::DatabaseError => StatusCode::INTERNAL_SERVER_ERROR,
             AppErrorKind::InternalError => StatusCode::NOT_IMPLEMENTED,
-            AppErrorKind::UserError => StatusCode::BAD_REQUEST,
             AppErrorKind::AuthorizationError => StatusCode::UNAUTHORIZED,
             AppErrorKind::ResourceNotFound => StatusCode::NOT_FOUND,
             AppErrorKind::AuthDenied => StatusCode::FORBIDDEN,
             AppErrorKind::BadClientError => StatusCode::BAD_REQUEST,
+            AppErrorKind::DataExpired => StatusCode::GONE,
         }
     }
 

@@ -13,7 +13,7 @@ use crate::{
     ApplicationContext,
 };
 use sea_orm::TransactionTrait;
-use tracing::instrument;
+use tracing::{debug, instrument, trace};
 use uuid::Uuid;
 
 #[instrument]
@@ -21,12 +21,15 @@ pub async fn register_a_user(
     ctx: &ApplicationContext,
     body: CreateUser,
 ) -> Result<AuthToken, AppError> {
+    debug!("Registering a user");
     let connection = &mut ctx.db.source.get_connection().await?;
     let transaction_result = connection
         .transaction(|txn| {
             Box::pin(async move {
+                debug!("Requesting user creation");
                 let user = UserRepository::create_user(txn, body).await?;
 
+                debug!("Requesting auth session creation");
                 let auth_session =
                     AuthRepository::create_auth(txn, CreateAuthModel::from(&user)).await;
 
@@ -39,18 +42,21 @@ pub async fn register_a_user(
                 Ok((user, auth_session.unwrap()))
             })
         })
-        .await;
+        .await
+        .map_err(|_| {
+            debug!("Error occurred while creating user");
+            AppError::internal_server("Error occurred while creating user")
+        })?;
 
-    if transaction_result.is_err() {
-        return Err(AppError::internal_server("Unknown error"));
-    }
+    let (user, auth_session) = transaction_result;
 
-    let (user, auth_session) = transaction_result.unwrap();
-
+    debug!("Generating access token");
     let access_token =
         helpers::token_helper::generate_user_session_access_token(&user, &auth_session)?;
+    debug!("Generating refresh token");
     let refresh_token = helpers::token_helper::generate_user_session_refresh_token(&auth_session)?;
 
+    debug!("Publishing user registered event");
     crate::events::user::registered::UserRegistered::new(user.id, user.name, user.email)
         .publish(&ctx.db.ampq.get_connection().await?)
         .await?;
@@ -61,20 +67,19 @@ pub async fn register_a_user(
 #[instrument]
 pub async fn fetch_a_user(ctx: &ApplicationContext, user_id: Uuid) -> Result<UserModel, AppError> {
     let connection = &mut ctx.db.source.get_connection().await?;
-    let user = UserRepository::find_user_by_id(connection, user_id).await;
+    let user = UserRepository::find_user_by_id(connection, user_id)
+        .await
+        .ok_or_else(|| {
+            trace!("User not found for {}", user_id);
+            AppError::not_found(format!("User not found for {}", user_id))
+        })?;
 
-    if user.is_none() {
-        return Err(AppError::not_found(format!(
-            "User not found for {}",
-            user_id.clone()
-        )));
-    }
-
-    Ok(user.unwrap())
+    Ok(user)
 }
 
 #[instrument]
 pub async fn fetch_some_users(db: &ApplicationDatabase) -> Result<Vec<UserModel>, AppError> {
+    debug!("Fetching some users");
     let connection = &mut db.source.get_connection().await?;
     let users = UserRepository::find_users(connection).await;
 
@@ -87,16 +92,16 @@ pub async fn update_a_user(
     user_id: Uuid,
     data: UpdateUserPayload,
 ) -> Result<UserModel, AppError> {
+    debug!("Updating a user with id: {}", user_id);
     let connection = &mut db.source.get_connection().await?;
-    let user = UserRepository::find_user_by_id(connection, user_id).await;
+    UserRepository::find_user_by_id(connection, user_id)
+        .await
+        .ok_or_else(|| {
+            trace!("User not found for {}", user_id);
+            AppError::not_found("User not found")
+        })?;
 
-    if user.is_none() {
-        return Err(AppError::not_found(format!(
-            "User not found for {}",
-            user_id.clone()
-        )));
-    }
-
+    debug!("Updating the user");
     let user = UserRepository::update_user(
         connection,
         user_id,
@@ -111,27 +116,26 @@ pub async fn update_a_user(
     Ok(user)
 }
 
-#[instrument]
+#[instrument(skip_all)]
 pub async fn update_a_user_password(
     db: &ApplicationDatabase,
     user_id: Uuid,
     data: UpdatePassword,
 ) -> Result<UserModel, AppError> {
+    debug!("Updating a user password with id: {}", user_id);
     let connection = &mut db.source.get_connection().await?;
-    let user = UserRepository::find_user_by_id(connection, user_id).await;
+    let user = UserRepository::find_user_by_id(connection, user_id)
+        .await
+        .ok_or_else(|| {
+            trace!("User not found for {}", user_id);
+            AppError::not_found("User not found")
+        })?;
 
-    if user.is_none() {
-        return Err(AppError::not_found(format!(
-            "User not found for {}",
-            user_id.clone()
-        )));
-    }
-
-    let user = user.unwrap();
-
-    helpers::password_helper::verify(user.password.clone(), data.current_password.clone())
+    debug!("Verifying current password");
+    helpers::password_helper::verify_password(user.password, data.current_password)
         .map_err(|_| AppError::unauthorized("Invalid password"))?;
 
+    debug!("Updating user password");
     let user = UserRepository::update_user(
         connection,
         user_id,
@@ -142,6 +146,7 @@ pub async fn update_a_user_password(
     )
     .await?;
 
+    debug!("Publishing user password changed event");
     UserPasswordChanged::new(user.id.clone(), user.name.clone(), user.email.clone())
         .publish(&db.ampq.get_connection().await?)
         .await?;

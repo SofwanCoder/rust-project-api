@@ -1,14 +1,20 @@
 use crate::{
-    helpers::error_helper::AppError,
+    helpers::error_helper::{AppError, AppErrorKind},
     models::{auth::Model as AuthModel, user::Model as UserModel},
     types::auth_types::{AuthenticatedData, RefreshTokenData},
     utilities,
 };
+use tracing::{debug, instrument};
 
+#[instrument(skip_all)]
 pub fn generate_user_session_access_token(
     user: &UserModel,
     auth_session: &AuthModel,
 ) -> Result<String, AppError> {
+    debug!(
+        "Generating access token for user id: {} and auth session id: {}",
+        user.id, auth_session.id
+    );
     let expires_in_24_hours = chrono::Utc::now().naive_utc() + chrono::Duration::days(1);
     utilities::jwt::encode(AuthenticatedData {
         session_id: auth_session.id,
@@ -20,16 +26,23 @@ pub fn generate_user_session_access_token(
     .map_err(|_| AppError::internal_server("Error requesting access token"))
 }
 
+#[instrument(skip_all)]
 pub fn generate_user_session_refresh_token(auth_session: &AuthModel) -> Result<String, AppError> {
+    debug!(
+        "Generating refresh token for auth session id: {}",
+        auth_session.id
+    );
     utilities::jwt::encode(RefreshTokenData::from(auth_session))
         .map_err(|_| AppError::internal_server("Error requesting refresh token"))
 }
 
+#[instrument(skip_all)]
 pub fn decode_token_data_for_session(token: &String) -> Result<RefreshTokenData, AppError> {
+    debug!("Decoding token data for session");
     utilities::jwt::decode::<RefreshTokenData>(token).map_err(|e| {
-        let error_kind = e.kind();
+        let error_kind = e.kind;
         let message = match error_kind {
-            jsonwebtoken::errors::ErrorKind::ExpiredSignature => "Refresh token expired",
+            AppErrorKind::DataExpired => "Refresh token expired",
             _ => "Invalid refresh token",
         };
         AppError::unauthorized(message)

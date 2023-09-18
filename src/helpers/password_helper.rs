@@ -3,9 +3,11 @@ use argon2::{
     password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
     Argon2,
 };
-use tracing::error;
+use tracing::{debug, error, instrument};
 
-pub fn hash(password: String) -> Result<String, AppError> {
+#[instrument(skip_all)]
+pub fn hash_password(password: String) -> Result<String, AppError> {
+    debug!("Hashing password");
     let salt = SaltString::generate(&mut OsRng);
     let hash = Argon2::default().hash_password(password.as_bytes(), &salt);
 
@@ -17,10 +19,14 @@ pub fn hash(password: String) -> Result<String, AppError> {
         ));
     }
 
+    debug!("Password hashed");
     return Ok(hash.unwrap().to_string());
 }
 
-pub fn verify(hash: String, password: String) -> Result<(), AppError> {
+#[instrument(skip_all)]
+pub fn verify_password(hash: String, password: String) -> Result<(), AppError> {
+    debug!("Verifying password from hash");
+
     let parsed_hash = PasswordHash::new(hash.as_str());
     if parsed_hash.is_err() {
         error!(
@@ -30,10 +36,13 @@ pub fn verify(hash: String, password: String) -> Result<(), AppError> {
         return Err(AppError::internal_server("Existing password is invalid!"));
     }
 
-    let result = Argon2::default().verify_password(password.as_bytes(), &parsed_hash.unwrap());
-    if result.is_err() {
-        return Err(AppError::client_error("Password does not match"));
-    }
+    Argon2::default()
+        .verify_password(password.as_bytes(), &parsed_hash.unwrap())
+        .map_err(|err| {
+            error!("InternalError::Error when verifying password: {:?}", err);
+            AppError::client_error("Password does not match")
+        })?;
 
+    debug!("Password verified from hash");
     return Ok(());
 }

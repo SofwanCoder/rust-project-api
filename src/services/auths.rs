@@ -6,94 +6,112 @@ use crate::{
     repositories::{auth_repository::AuthRepository, user_repository::UserRepository},
     types::auth_types::{AuthToken, AuthenticatedData, CreateAuthModel},
 };
+use tracing::{debug, error, instrument};
 
-pub async fn login(
+#[instrument(skip_all)]
+pub async fn login_a_user(
     db: &ApplicationDatabase,
     body: CreateTokenPayload,
 ) -> Result<AuthToken, AppError> {
+    debug!("Login a user with grant type: {}", body.grant_type);
     match body.grant_type.as_str() {
         "password" => login_with_password(db, body).await,
         "refresh_token" => login_with_refresh_token(db, body).await,
-        _ => panic!("We should never get here| Invalid grant type"),
+        _ => {
+            error!("Invalid grant type: {}", body.grant_type);
+            panic!("We should never get here| Invalid grant type");
+        }
     }
 }
 
-pub async fn logout(
+#[instrument(skip_all)]
+pub async fn logout_a_user(
     db: &ApplicationDatabase,
     auth_data: AuthenticatedData,
 ) -> Result<(), AppError> {
     let connection = &mut db.source.get_connection().await?;
-    let auth_session = AuthRepository::find_auth_by_id(connection, auth_data.session_id).await;
+    debug!("Finding auth session by id");
+    AuthRepository::find_auth_by_id(connection, auth_data.session_id)
+        .await
+        .ok_or_else(|| {
+            debug!("Invalid session id or session expired");
+            AppError::unauthorized("Invalid session id or session expired")
+        })?;
 
-    if auth_session.is_none() {
-        return Err(AppError::unauthorized("Invalid session"));
-    }
-
-    AuthRepository::delete_auth_by_id(connection, auth_data.session_id).await;
+    debug!("Deleting auth session");
+    AuthRepository::delete_auth_by_id(connection, auth_data.session_id).await?;
 
     Ok(())
 }
 
+#[instrument(skip_all)]
 pub async fn login_with_password(
     db: &ApplicationDatabase,
     body: CreateTokenPayload,
 ) -> Result<AuthToken, AppError> {
+    debug!("Login with password");
     let connection = &mut db.source.get_connection().await?;
 
-    let user = UserRepository::find_by_email(connection, body.email.unwrap()).await;
+    debug!("Finding user by email");
+    let user = UserRepository::find_by_email(connection, body.email.unwrap())
+        .await
+        .ok_or(AppError::unauthorized("Invalid Account or password"))?;
 
-    if user.is_none() {
-        return Err(AppError::unauthorized("Invalid Account or password"));
-    }
-
-    let user = user.unwrap();
-
-    helpers::password_helper::verify(user.password.clone(), body.password.unwrap())
+    debug!("Verifying password");
+    helpers::password_helper::verify_password(user.password.clone(), body.password.unwrap())
         .map_err(|_| AppError::unauthorized("Invalid account or Password"))?;
 
+    debug!("Creating auth session");
     let auth_session =
         AuthRepository::create_auth(connection, CreateAuthModel::from(&user)).await?;
 
+    debug!("Generating access token");
     let access_token =
         helpers::token_helper::generate_user_session_access_token(&user, &auth_session)?;
 
+    debug!("Generating refresh token");
     let refresh_token = helpers::token_helper::generate_user_session_refresh_token(&auth_session)?;
 
     Ok(AuthToken::new(access_token, refresh_token))
 }
 
+#[instrument(skip_all)]
 pub async fn login_with_refresh_token(
     db: &ApplicationDatabase,
     body: CreateTokenPayload,
 ) -> Result<AuthToken, AppError> {
+    debug!("Login with refresh token");
     let refresh_token = body.refresh_token.unwrap();
 
     let decoded_token = helpers::token_helper::decode_token_data_for_session(&refresh_token)?;
 
     let connection = &mut db.source.get_connection().await?;
 
-    let auth_session = AuthRepository::find_auth_by_id(connection, decoded_token.token_id).await;
-
-    if auth_session.is_none() {
-        return Err(AppError::unauthorized("Refresh token invalid"));
-    }
-
-    let auth_session = auth_session.unwrap();
+    debug!("Finding auth session by id");
+    let auth_session = AuthRepository::find_auth_by_id(connection, decoded_token.token_id)
+        .await
+        .ok_or_else(|| {
+            debug!("Invalid session id or session expired");
+            AppError::unauthorized("Invalid session id or session expired")
+        })?;
 
     if auth_session.expires_at.lt(&chrono::Utc::now().naive_utc()) {
+        debug!("Refresh token is definitely expired");
         return Err(AppError::unauthorized("Refresh token expired"));
     }
 
-    let user = UserRepository::find_user_by_id(connection, decoded_token.user_id).await;
+    debug!("Finding user by id in session: {}", decoded_token.user_id);
+    let user = UserRepository::find_user_by_id(connection, decoded_token.user_id)
+        .await
+        .ok_or_else(|| {
+            debug!("Invalid user id");
+            AppError::unauthorized("Referenced user does not exist")
+        })?;
 
-    if user.is_none() {
-        return Err(AppError::unauthorized("Referenced user does not exist"));
-    }
-
-    let user = user.unwrap();
-
+    debug!("Generating new access token");
     let access_token =
         helpers::token_helper::generate_user_session_access_token(&user, &auth_session)?;
 
+    debug!("Access token generated successfully");
     Ok(AuthToken::new(access_token, refresh_token))
 }
