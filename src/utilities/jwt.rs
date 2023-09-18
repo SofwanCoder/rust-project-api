@@ -16,7 +16,7 @@ where
         &jsonwebtoken::EncodingKey::from_secret(secret_key),
     )
     .map_err(|e| AppError::internal_server(e))?;
-    debug!("Encoded data successful");
+    debug!("Encoded data successfully");
     return Ok(token);
 }
 

@@ -1,12 +1,12 @@
 use crate::{
-    contracts::auth_contract::CreateTokenPayload,
+    contracts::auth_contract::{CreateTokenPayload, GrantType},
     database::ApplicationDatabase,
     helpers,
     helpers::error_helper::AppError,
     repositories::{auth_repository::AuthRepository, user_repository::UserRepository},
     types::auth_types::{AuthToken, AuthenticatedData, CreateAuthModel},
 };
-use tracing::{debug, error, instrument};
+use tracing::{debug, error, field::debug, instrument};
 
 #[instrument(skip_all)]
 pub async fn login_a_user(
@@ -14,9 +14,9 @@ pub async fn login_a_user(
     body: CreateTokenPayload,
 ) -> Result<AuthToken, AppError> {
     debug!("Login a user with grant type: {}", body.grant_type);
-    match body.grant_type.as_str() {
-        "password" => login_with_password(db, body).await,
-        "refresh_token" => login_with_refresh_token(db, body).await,
+    match body.grant_type {
+        GrantType::Password => login_with_password(db, body).await,
+        GrantType::RefreshToken => login_with_refresh_token(db, body).await,
         _ => {
             error!("Invalid grant type: {}", body.grant_type);
             panic!("We should never get here| Invalid grant type");
@@ -72,6 +72,7 @@ pub async fn login_with_password(
     debug!("Generating refresh token");
     let refresh_token = helpers::token_helper::generate_user_session_refresh_token(&auth_session)?;
 
+    debug("Login Complete with password");
     Ok(AuthToken::new(access_token, refresh_token))
 }
 
@@ -112,6 +113,6 @@ pub async fn login_with_refresh_token(
     let access_token =
         helpers::token_helper::generate_user_session_access_token(&user, &auth_session)?;
 
-    debug!("Access token generated successfully");
+    debug("Login Complete with refresh token");
     Ok(AuthToken::new(access_token, refresh_token))
 }

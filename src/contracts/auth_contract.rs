@@ -1,6 +1,21 @@
 use crate::helpers::validation::auth_validation::validate_grant_type;
+use derive_more::Display;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
+
+#[derive(Debug, Serialize, Deserialize, Clone, Display, Default, PartialEq)]
+pub enum GrantType {
+    #[default]
+    #[serde(rename = "password")]
+    #[display(fmt = "password")]
+    Password,
+    #[serde(rename = "refresh_token")]
+    #[display(fmt = "refresh_token")]
+    RefreshToken,
+    #[serde(rename = "authorization_code")]
+    #[display(fmt = "authorization_code")]
+    AuthorizationCode,
+}
 
 #[derive(Debug, Serialize, Deserialize, Validate, Clone)]
 pub struct CreateTokenPayload {
@@ -13,9 +28,6 @@ pub struct CreateTokenPayload {
     #[serde(default)]
     pub refresh_token: Option<String>,
     #[serde(default)]
-    #[validate(
-        length(min = 1, message = "Grant type must be provided"),
-        custom(function = "validate_grant_type", arg = "&'v_a CreateTokenPayload")
-    )]
-    pub grant_type: String,
+    #[validate(custom(function = "validate_grant_type", arg = "&'v_a CreateTokenPayload"))]
+    pub grant_type: GrantType,
 }
