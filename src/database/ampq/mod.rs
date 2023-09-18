@@ -5,25 +5,18 @@ use crate::{
     configs::constant::{CONNECTION_POOL_MAX_IDLE, CONNECTION_POOL_MAX_OPEN},
     helpers::error_helper::AppError,
 };
+use derive_more::DebugCustom;
 use log::debug;
 use manager::AmpqConnectionManager;
 use mobc::Pool;
-use std::fmt::Debug;
 
 pub type AmpqConnection = mobc::Connection<AmpqConnectionManager>;
 pub type AmpqPool = Pool<AmpqConnectionManager>;
 
-#[derive(Clone)]
+#[derive(Clone, DebugCustom)]
+#[debug(fmt = "ApplicationAmpqDatabase")]
 pub struct ApplicationAmpqDatabase {
     connection_pool: AmpqPool,
-}
-
-impl Debug for ApplicationAmpqDatabase {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("ApplicationAmpqDatabase")
-            .field("connection_pool", &"AmpqPool")
-            .finish()
-    }
 }
 
 impl ApplicationAmpqDatabase {
