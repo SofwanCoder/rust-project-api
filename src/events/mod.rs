@@ -10,7 +10,7 @@ use lapin::{
 };
 use serde::{de::DeserializeOwned, Serialize};
 use std::any::type_name;
-use tracing::{debug, instrument};
+use tracing::{debug, error, instrument};
 
 #[async_trait]
 pub trait AppEvent: DeserializeOwned + Serialize {
@@ -64,8 +64,11 @@ pub trait AppEvent: DeserializeOwned + Serialize {
         async_global_executor::spawn(async move {
             while let Some(delivery) = consumer.next().await {
                 if delivery.is_err() {
+                    error!("Unable to receive delivery {:?}", delivery.err().unwrap());
                     continue;
                 }
+
+                debug!("Received new delivery");
                 let delivery = delivery.unwrap();
 
                 let this: Self = serde_json::from_slice(&delivery.data).unwrap();
@@ -73,6 +76,7 @@ pub trait AppEvent: DeserializeOwned + Serialize {
                 let handled = this.handle(ctx.clone());
                 let handled = handled.await;
                 if handled.is_err() {
+                    debug!("Unable to handle event {:?}", handled.err().unwrap());
                     continue;
                 }
 
@@ -81,6 +85,7 @@ pub trait AppEvent: DeserializeOwned + Serialize {
                     .await;
 
                 if result.is_err() {
+                    error!("Unable to acknowledge delivery {:?}", result.err().unwrap());
                     continue;
                 }
             }
@@ -91,6 +96,7 @@ pub trait AppEvent: DeserializeOwned + Serialize {
     async fn publish(&self, conn: &AmpqConnection) -> Result<(), AppError> {
         let queue_name = Self::name();
         let serialized_data = serde_json::to_string(&self).map_err(|_| {
+            error!("Unable to serialize data for publishing to RabbitMQ");
             AppError::internal_server("Unable to serialize data for publishing to RabbitMQ")
         })?;
 
@@ -110,7 +116,10 @@ pub trait AppEvent: DeserializeOwned + Serialize {
                 BasicProperties::default(),
             )
             .await
-            .map_err(|_| AppError::internal_server("Unable to publish message"))?;
+            .map_err(|_| {
+                error!("Unable to publish message");
+                AppError::internal_server("Unable to publish message")
+            })?;
 
         Ok(())
     }

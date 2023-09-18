@@ -21,7 +21,7 @@ pub async fn register_a_user(
     ctx: &ApplicationContext,
     body: CreateUser,
 ) -> Result<AuthToken, AppError> {
-    let connection = &mut ctx.db.postgres.get_connection().await?;
+    let connection = &mut ctx.db.source.get_connection().await?;
     let transaction_result = connection
         .transaction(|txn| {
             Box::pin(async move {
@@ -60,7 +60,7 @@ pub async fn register_a_user(
 
 #[instrument]
 pub async fn fetch_a_user(ctx: &ApplicationContext, user_id: Uuid) -> Result<UserModel, AppError> {
-    let connection = &mut ctx.db.postgres.get_connection().await?;
+    let connection = &mut ctx.db.source.get_connection().await?;
     let user = UserRepository::find_user_by_id(connection, user_id).await;
 
     if user.is_none() {
@@ -75,7 +75,7 @@ pub async fn fetch_a_user(ctx: &ApplicationContext, user_id: Uuid) -> Result<Use
 
 #[instrument]
 pub async fn fetch_some_users(db: &ApplicationDatabase) -> Result<Vec<UserModel>, AppError> {
-    let connection = &mut db.postgres.get_connection().await?;
+    let connection = &mut db.source.get_connection().await?;
     let users = UserRepository::find_users(connection).await;
 
     Ok(users)
@@ -87,7 +87,7 @@ pub async fn update_a_user(
     user_id: Uuid,
     data: UpdateUserPayload,
 ) -> Result<UserModel, AppError> {
-    let connection = &mut db.postgres.get_connection().await?;
+    let connection = &mut db.source.get_connection().await?;
     let user = UserRepository::find_user_by_id(connection, user_id).await;
 
     if user.is_none() {
@@ -117,7 +117,7 @@ pub async fn update_a_user_password(
     user_id: Uuid,
     data: UpdatePassword,
 ) -> Result<UserModel, AppError> {
-    let connection = &mut db.postgres.get_connection().await?;
+    let connection = &mut db.source.get_connection().await?;
     let user = UserRepository::find_user_by_id(connection, user_id).await;
 
     if user.is_none() {

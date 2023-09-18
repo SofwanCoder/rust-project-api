@@ -4,6 +4,7 @@ impl Variables {
     pub fn host() -> String {
         return std::env::var("HOST").unwrap_or("127.0.0.1".to_string());
     }
+
     pub fn port() -> u16 {
         return std::env::var("PORT")
             .unwrap_or("8080".to_string())
@@ -19,8 +20,8 @@ impl Variables {
         return std::env::var("JWT_SECRET_KEY").unwrap_or("random_secret_key".to_string());
     }
 
-    pub fn postgres_uri() -> String {
-        return std::env::var("POSTGRES_URI").unwrap_or("http://localhost:5432".to_string());
+    pub fn database_uri() -> String {
+        return std::env::var("DATABASE_URI").unwrap_or("http://localhost:5432".to_string());
     }
 
     pub fn redis_uri() -> String {

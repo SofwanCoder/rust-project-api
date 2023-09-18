@@ -1,5 +1,7 @@
-use crate::helpers::validation::gen_validation_error;
-use crate::repositories::user_repository::UserRepository;
+use crate::{
+    helpers::validation::gen_validation_error,
+    repositories::user_repository::UserRepository,
+};
 
 pub fn unique_email_validator(
     email: &str,
@@ -13,7 +15,7 @@ async fn unique_email(
     db: &crate::database::ApplicationDatabase,
 ) -> Result<(), validator::ValidationError> {
     let connection = &db
-        .postgres
+        .source
         .get_connection()
         .await
         .map_err(|e| gen_validation_error(&e.to_string()))?;

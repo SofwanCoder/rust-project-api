@@ -22,7 +22,7 @@ pub async fn logout(
     db: &ApplicationDatabase,
     auth_data: AuthenticatedData,
 ) -> Result<(), AppError> {
-    let connection = &mut db.postgres.get_connection().await?;
+    let connection = &mut db.source.get_connection().await?;
     let auth_session = AuthRepository::find_auth_by_id(connection, auth_data.session_id).await;
 
     if auth_session.is_none() {
@@ -38,7 +38,7 @@ pub async fn login_with_password(
     db: &ApplicationDatabase,
     body: CreateTokenPayload,
 ) -> Result<AuthToken, AppError> {
-    let connection = &mut db.postgres.get_connection().await?;
+    let connection = &mut db.source.get_connection().await?;
 
     let user = UserRepository::find_by_email(connection, body.email.unwrap()).await;
 
@@ -70,7 +70,7 @@ pub async fn login_with_refresh_token(
 
     let decoded_token = helpers::token_helper::decode_token_data_for_session(&refresh_token)?;
 
-    let connection = &mut db.postgres.get_connection().await?;
+    let connection = &mut db.source.get_connection().await?;
 
     let auth_session = AuthRepository::find_auth_by_id(connection, decoded_token.token_id).await;
 
