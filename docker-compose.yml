@@ -31,8 +31,10 @@ services:
       - .env
 
   redis_project_db:
-    image: redis:2
-    command: /bin/sh -c "redis-server --requirepass wg04zC"
+    image: redis:7
+    command: /bin/sh -c "redis-server --requirepass $$REDIS_USER_PASSWORD"
+    environment:
+      REDIS_USER_PASSWORD: wg04zC
     volumes:
         - redis_project_db_data:/data
     ports:
