@@ -1,4 +1,4 @@
-use crate::helpers::{response_helper, response_helper::AppResponse};
+use crate::helpers::{response, response::AppResponse};
 use actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
     http::StatusCode,
@@ -107,7 +107,7 @@ where
 
         let either = match what {
             WhatHappened::NotBearer => {
-                let r = response_helper::app_http_response(
+                let r = response::app_http_response(
                     StatusCode::IM_A_TEAPOT,
                     AppResponse::<()> {
                         message: "Bearer token expected".to_string(),

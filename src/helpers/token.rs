@@ -1,5 +1,5 @@
 use crate::{
-    helpers::error_helper::{AppError, AppErrorKind},
+    helpers::error::{AppError, AppErrorKind},
     models::{auth::Model as AuthModel, user::Model as UserModel},
     types::auth_types::{AuthenticatedData, RefreshTokenData},
     utilities,

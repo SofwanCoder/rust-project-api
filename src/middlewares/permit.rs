@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 use crate::{
-    helpers::{response_helper, response_helper::AppResponse},
+    helpers::{response, response::AppResponse},
     types::auth_types::AuthenticatedData,
 };
 use actix_web::{
@@ -115,7 +115,7 @@ where
         if !authenticated_user.is_authenticated() {
             trace!("Authorization header is not present");
             return Box::pin(async move {
-                let unauthorized_response = response_helper::app_http_response(
+                let unauthorized_response = response::app_http_response(
                     StatusCode::UNAUTHORIZED,
                     AppResponse::<()> {
                         message: "No Authorization found".to_string(),
@@ -150,7 +150,7 @@ where
             Either::Right(self.service.call(req))
         } else {
             trace!("User is not permitted to access the resource");
-            let forbidden_response = response_helper::app_http_response(
+            let forbidden_response = response::app_http_response(
                 StatusCode::FORBIDDEN,
                 AppResponse::<()> {
                     message: "Insufficient Access Permission".to_string(),

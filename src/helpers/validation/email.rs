@@ -1,7 +1,4 @@
-use crate::{
-    helpers::validation::gen_validation_error,
-    repositories::user_repository::UserRepository,
-};
+use crate::{helpers::validation::gen_validation_error, repositories::user::UserRepository};
 
 pub fn unique_email_validator(
     email: &str,

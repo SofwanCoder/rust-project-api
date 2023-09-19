@@ -2,8 +2,8 @@ use crate::{
     contracts::auth_contract::{CreateTokenPayload, GrantType},
     database::ApplicationDatabase,
     helpers,
-    helpers::error_helper::AppError,
-    repositories::{auth_repository::AuthRepository, user_repository::UserRepository},
+    helpers::error::AppError,
+    repositories::{auth::AuthRepository, user::UserRepository},
     types::auth_types::{AuthToken, AuthenticatedData, CreateAuthModel},
 };
 use tracing::{debug, error, field::debug, instrument};
@@ -58,7 +58,7 @@ pub async fn login_with_password(
         .ok_or(AppError::unauthorized("Invalid Account or password"))?;
 
     debug!("Verifying password");
-    helpers::password_helper::verify_password(user.password.clone(), body.password.unwrap())
+    helpers::password::verify_password(user.password.clone(), body.password.unwrap())
         .map_err(|_| AppError::unauthorized("Invalid account or Password"))?;
 
     debug!("Creating auth session");
@@ -66,11 +66,10 @@ pub async fn login_with_password(
         AuthRepository::create_auth(connection, CreateAuthModel::from(&user)).await?;
 
     debug!("Generating access token");
-    let access_token =
-        helpers::token_helper::generate_user_session_access_token(&user, &auth_session)?;
+    let access_token = helpers::token::generate_user_session_access_token(&user, &auth_session)?;
 
     debug!("Generating refresh token");
-    let refresh_token = helpers::token_helper::generate_user_session_refresh_token(&auth_session)?;
+    let refresh_token = helpers::token::generate_user_session_refresh_token(&auth_session)?;
 
     debug("Login Complete with password");
     Ok(AuthToken::new(access_token, refresh_token))
@@ -84,7 +83,7 @@ pub async fn login_with_refresh_token(
     debug!("Login with refresh token");
     let refresh_token = body.refresh_token.unwrap();
 
-    let decoded_token = helpers::token_helper::decode_token_data_for_session(&refresh_token)?;
+    let decoded_token = helpers::token::decode_token_data_for_session(&refresh_token)?;
 
     let connection = &mut db.source.get_connection().await?;
 
@@ -110,8 +109,7 @@ pub async fn login_with_refresh_token(
         })?;
 
     debug!("Generating new access token");
-    let access_token =
-        helpers::token_helper::generate_user_session_access_token(&user, &auth_session)?;
+    let access_token = helpers::token::generate_user_session_access_token(&user, &auth_session)?;
 
     debug("Login Complete with refresh token");
     Ok(AuthToken::new(access_token, refresh_token))

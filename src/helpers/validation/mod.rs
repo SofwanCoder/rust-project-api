@@ -1,5 +1,5 @@
-pub mod auth_validation;
-pub mod email_validation;
+pub mod auth;
+pub mod email;
 
 use std::{borrow::Cow, collections::HashMap};
 

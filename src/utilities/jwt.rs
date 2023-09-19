@@ -1,4 +1,4 @@
-use crate::helpers::error_helper::AppError;
+use crate::helpers::error::AppError;
 use serde::{de::DeserializeOwned, Serialize};
 use tracing::{debug, error, instrument};
 

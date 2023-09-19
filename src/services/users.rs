@@ -3,9 +3,9 @@ use crate::{
     database::ApplicationDatabase,
     events::{user::password_changed::UserPasswordChanged, AppEvent},
     helpers,
-    helpers::error_helper::AppError,
+    helpers::error::AppError,
     models::user::Model as UserModel,
-    repositories::{auth_repository::AuthRepository, user_repository::UserRepository},
+    repositories::{auth::AuthRepository, user::UserRepository},
     types::{
         auth_types::{AuthToken, CreateAuthModel},
         user_types::{CreateUser, UpdatePassword, UpdateUser},
@@ -53,10 +53,9 @@ pub async fn register_a_user(
     let (user, auth_session) = transaction_result;
 
     debug!("Generating access token");
-    let access_token =
-        helpers::token_helper::generate_user_session_access_token(&user, &auth_session)?;
+    let access_token = helpers::token::generate_user_session_access_token(&user, &auth_session)?;
     debug!("Generating refresh token");
-    let refresh_token = helpers::token_helper::generate_user_session_refresh_token(&auth_session)?;
+    let refresh_token = helpers::token::generate_user_session_refresh_token(&auth_session)?;
 
     debug!("Publishing user registered event");
     crate::events::user::registered::UserRegistered::new(user.id, user.name, user.email)
@@ -134,7 +133,7 @@ pub async fn update_a_user_password(
         })?;
 
     debug!("Verifying current password");
-    helpers::password_helper::verify_password(user.password, data.current_password)
+    helpers::password::verify_password(user.password, data.current_password)
         .map_err(|_| AppError::unauthorized("Invalid password"))?;
 
     debug!("Updating user password");

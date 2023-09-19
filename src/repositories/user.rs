@@ -1,6 +1,6 @@
 use crate::{
     database::DBConnection,
-    helpers::error_helper::AppError,
+    helpers::error::AppError,
     models,
     models::user::{Entity as UserEntity, Model as UserModel},
     repositories::Repository,

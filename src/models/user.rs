@@ -1,4 +1,4 @@
-use crate::{helpers::password_helper::hash_password, utilities::rand::generate_uuid};
+use crate::{helpers::password::hash_password, utilities::rand::generate_uuid};
 use async_trait::async_trait;
 use log::trace;
 use sea_orm::{entity::prelude::*, ActiveValue::Set};

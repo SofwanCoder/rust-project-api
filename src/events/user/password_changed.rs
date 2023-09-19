@@ -1,7 +1,7 @@
 use crate::{
     emails::{password_changed_email::PasswordChangedEmail, Email},
     events::AppEvent,
-    helpers::error_helper::AppError,
+    helpers::error::AppError,
     ApplicationContext,
 };
 use async_trait::async_trait;

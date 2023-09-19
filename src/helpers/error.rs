@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-use crate::helpers::response_helper::AppResponse;
+use crate::helpers::response::AppResponse;
 use actix_web::{http::StatusCode, HttpResponse, ResponseError};
 use derive_more::Display;
 use serde::{de::StdError, Serialize};
@@ -128,7 +128,7 @@ impl ResponseError for AppError {
     }
 
     fn error_response(&self) -> HttpResponse {
-        crate::helpers::response_helper::app_http_response(
+        crate::helpers::response::app_http_response(
             self.status_code(),
             AppResponse::<HashMap<&'static str, String>> {
                 message: self.message.clone(),

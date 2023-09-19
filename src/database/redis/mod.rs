@@ -3,7 +3,7 @@ mod manager;
 
 use crate::{
     configs::constant::{CONNECTION_POOL_MAX_IDLE, CONNECTION_POOL_MAX_OPEN},
-    helpers::error_helper::AppError,
+    helpers::error::AppError,
 };
 use derive_more::DebugCustom;
 use log::debug;

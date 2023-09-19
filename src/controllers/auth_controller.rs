@@ -1,6 +1,6 @@
 use crate::{
     contracts::auth_contract::CreateTokenPayload,
-    helpers::{error_helper::AppError, response_helper},
+    helpers::{error::AppError, response},
     utilities::error::map_validation_err_to_app_err,
 };
 use actix_web::{web, HttpMessage, HttpRequest, Responder, Result};
@@ -18,7 +18,7 @@ pub async fn create_token(
 
     let result = crate::services::auths::login_a_user(&ctx.db, body.into_inner()).await;
 
-    result.map(response_helper::ok)
+    result.map(response::ok)
 }
 
 pub async fn delete_token(req: HttpRequest) -> Result<impl Responder, AppError> {
@@ -32,5 +32,5 @@ pub async fn delete_token(req: HttpRequest) -> Result<impl Responder, AppError> 
 
     let result = crate::services::auths::logout_a_user(&ctx.db, authenticated_user).await;
 
-    result.map(response_helper::ok)
+    result.map(response::ok)
 }

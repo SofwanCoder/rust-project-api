@@ -1,4 +1,4 @@
-use crate::helpers::error_helper::AppError;
+use crate::helpers::error::AppError;
 use actix_web::error::BlockingError;
 use std::{borrow::Cow, collections::HashMap};
 use validator::{ValidationErrors, ValidationErrorsKind};

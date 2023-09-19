@@ -1,6 +1,6 @@
 pub mod user;
 
-use crate::{database::ampq::AmpqConnection, helpers::error_helper::AppError, ApplicationContext};
+use crate::{database::ampq::AmpqConnection, helpers::error::AppError, ApplicationContext};
 use async_trait::async_trait;
 use futures_util::StreamExt;
 use lapin::{
