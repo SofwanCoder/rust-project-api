@@ -1,6 +1,6 @@
 use crate::helpers::error_helper::AppError;
 use serde::{de::DeserializeOwned, Serialize};
-use tracing::{debug, instrument};
+use tracing::{debug, error, instrument};
 
 #[instrument(skip_all)]
 pub fn encode<D>(data: D) -> Result<String, AppError>
@@ -33,11 +33,14 @@ where
         &jsonwebtoken::DecodingKey::from_secret(secret_key),
         &jsonwebtoken::Validation::default(),
     )
-    .map_err(|e| match e.kind() {
-        jsonwebtoken::errors::ErrorKind::ExpiredSignature => {
-            AppError::expired_data("Token expired")
+    .map_err(|e| {
+        error!("Error decoding token: {:?}", e);
+        match e.kind() {
+            jsonwebtoken::errors::ErrorKind::ExpiredSignature => {
+                AppError::expired_data("Token expired")
+            }
+            _ => AppError::internal_server(e),
         }
-        _ => AppError::internal_server(e),
     })?;
     debug!("Decoded data successful");
     return Ok(token.claims);

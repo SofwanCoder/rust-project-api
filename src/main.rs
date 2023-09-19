@@ -9,7 +9,7 @@ use actix_web::{
 use derive_more::{DebugCustom, Display};
 use dotenv;
 use std::fmt::Debug;
-use tracing::info;
+use tracing::{debug, info};
 use tracing_log::LogTracer;
 use ulid::Ulid;
 
@@ -53,11 +53,13 @@ async fn main() -> std::io::Result<()> {
     LogTracer::init().expect("Unable to setup logger");
     register_tracing_logger();
 
+    debug!("Setting up application context");
     let app_context = ApplicationContext {
         db: database::ApplicationDatabase::init().await,
         email: Default::default(),
     };
 
+    debug!("Setting up application events");
     AppEvents::init(app_context.clone())
         .await
         .expect("Unable to initialize events");
@@ -69,14 +71,14 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
-            .wrap(middlewares::auth_middleware::Authorization::default())
+            .wrap(middlewares::auth::Authorization::default())
             .wrap(
                 ErrorHandlers::new()
                     .default_handler(configs::app::error_default_handler)
                     .handler(StatusCode::NOT_FOUND, configs::app::error_404_handler),
             )
             .wrap(Logger::default())
-            .wrap(middlewares::request_middleware::AppRequest::default())
+            .wrap(middlewares::request::AppRequest::default())
             .app_data(app_context.clone())
             .app_data(configs::json::get_json_config())
             .service(router::get_router_scope())

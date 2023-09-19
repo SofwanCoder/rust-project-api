@@ -39,7 +39,9 @@ pub async fn register_a_user(
                     ));
                 }
 
-                Ok((user, auth_session.unwrap()))
+                let auth_session = auth_session.unwrap();
+
+                Ok((user, auth_session))
             })
         })
         .await

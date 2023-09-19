@@ -9,14 +9,14 @@ pub(super) fn get_routes() -> Scope {
                 .route(
                     web::get()
                         .to(crate::controllers::user_controller::fetch_users_controller)
-                        .wrap(crate::middlewares::permit_middleware::Permission::default()),
+                        .wrap(crate::middlewares::permit::Permission::default()),
                 ),
         )
         .route(
             "me",
             web::get()
                 .to(crate::controllers::user_controller::fetch_me_controller)
-                .wrap(crate::middlewares::permit_middleware::Permission::default()),
+                .wrap(crate::middlewares::permit::Permission::default()),
         )
         .service(
             web::scope("{user_id}")
@@ -35,6 +35,6 @@ pub(super) fn get_routes() -> Scope {
                     "password",
                     web::put().to(crate::controllers::user_controller::update_password_controller),
                 )
-                .wrap(crate::middlewares::permit_middleware::Permission::default()),
+                .wrap(crate::middlewares::permit::Permission::default()),
         )
 }

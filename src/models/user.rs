@@ -13,7 +13,7 @@ pub struct Model {
     pub id: Uuid,
     pub name: String,
     pub email: String,
-    #[serde(skip_serializing, skip_deserializing, default = "String::new")]
+    #[serde(skip_serializing, skip_deserializing)]
     pub password: String,
     pub created_at: chrono::NaiveDateTime,
     pub updated_at: chrono::NaiveDateTime,

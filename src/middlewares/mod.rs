@@ -1,3 +1,3 @@
-pub(crate) mod auth_middleware;
-pub(crate) mod permit_middleware;
-pub(crate) mod request_middleware;
+pub(crate) mod auth;
+pub(crate) mod permit;
+pub(crate) mod request;
