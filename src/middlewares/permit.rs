@@ -143,24 +143,7 @@ where
             }
         };
 
-        let is_permitted = {
-            trace!("Checking if the user is permitted to access the resource");
-            if is_cross_access_request {
-                trace!("User is trying to access a resource that is not his/hers");
-                match self.kind {
-                    PermissionKind::Authenticated => {
-                        trace!("User is not permitted to access the resource");
-                        false
-                    }
-                    PermissionKind::Administrator => {
-                        trace!("User is an administrator permitted to access the resource");
-                        authenticated_user.is_admin()
-                    }
-                }
-            } else {
-                authenticated_user.is_cleared(self.level)
-            }
-        };
+        let is_permitted = !is_cross_access_request && authenticated_user.is_cleared(self.level);
 
         let either = if is_permitted {
             trace!("User is permitted to access the resource");
