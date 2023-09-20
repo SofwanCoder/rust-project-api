@@ -1,4 +1,4 @@
-use crate::emails::Email;
+use crate::{emails::Email, helpers::error::AppError};
 use handlebars::Handlebars;
 use lettre::{message::header::ContentType, AsyncTransport, Message};
 use std::fmt::Debug;
@@ -12,7 +12,7 @@ pub struct PasswordChangedEmail {
 #[async_trait::async_trait]
 impl Email for PasswordChangedEmail {
     #[instrument]
-    async fn build(&self) -> Result<String, Box<dyn std::error::Error>> {
+    async fn build(&self) -> Result<String, AppError> {
         debug!("Building PasswordChangedEmail");
         let mut handlebars = Handlebars::new();
         let templates = [
@@ -25,14 +25,18 @@ impl Email for PasswordChangedEmail {
         ];
 
         for (name, path) in templates.iter() {
-            handlebars.register_template_file(name, path)?;
+            handlebars
+                .register_template_file(name, path)
+                .map_err(|e| AppError::internal_server(e))?;
         }
 
         let data = serde_json::json!({
             "name": &self.name,
         });
 
-        let body = handlebars.render("templates.password-changed", &data)?;
+        let body = handlebars
+            .render("templates.password-changed", &data)
+            .map_err(|e| AppError::internal_server(e))?;
 
         debug!("PasswordChangedEmail built");
         Ok(body)
@@ -42,15 +46,20 @@ impl Email for PasswordChangedEmail {
     async fn send(
         &self,
         mailer: impl AsyncTransport + Send + Sync + Debug,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    ) -> Result<(), AppError> {
         let body = self.build().await?;
+        let from = "Sofwan <hello@sofwan.com>"
+            .parse()
+            .map_err(|e| AppError::internal_server(e))?;
+        let to = self.to.parse().map_err(|e| AppError::internal_server(e))?;
+
         let email = Message::builder()
-            .from("Sofwan <hello@sofwan.com>".parse()?)
-            .to(self.to.parse()?)
-            .to(self.to.parse()?)
+            .from(from)
+            .to(to)
             .subject("Your password has been changed")
             .header(ContentType::TEXT_HTML)
-            .body(body)?;
+            .body(body)
+            .map_err(|e| AppError::internal_server(e))?;
 
         match mailer.send(email).await {
             Ok(_) => debug!("Email sent"),

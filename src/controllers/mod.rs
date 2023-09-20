@@ -1,4 +1,4 @@
-pub(crate) mod auth_controller;
-pub(crate) mod health_controller;
-pub(crate) mod user_controller;
-pub(crate) mod wsocket_controller;
+pub(crate) mod auth;
+pub(crate) mod health;
+pub(crate) mod user;
+pub(crate) mod wsocket;

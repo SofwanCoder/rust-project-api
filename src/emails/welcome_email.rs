@@ -1,4 +1,4 @@
-use crate::emails::Email;
+use crate::{emails::Email, helpers::error::AppError};
 use handlebars::Handlebars;
 use lettre::{message::header::ContentType, AsyncTransport, Message};
 use std::fmt::Debug;
@@ -12,7 +12,7 @@ pub struct WelcomeEmail {
 #[async_trait::async_trait]
 impl Email for WelcomeEmail {
     #[instrument]
-    async fn build(&self) -> Result<String, Box<dyn std::error::Error>> {
+    async fn build(&self) -> Result<String, AppError> {
         debug!("Building WelcomeEmail");
         let mut handlebars = Handlebars::new();
         let templates = [
@@ -22,7 +22,9 @@ impl Email for WelcomeEmail {
         ];
 
         for (name, path) in templates.iter() {
-            handlebars.register_template_file(name, path)?;
+            handlebars
+                .register_template_file(name, path)
+                .map_err(|e| AppError::internal_server(e))?;
         }
 
         let data = serde_json::json!({
@@ -30,7 +32,9 @@ impl Email for WelcomeEmail {
             "code": "2367"
         });
 
-        let body = handlebars.render("templates.welcome-email", &data)?;
+        let body = handlebars
+            .render("templates.welcome-email", &data)
+            .map_err(|e| AppError::internal_server(e))?;
 
         Ok(body)
     }
@@ -39,16 +43,22 @@ impl Email for WelcomeEmail {
     async fn send(
         &self,
         mailer: impl AsyncTransport + Send + Sync + Debug,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    ) -> Result<(), AppError> {
         debug!("Sending WelcomeEmail");
+
         let body = self.build().await?;
+        let from = "Sofwan <hello@sofwan.com>"
+            .parse()
+            .map_err(|e| AppError::internal_server(e))?;
+        let to = self.to.parse().map_err(|e| AppError::internal_server(e))?;
+
         let email = Message::builder()
-            .from("Sofwan <hello@sofwan.com>".parse()?)
-            .to(self.to.parse()?)
-            .to(self.to.parse()?)
+            .from(from)
+            .to(to)
             .subject("Welcome to project")
             .header(ContentType::TEXT_HTML)
-            .body(body)?;
+            .body(body)
+            .map_err(|e| AppError::internal_server(e))?;
 
         match mailer.send(email).await {
             Ok(_) => debug!("Email sent"),

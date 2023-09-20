@@ -5,9 +5,11 @@ use crate::{
 };
 use actix_web::{web, HttpMessage, HttpRequest, Responder, Result};
 use std::ops::Deref;
+use tracing::instrument;
 use validator::ValidateArgs;
 
-pub async fn create_token(
+#[instrument(skip_all)]
+pub async fn create_token_controller(
     req: HttpRequest,
     body: web::Json<CreateTokenPayload>,
 ) -> Result<impl Responder, AppError> {
@@ -21,7 +23,8 @@ pub async fn create_token(
     result.map(response::ok)
 }
 
-pub async fn delete_token(req: HttpRequest) -> Result<impl Responder, AppError> {
+#[instrument(skip_all)]
+pub async fn delete_token_controller(req: HttpRequest) -> Result<impl Responder, AppError> {
     let ctx = req.app_data::<crate::ApplicationContext>().unwrap().clone();
 
     let authenticated_user = req

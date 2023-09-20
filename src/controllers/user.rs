@@ -9,6 +9,7 @@ use tracing::instrument;
 use uuid::Uuid;
 use validator::{Validate, ValidateArgs};
 
+#[instrument(skip_all)]
 pub async fn create_user_controller(
     req: HttpRequest,
     body: web::Json<CreateUserPayload>,
@@ -30,6 +31,7 @@ pub async fn create_user_controller(
     result.map(response::ok)
 }
 
+#[instrument(skip_all)]
 pub async fn fetch_user_controller(
     req: HttpRequest,
     user_id: web::Path<Uuid>,
@@ -43,6 +45,7 @@ pub async fn fetch_user_controller(
     result.map(response::ok)
 }
 
+#[instrument(skip_all)]
 pub async fn fetch_me_controller(req: HttpRequest) -> Result<impl Responder, AppError> {
     let user_id = req.extensions().get::<AuthenticatedData>().unwrap().user_id;
 
@@ -57,6 +60,7 @@ pub async fn fetch_me_controller(req: HttpRequest) -> Result<impl Responder, App
     fetch_user_controller(req, web_path_user_id).await
 }
 
+#[instrument(skip_all)]
 pub async fn fetch_users_controller(req: HttpRequest) -> Result<impl Responder, AppError> {
     let ctx = req.app_data::<crate::ApplicationContext>().unwrap().clone();
 
@@ -65,6 +69,7 @@ pub async fn fetch_users_controller(req: HttpRequest) -> Result<impl Responder, 
     result.map(response::ok)
 }
 
+#[instrument(skip_all)]
 pub async fn update_user_controller(
     req: HttpRequest,
     user_id: web::Path<Uuid>,
