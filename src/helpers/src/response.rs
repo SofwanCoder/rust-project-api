@@ -1,6 +1,5 @@
-use crate::configs::constant;
-use actix_web::http::StatusCode;
-use actix_web::HttpResponse;
+use actix_web::{http::StatusCode, HttpResponse};
+use configs::constant;
 use serde::Serialize;
 
 #[derive(Debug, Clone, Serialize)]
