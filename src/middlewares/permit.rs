@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 use crate::{
     helpers::{response, response::AppResponse},
-    types::auth_types::AuthenticatedData,
+    types_::auth_types::AuthenticatedData,
 };
 use actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},

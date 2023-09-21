@@ -13,20 +13,18 @@ use tracing::{debug, info};
 use tracing_log::LogTracer;
 use ulid::Ulid;
 
-mod configs;
-mod contracts;
+mod configs_;
+mod contracts_;
 mod controllers;
 mod database;
 mod emails;
 mod events;
-mod helpers;
 mod middlewares;
 mod models;
 mod repositories;
 mod router;
 mod services;
-mod types;
-mod utilities;
+mod types_;
 
 #[derive(Debug, Clone, Display)]
 pub struct RequestId {
@@ -64,8 +62,8 @@ async fn main() -> std::io::Result<()> {
         .await
         .expect("Unable to initialize events");
 
-    let host = configs::settings::Variables::host();
-    let port = configs::settings::Variables::port();
+    let host = configs_::settings::Variables::host();
+    let port = configs_::settings::Variables::port();
 
     info!("Starting server at http://{}:{}", host, port);
 
@@ -74,13 +72,13 @@ async fn main() -> std::io::Result<()> {
             .wrap(middlewares::auth::Authorization::default())
             .wrap(
                 ErrorHandlers::new()
-                    .default_handler(configs::app::error_default_handler)
-                    .handler(StatusCode::NOT_FOUND, configs::app::error_404_handler),
+                    .default_handler(configs_::app::error_default_handler)
+                    .handler(StatusCode::NOT_FOUND, configs_::app::error_404_handler),
             )
             .wrap(Logger::default())
             .wrap(middlewares::request::AppRequest::default())
             .app_data(app_context.clone())
-            .app_data(configs::json::get_json_config())
+            .app_data(configs_::json::get_json_config())
             .service(router::get_router_scope())
     })
     .bind((host, port))?
@@ -92,7 +90,7 @@ fn register_tracing_logger() {
     use tracing::subscriber::set_global_default;
     use tracing_subscriber::{fmt, prelude::*, EnvFilter, Registry};
 
-    let layer = if configs::settings::Variables::environment().eq("production") {
+    let layer = if configs_::settings::Variables::environment().eq("production") {
         fmt::layer().json().boxed()
     } else {
         fmt::layer().boxed()

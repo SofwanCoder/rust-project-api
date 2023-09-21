@@ -4,7 +4,7 @@ use crate::{
     models,
     models::auth::{Entity as AuthEntity, Model as AuthModel},
     repositories::Repository,
-    types::auth_types::CreateAuthModel,
+    types_::auth_types::CreateAuthModel,
     utilities::rand::generate_uuid,
 };
 use futures_util::TryFutureExt;

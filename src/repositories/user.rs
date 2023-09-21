@@ -4,7 +4,7 @@ use crate::{
     models,
     models::user::{Entity as UserEntity, Model as UserModel},
     repositories::Repository,
-    types::user_types::{CreateUser, UpdateUser},
+    types_::user_types::{CreateUser, UpdateUser},
 };
 use futures_util::TryFutureExt;
 use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, EntityTrait, QueryFilter};

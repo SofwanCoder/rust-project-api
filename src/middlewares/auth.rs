@@ -88,7 +88,7 @@ where
             let authorization_token = authorization_value_split[1];
 
             let decoded_jwt = crate::utilities::jwt::decode::<
-                crate::types::auth_types::AuthenticatedData,
+                crate::types_::auth_types::AuthenticatedData,
             >(authorization_token);
 
             if decoded_jwt.is_err() {

@@ -2,7 +2,7 @@
 mod manager;
 
 use crate::{
-    configs::constant::{CONNECTION_POOL_MAX_IDLE, CONNECTION_POOL_MAX_OPEN},
+    configs_::constant::{CONNECTION_POOL_MAX_IDLE, CONNECTION_POOL_MAX_OPEN},
     helpers::error::AppError,
 };
 use derive_more::DebugCustom;
@@ -23,7 +23,7 @@ pub struct ApplicationRedisDatabase {
 impl ApplicationRedisDatabase {
     pub(super) async fn init() -> Self {
         debug!("Initializing Redis database with default settings");
-        let database_url = crate::configs::settings::Variables::redis_uri();
+        let database_url = crate::configs_::settings::Variables::redis_uri();
 
         let client = redis::Client::open(database_url).unwrap();
 

@@ -1,4 +1,4 @@
-use crate::{helpers, helpers::error::AppError};
+use super::error::{AppError, AppErrorKind};
 use argon2::{
     password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
     Argon2,
@@ -15,7 +15,7 @@ pub fn hash_password(password: String) -> Result<String, AppError> {
         error!("Internal error when encrypting password: {:?}", hash.err());
         return Err(AppError::new(
             "Internal error when encrypting password",
-            helpers::error::AppErrorKind::InternalError,
+            AppErrorKind::InternalError,
         ));
     }
 

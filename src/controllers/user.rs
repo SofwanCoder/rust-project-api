@@ -1,7 +1,7 @@
 use crate::{
-    contracts::user_contract::{CreateUserPayload, UpdatePasswordPayload, UpdateUserPayload},
+    contracts_::user_contract::{CreateUserPayload, UpdatePasswordPayload, UpdateUserPayload},
     helpers::{error::AppError, response},
-    types::auth_types::AuthenticatedData,
+    types_::auth_types::AuthenticatedData,
     utilities::error::{map_blocking_err_to_app_err, map_validation_err_to_app_err},
 };
 use actix_web::{web, HttpMessage, HttpRequest, Responder, Result};

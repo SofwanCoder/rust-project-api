@@ -1,9 +1,9 @@
 #![allow(dead_code)]
-use crate::helpers::response::AppResponse;
+use super::response::AppResponse;
 use actix_web::{http::StatusCode, HttpResponse, ResponseError};
 use derive_more::Display;
 use serde::{de::StdError, Serialize};
-use std::{collections::HashMap, fmt::Display};
+use std::{collections::HashMap, fmt};
 
 #[derive(Display, Debug, Serialize)]
 pub enum AppErrorKind {
@@ -128,7 +128,7 @@ impl ResponseError for AppError {
     }
 
     fn error_response(&self) -> HttpResponse {
-        crate::helpers::response::app_http_response(
+        super::response::app_http_response(
             self.status_code(),
             AppResponse::<HashMap<&'static str, String>> {
                 message: self.message.clone(),

@@ -1,12 +1,12 @@
 use crate::{
-    contracts::user_contract::UpdateUserPayload,
+    contracts_::user_contract::UpdateUserPayload,
     database::ApplicationDatabase,
     events::{user::password_changed::UserPasswordChanged, AppEvent},
     helpers,
     helpers::error::AppError,
     models::user::Model as UserModel,
     repositories::{auth::AuthRepository, user::UserRepository},
-    types::{
+    types_::{
         auth_types::{AuthToken, CreateAuthModel},
         user_types::{CreateUser, UpdatePassword, UpdateUser},
     },

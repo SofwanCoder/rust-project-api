@@ -2,7 +2,7 @@
 mod manager;
 
 use crate::{
-    configs::constant::{CONNECTION_POOL_MAX_IDLE, CONNECTION_POOL_MAX_OPEN},
+    configs_::constant::{CONNECTION_POOL_MAX_IDLE, CONNECTION_POOL_MAX_OPEN},
     helpers::error::AppError,
 };
 use derive_more::DebugCustom;
@@ -23,7 +23,7 @@ impl ApplicationAmpqDatabase {
     pub(super) async fn init() -> Self {
         debug!("Initializing AMPQ connection with default settings");
 
-        let database_url = crate::configs::settings::Variables::ampq_uri();
+        let database_url = crate::configs_::settings::Variables::ampq_uri();
 
         let manager = AmpqConnectionManager::new(database_url);
 

@@ -1,0 +1,18 @@
+[package]
+name = "entities"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+uuid = "1.4.1"
+tracing = "0.1.37"
+serde = "1.0.188"
+sea-orm = { version = "0.12", features = [ "sqlx-postgres", "runtime-tokio", "runtime-tokio-rustls", "macros", "debug-print" ] }
+chrono = { version = "0.4", features = ["serde"] }
+
+
+# Internal Deps
+helpers = { path = "../helpers" }
+utilities = { path = "../utilities" }

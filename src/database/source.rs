@@ -15,7 +15,7 @@ impl ApplicationSourceDatabase {
     pub(super) async fn init() -> Self {
         debug!("Initializing Postgres database with default settings");
 
-        let database_url = crate::configs::settings::Variables::database_uri();
+        let database_url = crate::configs_::settings::Variables::database_uri();
         let mut connection_opt = ConnectOptions::new(database_url);
         connection_opt
             .min_connections(1)

@@ -4,6 +4,7 @@ use crate::{
 };
 use chrono::Duration;
 use serde::{Deserialize, Serialize};
+use utilities::rand::generate_uuid;
 use uuid::Uuid;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]

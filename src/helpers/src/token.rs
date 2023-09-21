@@ -1,10 +1,10 @@
+use super::error::{AppError, AppErrorKind};
 use crate::{
-    helpers::error::{AppError, AppErrorKind},
     models::{auth::Model as AuthModel, user::Model as UserModel},
     types::auth_types::{AuthenticatedData, RefreshTokenData},
-    utilities,
 };
 use tracing::{debug, instrument};
+use utilities;
 
 #[instrument(skip_all)]
 pub fn generate_user_session_access_token(

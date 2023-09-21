@@ -1,0 +1,19 @@
+[package]
+name = "helpers"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+actix-web = { version = "4"}
+argon2 = "0.5.1"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.4", features = [] }
+ulid = "1.1"
+serde = { version = "1.0", features = [] }
+tracing = "0.1"
+jsonwebtoken = "8.3"
+derive_more = { version = "0.99", features = ["display"] }
+
+

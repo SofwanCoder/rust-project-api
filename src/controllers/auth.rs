@@ -1,5 +1,5 @@
 use crate::{
-    contracts::auth_contract::CreateTokenPayload,
+    contracts_::auth_contract::CreateTokenPayload,
     helpers::{error::AppError, response},
     utilities::error::map_validation_err_to_app_err,
 };
@@ -29,7 +29,7 @@ pub async fn delete_token_controller(req: HttpRequest) -> Result<impl Responder,
 
     let authenticated_user = req
         .extensions()
-        .get::<crate::types::auth_types::AuthenticatedData>()
+        .get::<crate::types_::auth_types::AuthenticatedData>()
         .unwrap()
         .clone();
 

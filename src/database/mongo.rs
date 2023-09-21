@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 use crate::{
-    configs,
-    configs::constant::{CONNECTION_POOL_MAX_IDLE, CONNECTION_POOL_MAX_OPEN},
+    configs_,
+    configs_::constant::{CONNECTION_POOL_MAX_IDLE, CONNECTION_POOL_MAX_OPEN},
     helpers::error::AppError,
 };
 use futures;
@@ -17,7 +17,7 @@ impl ApplicationMongoDatabase {
     pub(super) async fn init() -> Self {
         debug!("Initializing Mongo database with default settings");
 
-        let database_url = configs::settings::Variables::mongo_uri();
+        let database_url = configs_::settings::Variables::mongo_uri();
 
         let mut manager = futures::executor::block_on(ClientOptions::parse(database_url)).unwrap();
         manager.max_pool_size = Some(CONNECTION_POOL_MAX_OPEN as u32);

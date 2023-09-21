@@ -1,4 +1,4 @@
-use crate::helpers::validation::email::unique_email_validator;
+use helpers::validation::email::unique_email_validator;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
