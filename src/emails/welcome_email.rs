@@ -8,6 +8,7 @@ use tracing::{debug, error, instrument};
 pub struct WelcomeEmail {
     pub to: String,
     pub name: String,
+    pub code: String,
 }
 #[async_trait::async_trait]
 impl Email for WelcomeEmail {
@@ -29,7 +30,7 @@ impl Email for WelcomeEmail {
 
         let data = serde_json::json!({
             "name": &self.name,
-            "code": "2367"
+            "code": self.code,
         });
 
         let body = handlebars

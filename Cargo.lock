@@ -2886,6 +2886,7 @@ dependencies = [
  "log",
  "mobc",
  "mongodb",
+ "rand",
  "redis",
  "sea-orm",
  "serde",

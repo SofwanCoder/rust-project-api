@@ -27,6 +27,7 @@ lettre = { version = "0.10", features = ["tokio1", "tokio1-native-tls", "tracing
 log = { version = "0.4" }
 mobc = { version = "0.8", features = [] }
 mongodb = { version = "2", features = ["bson-chrono-0_4", "bson-uuid-1", "bson-serde_with", "tracing"] }
+rand = "0.8"
 redis = { version = "0.23", features = ["json", "tokio-comp", "log", "ahash", "connection-manager"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1"
