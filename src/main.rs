@@ -1,17 +1,9 @@
 #![feature(trait_alias)]
-use crate::{events::AppEvents, utilities::rand::generate_ulid};
-use actix_web::{
-    http::StatusCode,
-    middleware::{ErrorHandlers, Logger},
-    App,
-    HttpServer,
-};
-use derive_more::{DebugCustom, Display};
+
+use derive_more::DebugCustom;
 use dotenv;
-use std::fmt::Debug;
-use tracing::{debug, info};
+use tracing::debug;
 use tracing_log::LogTracer;
-use ulid::Ulid;
 
 mod configs;
 mod contracts;
@@ -28,17 +20,7 @@ mod services;
 mod types;
 mod utilities;
 
-#[derive(Debug, Clone, Display)]
-pub struct RequestId {
-    id: Ulid,
-}
-impl Default for RequestId {
-    fn default() -> Self {
-        Self {
-            id: generate_ulid(),
-        }
-    }
-}
+mod api;
 
 #[derive(Clone, DebugCustom)]
 #[debug(fmt = "ApplicationDatabase")]
@@ -60,32 +42,12 @@ async fn main() -> std::io::Result<()> {
     };
 
     debug!("Setting up application events");
-    AppEvents::init(app_context.clone())
+    events::start(app_context.clone())
         .await
-        .expect("Unable to initialize events");
+        .expect("Unable to start event processing");
 
-    let host = configs::settings::Variables::host();
-    let port = configs::settings::Variables::port();
-
-    info!("Starting server at http://{}:{}", host, port);
-
-    HttpServer::new(move || {
-        App::new()
-            .wrap(middlewares::auth::Authorization::default())
-            .wrap(
-                ErrorHandlers::new()
-                    .default_handler(configs::app::error_default_handler)
-                    .handler(StatusCode::NOT_FOUND, configs::app::error_404_handler),
-            )
-            .wrap(Logger::default())
-            .wrap(middlewares::request::AppRequest::default())
-            .app_data(app_context.clone())
-            .app_data(configs::json::get_json_config())
-            .service(router::get_router_scope())
-    })
-    .bind((host, port))?
-    .run()
-    .await
+    debug!("Setting up application api");
+    api::start(app_context).await
 }
 
 fn register_tracing_logger() {

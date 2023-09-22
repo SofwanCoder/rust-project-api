@@ -1,4 +1,4 @@
-use crate::RequestId;
+use crate::api::RequestId;
 use std::future::{ready, Ready};
 
 use actix_web::{
@@ -54,7 +54,7 @@ where
     #[instrument(fields(middlware = "AppRequestMiddleware::call"), skip_all)]
     fn call(&self, req: ServiceRequest) -> Self::Future {
         let request_id = RequestId::default();
-        trace!("Handling request with id: {:?}", request_id.id);
+        trace!("Handling request with id: {:?}", request_id);
         req.extensions_mut().insert(request_id.clone());
 
         let fut = self.service.call(req);
@@ -64,10 +64,10 @@ where
 
             res.headers_mut().insert(
                 HeaderName::from_static("x-request-id"),
-                HeaderValue::from_str(&request_id.id.to_string()).unwrap(),
+                HeaderValue::from_str(&request_id.to_string()).unwrap(),
             );
 
-            trace!("Handled request with id: {:?}", request_id.id);
+            trace!("Handled request with id: {:?}", request_id);
             Ok(res)
         });
     }

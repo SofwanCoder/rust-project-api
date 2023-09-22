@@ -146,3 +146,7 @@ impl AppEvents {
         Ok(())
     }
 }
+
+pub async fn start(ctx: ApplicationContext) -> Result<(), AppError> {
+    AppEvents::init(ctx).await
+}
