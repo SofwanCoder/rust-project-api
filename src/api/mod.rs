@@ -3,6 +3,9 @@ use actix_web::{
     http::StatusCode,
     middleware::{ErrorHandlers, Logger},
     App,
+    Error,
+    FromRequest,
+    HttpMessage,
     HttpServer,
 };
 use derive_more::Display;
@@ -41,5 +44,16 @@ pub struct RequestId(pub Ulid);
 impl Default for RequestId {
     fn default() -> Self {
         Self(generate_ulid())
+    }
+}
+
+impl FromRequest for RequestId {
+    type Error = Error;
+    type Future = futures::future::Ready<Result<Self, Self::Error>>;
+
+    fn from_request(req: &actix_web::HttpRequest, _: &mut actix_web::dev::Payload) -> Self::Future {
+        let ext = req.extensions();
+        let request_id = ext.get::<RequestId>().unwrap();
+        futures::future::ok(request_id.clone())
     }
 }
