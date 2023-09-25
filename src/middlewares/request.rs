@@ -8,7 +8,7 @@ use actix_web::{
     HttpMessage,
 };
 use futures_util::future::LocalBoxFuture;
-use tracing::{trace, Instrument};
+use tracing::{instrument, trace, Instrument};
 
 pub struct AppRequest;
 
@@ -51,23 +51,17 @@ where
 
     forward_ready!(service);
 
+    #[instrument(name = "ApiRequestMiddleware::call", fields(request_id = tracing::field::Empty), skip_all)]
     fn call(&self, req: ServiceRequest) -> Self::Future {
         let request_id = RequestId::default();
-        let span = tracing::span!(
-            tracing::Level::INFO,
-            "ApiRequestMiddleware::call",
-            request_id = request_id.to_string()
-        )
-        .entered();
-        trace!("Handling request with id: {:?}", request_id);
+        let span = tracing::Span::current();
+        span.record("request_id", &request_id.to_string());
         req.extensions_mut().insert(request_id.clone());
+
+        trace!("Handling request with id: {:?}", request_id);
 
         let fut = self.service.call(req);
 
-        // Moving to async context so exit the span
-        // And instrument the async function with it
-        // SEE: https://docs.rs/tracing/latest/tracing/span/struct.Span.html#in-asynchronous-code
-        let span = span.exit();
         return Box::pin(
             async move {
                 let mut res = fut.await?;
@@ -80,7 +74,8 @@ where
                 trace!("Handled request with id: {:?}", request_id);
                 Ok(res)
             }
-            .instrument(span),
+                // SEE: https://docs.rs/tracing/latest/tracing/span/struct.Span.html#in-asynchronous-code
+            .instrument(span), // This is the key to make the span work in async code
         );
     }
 }
