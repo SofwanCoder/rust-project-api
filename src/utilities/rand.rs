@@ -5,5 +5,5 @@ pub fn generate_ulid() -> Ulid {
     return Ulid::new();
 }
 pub fn generate_uuid() -> Uuid {
-    return generate_ulid().into();
+    return Uuid::from_bytes(generate_ulid().to_bytes());
 }

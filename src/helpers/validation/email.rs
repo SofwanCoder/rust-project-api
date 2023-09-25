@@ -1,5 +1,7 @@
 use crate::{helpers::validation::gen_validation_error, repositories::user::UserRepository};
+use tracing::instrument;
 
+#[instrument(skip_all)]
 pub fn unique_email_validator(
     email: &str,
     db: &crate::database::ApplicationDatabase,
@@ -7,6 +9,7 @@ pub fn unique_email_validator(
     futures::executor::block_on(unique_email(email, db))
 }
 
+#[instrument(skip_all)]
 async fn unique_email(
     email: &str,
     db: &crate::database::ApplicationDatabase,

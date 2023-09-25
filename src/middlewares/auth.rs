@@ -7,7 +7,7 @@ use actix_web::{
 };
 use futures_util::future::{Either, LocalBoxFuture};
 use std::future::{ready, Ready};
-use tracing::{error, instrument, trace, warn};
+use tracing::{error, instrument, trace, warn, Instrument};
 
 pub struct Authorization;
 
@@ -120,11 +120,14 @@ where
             _ => Either::Right(self.service.call(req)),
         };
 
-        return Box::pin(async move {
-            return match either {
-                Either::Left(res) => Ok(res),
-                Either::Right(fut) => fut.await,
-            };
-        });
+        return Box::pin(
+            async move {
+                return match either {
+                    Either::Left(res) => Ok(res),
+                    Either::Right(fut) => fut.await,
+                };
+            }
+            .instrument(tracing::Span::current()),
+        );
     }
 }
