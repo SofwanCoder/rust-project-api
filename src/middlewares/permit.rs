@@ -12,7 +12,7 @@ use actix_web::{
 use futures_util::future::{Either, LocalBoxFuture};
 use log::debug;
 use std::future::{ready, Ready};
-use tracing::{instrument, trace};
+use tracing::{instrument, trace, Instrument};
 
 pub struct Authenticated; // Only the resource owner can access
 pub struct Administrator; // Only the admin can access
@@ -161,11 +161,14 @@ where
             Either::Left(req.into_response(forbidden_response))
         };
 
-        return Box::pin(async move {
-            return match either {
-                Either::Left(res) => Ok(res),
-                Either::Right(fut) => fut.await,
-            };
-        });
+        return Box::pin(
+            async move {
+                return match either {
+                    Either::Left(res) => Ok(res),
+                    Either::Right(fut) => fut.await,
+                };
+            }
+            .instrument(tracing::Span::current()),
+        );
     }
 }

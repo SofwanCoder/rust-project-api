@@ -8,7 +8,7 @@ use actix_web::{
     HttpMessage,
 };
 use futures_util::future::LocalBoxFuture;
-use tracing::{instrument, trace};
+use tracing::{instrument, trace, Instrument};
 
 pub struct AppRequest;
 
@@ -51,24 +51,31 @@ where
 
     forward_ready!(service);
 
-    #[instrument(fields(middlware = "AppRequestMiddleware::call"), skip_all)]
+    #[instrument(name = "ApiRequestMiddleware::call", fields(request_id = tracing::field::Empty), skip_all)]
     fn call(&self, req: ServiceRequest) -> Self::Future {
         let request_id = RequestId::default();
-        trace!("Handling request with id: {:?}", request_id);
+        let span = tracing::Span::current();
+        span.record("request_id", &request_id.to_string());
         req.extensions_mut().insert(request_id.clone());
+
+        trace!("Handling request with id: {:?}", request_id);
 
         let fut = self.service.call(req);
 
-        return Box::pin(async move {
-            let mut res = fut.await?;
+        return Box::pin(
+            async move {
+                let mut res = fut.await?;
 
-            res.headers_mut().insert(
-                HeaderName::from_static("x-request-id"),
-                HeaderValue::from_str(&request_id.to_string()).unwrap(),
-            );
+                res.headers_mut().insert(
+                    HeaderName::from_static("x-request-id"),
+                    HeaderValue::from_str(&request_id.to_string()).unwrap(),
+                );
 
-            trace!("Handled request with id: {:?}", request_id);
-            Ok(res)
-        });
+                trace!("Handled request with id: {:?}", request_id);
+                Ok(res)
+            }
+                // SEE: https://docs.rs/tracing/latest/tracing/span/struct.Span.html#in-asynchronous-code
+            .instrument(span), // This is the key to make the span work in async code
+        );
     }
 }

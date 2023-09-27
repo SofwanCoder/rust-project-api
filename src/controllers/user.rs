@@ -16,14 +16,19 @@ pub async fn create_user_controller(
 ) -> Result<impl Responder, AppError> {
     let ctx = req.app_data::<crate::ApplicationContext>().unwrap().clone();
 
+    // This is necessary because we're using web::block which runs a function
+    // without any scope
+    let current_span = tracing::Span::current();
     let result = web::block(move || {
-        body.validate_args(&ctx.db)
-            .map_err(map_validation_err_to_app_err)?;
+        current_span.in_scope(|| {
+            body.validate_args(&ctx.db)
+                .map_err(map_validation_err_to_app_err)?;
 
-        futures::executor::block_on(crate::services::users::register_a_user(
-            &ctx,
-            body.into_inner().into(),
-        ))
+            futures::executor::block_on(crate::services::users::register_a_user(
+                &ctx,
+                body.into_inner().into(),
+            ))
+        })
     })
     .await
     .map_err(map_err_to_internal_err)?;
@@ -78,15 +83,20 @@ pub async fn update_user_controller(
     let ctx = req.app_data::<crate::ApplicationContext>().unwrap().clone();
     let user_id = user_id.into_inner();
 
+    // This is necessary because we're using web::block which runs a function
+    // without any scope
+    let current_span = tracing::Span::current();
     let result = web::block(move || {
-        body.validate_args(&ctx.db)
-            .map_err(map_validation_err_to_app_err)?;
+        current_span.in_scope(|| {
+            body.validate_args(&ctx.db)
+                .map_err(map_validation_err_to_app_err)?;
 
-        futures::executor::block_on(crate::services::users::update_a_user(
-            &ctx.db,
-            user_id,
-            body.into_inner().into(),
-        ))
+            futures::executor::block_on(crate::services::users::update_a_user(
+                &ctx.db,
+                user_id,
+                body.into_inner().into(),
+            ))
+        })
     })
     .await
     .map_err(map_err_to_internal_err)?;
