@@ -2,7 +2,7 @@ use crate::{
     contracts::user_contract::{CreateUserPayload, UpdatePasswordPayload, UpdateUserPayload},
     helpers::{error::AppError, response},
     types::auth_types::AuthenticatedData,
-    utilities::error::{map_blocking_err_to_app_err, map_validation_err_to_app_err},
+    utilities::error::{map_err_to_internal_err, map_validation_err_to_app_err},
 };
 use actix_web::{web, HttpMessage, HttpRequest, Responder, Result};
 use tracing::instrument;
@@ -26,7 +26,7 @@ pub async fn create_user_controller(
         ))
     })
     .await
-    .map_err(map_blocking_err_to_app_err)?;
+    .map_err(map_err_to_internal_err)?;
 
     result.map(response::ok)
 }
@@ -89,7 +89,7 @@ pub async fn update_user_controller(
         ))
     })
     .await
-    .map_err(map_blocking_err_to_app_err)?;
+    .map_err(map_err_to_internal_err)?;
 
     result.map(response::ok)
 }

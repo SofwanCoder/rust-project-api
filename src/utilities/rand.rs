@@ -7,3 +7,21 @@ pub fn generate_ulid() -> Ulid {
 pub fn generate_uuid() -> Uuid {
     return generate_ulid().into();
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_generate_ulid() {
+        let ulid = generate_ulid();
+        assert_eq!(ulid.to_string().len(), 26);
+    }
+
+    #[test]
+    fn test_generate_uuid() {
+        let uuid = generate_uuid();
+        assert_eq!(uuid.to_string().len(), 36);
+    }
+}

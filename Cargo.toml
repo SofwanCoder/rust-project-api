@@ -40,3 +40,7 @@ url = "2"
 ulid = { version = "1", features = ["serde", "uuid"] }
 uuid = { version = "1", features = ["serde", "v4"] }
 validator = { version = "*", features = ["derive"] }
+
+
+### Tests
+fake = { version = "2", features = ["derive", "chrono", "uuid", "zerocopy"] }

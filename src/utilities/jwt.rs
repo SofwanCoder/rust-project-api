@@ -45,3 +45,30 @@ where
     debug!("Decoded data successful");
     return Ok(token.claims);
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use fake::{Dummy, Fake, Faker};
+    use serde::Deserialize;
+
+    #[derive(Debug, Serialize, Deserialize, Dummy, PartialEq)]
+    pub struct DataStruct {
+        val: String,
+        iat: usize,
+        exp: usize,
+    }
+
+    #[test]
+    fn test_encode_decode() {
+        let data_struct = DataStruct {
+            iat: chrono::Utc::now().timestamp() as usize,
+            exp: (chrono::Utc::now().timestamp() + 10000) as usize,
+            ..Faker.fake()
+        };
+        let token = encode(&data_struct).unwrap();
+        assert_eq!(token.split(".").count(), 3);
+        let decoded: DataStruct = decode(&token).unwrap();
+        assert_eq!(data_struct, decoded);
+    }
+}

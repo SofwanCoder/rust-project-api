@@ -1,11 +1,11 @@
 #![allow(dead_code)]
 use crate::helpers::response::AppResponse;
 use actix_web::{http::StatusCode, HttpResponse, ResponseError};
-use derive_more::Display;
-use serde::{de::StdError, Serialize};
+use derive_more::{Display, Error};
+use serde::Serialize;
 use std::{collections::HashMap, fmt::Display};
 
-#[derive(Display, Debug, Serialize)]
+#[derive(Display, Debug, Serialize, PartialEq)]
 pub enum AppErrorKind {
     ValidationError,
     DatabaseError,
@@ -17,7 +17,7 @@ pub enum AppErrorKind {
     DataExpired,
 }
 
-#[derive(Display, Debug)]
+#[derive(Display, Debug, Error)]
 #[display(fmt = "{} {} {:?}", message, kind, data)]
 pub struct AppError {
     #[display(fmt = "{}", message)]
@@ -136,11 +136,5 @@ impl ResponseError for AppError {
                 errors: None,
             },
         )
-    }
-}
-
-impl StdError for AppError {
-    fn source(&self) -> Option<&(dyn StdError + 'static)> {
-        None
     }
 }
