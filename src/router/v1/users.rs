@@ -3,6 +3,7 @@ use actix_web::{web, Scope};
 const SCOPE: &str = "users";
 pub(super) fn get_routes() -> Scope {
     web::scope(SCOPE)
+        .route("health", web::get().to(actix_web::HttpResponse::Ok))
         .service(
             web::resource("")
                 .route(web::post().to(crate::controllers::user::create_user_controller))
