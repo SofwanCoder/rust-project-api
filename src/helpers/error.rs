@@ -128,13 +128,7 @@ impl ResponseError for AppError {
     }
 
     fn error_response(&self) -> HttpResponse {
-        crate::helpers::response::app_http_response(
-            self.status_code(),
-            AppResponse::<HashMap<&'static str, String>> {
-                message: self.message.clone(),
-                data: self.data.clone(),
-                errors: None,
-            },
-        )
+        AppResponse::Error(self.message.as_str(), self.data.as_ref())
+            .to_http_response(self.status_code())
     }
 }

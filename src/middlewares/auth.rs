@@ -107,14 +107,8 @@ where
 
         let either = match what {
             WhatHappened::NotBearer => {
-                let r = response::app_http_response(
-                    StatusCode::IM_A_TEAPOT,
-                    AppResponse::<()> {
-                        message: "Bearer token expected".to_string(),
-                        data: None,
-                        errors: None,
-                    },
-                );
+                let r = AppResponse::Error::<()>("Bearer token expected", None)
+                    .to_http_response(StatusCode::IM_A_TEAPOT);
                 Either::Left(req.into_response(r))
             }
             _ => Either::Right(self.service.call(req)),

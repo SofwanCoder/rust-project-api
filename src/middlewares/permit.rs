@@ -115,15 +115,10 @@ where
         if !authenticated_user.is_authenticated() {
             trace!("Authorization header is not present");
             return Box::pin(async move {
-                let unauthorized_response = response::app_http_response(
-                    StatusCode::UNAUTHORIZED,
-                    AppResponse::<()> {
-                        message: "No Authorization found".to_string(),
-                        data: None,
-                        errors: None,
-                    },
-                );
-                Ok(req.into_response(unauthorized_response))
+                Ok(req.into_response(
+                    AppResponse::Error::<()>("No Authorization found", None)
+                        .to_http_response(StatusCode::UNAUTHORIZED),
+                ))
             });
         }
 
@@ -150,15 +145,12 @@ where
             Either::Right(self.service.call(req))
         } else {
             trace!("User is not permitted to access the resource");
-            let forbidden_response = response::app_http_response(
-                StatusCode::FORBIDDEN,
-                AppResponse::<()> {
-                    message: "Insufficient Access Permission".to_string(),
-                    data: None,
-                    errors: None,
-                },
-            );
-            Either::Left(req.into_response(forbidden_response))
+            Either::Left(
+                req.into_response(
+                    AppResponse::Error::<()>("Insufficient permission", None)
+                        .to_http_response(StatusCode::FORBIDDEN),
+                ),
+            )
         };
 
         return Box::pin(

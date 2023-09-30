@@ -6,11 +6,11 @@ pub fn unique_email_validator(
     email: &str,
     db: &crate::database::ApplicationDatabase,
 ) -> Result<(), validator::ValidationError> {
-    futures::executor::block_on(unique_email(email, db))
+    futures::executor::block_on(validate_unique_email(email, db))
 }
 
 #[instrument(skip_all)]
-async fn unique_email(
+async fn validate_unique_email(
     email: &str,
     db: &crate::database::ApplicationDatabase,
 ) -> Result<(), validator::ValidationError> {

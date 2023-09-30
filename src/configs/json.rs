@@ -19,23 +19,12 @@ fn error_handler(err: JsonPayloadError, _req: &actix_web::HttpRequest) -> Error 
                 message = message.add("Unknown Error: ");
             }
 
-            response::app_http_response(
-                StatusCode::BAD_REQUEST,
-                AppResponse::<()> {
-                    message: message.add(json_err.to_string().as_str()),
-                    errors: None,
-                    data: None,
-                },
-            )
+            message = message.add(json_err.to_string().as_str());
+            AppResponse::Error::<()>(message.as_str(), None)
+                .to_http_response(StatusCode::BAD_REQUEST)
         }
-        _ => response::app_http_response(
-            StatusCode::INTERNAL_SERVER_ERROR,
-            AppResponse::<()> {
-                message: "JSON: Unknown Error".to_string(),
-                errors: None,
-                data: None,
-            },
-        ),
+        _ => AppResponse::Error::<()>("JSON: Unknown Error", None)
+            .to_http_response(StatusCode::INTERNAL_SERVER_ERROR),
     };
     actix_web::error::InternalError::from_response(err, response).into()
 }

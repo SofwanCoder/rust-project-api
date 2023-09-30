@@ -1,0 +1,19 @@
+{
+    "configurations": [
+        {
+            "type": "cargo",
+            "name": "Cargo Update",
+            "cargoArgs": ["update"]
+        },
+        {
+            "type": "cargo",
+            "name": "Cargo Build Dev",
+            "cargoArgs": ["build"]
+        },
+        {
+            "type": "cargo",
+            "name": "Cargo Build Release",
+            "cargoArgs": ["build", "--release"]
+        }
+    ]
+}
