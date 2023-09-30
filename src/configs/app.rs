@@ -1,7 +1,4 @@
-use crate::{
-    configs::constant,
-    helpers::{response, response::AppResponse},
-};
+use crate::{configs::constant, helpers::response::AppResponse};
 use actix_web::{dev, dev::ServiceResponse, middleware::ErrorHandlerResponse};
 
 pub fn error_404_handler<B, E>(res: dev::ServiceResponse<B>) -> Result<ErrorHandlerResponse<B>, E> {
