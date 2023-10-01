@@ -1,10 +1,10 @@
 use crate::{
     emails::{welcome_email::WelcomeEmail, Email},
     events::AppEvent,
-    helpers::error::AppError,
     ApplicationContext,
 };
 use async_trait::async_trait;
+use common::helpers::error::AppError;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use tracing::{info, instrument};

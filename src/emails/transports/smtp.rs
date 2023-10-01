@@ -17,7 +17,7 @@ pub struct SmtpAppTransport {
 impl Default for SmtpAppTransport {
     fn default() -> Self {
         debug!("Initializing SMTP transport");
-        let smtp_uri = crate::configs::settings::Variables::smtp_uri();
+        let smtp_uri = common::configs::settings::Variables::smtp_uri();
         let parsed_smtp_uri = Url::parse(&smtp_uri).unwrap();
         let smtp_host = parsed_smtp_uri.host_str().unwrap();
         let username = parsed_smtp_uri.username();

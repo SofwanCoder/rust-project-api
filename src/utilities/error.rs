@@ -1,4 +1,4 @@
-use crate::helpers::error::AppError;
+use common::helpers::error::AppError;
 use std::{borrow::Cow, collections::HashMap, error::Error};
 use validator::{ValidationErrors, ValidationErrorsKind};
 

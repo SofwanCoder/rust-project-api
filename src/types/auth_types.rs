@@ -1,8 +1,6 @@
-use crate::{
-    models::{auth::Model as AuthModel, user::Model as UserModel},
-    utilities::rand::generate_uuid,
-};
+use crate::models::{auth::Model as AuthModel, user::Model as UserModel};
 use chrono::Duration;
+use common::rand::generate_uuid;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 

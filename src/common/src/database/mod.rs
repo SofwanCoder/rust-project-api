@@ -1,12 +1,12 @@
 use derive_more::DebugCustom;
 use sea_orm::ConnectionTrait;
 
-pub(crate) mod ampq;
-pub(crate) mod mongo;
-pub(crate) mod redis;
-pub(crate) mod source;
+pub mod ampq;
+pub mod mongo;
+pub mod redis;
+pub mod source;
 
-pub(crate) trait DBConnection = ConnectionTrait;
+pub trait DBConnection = ConnectionTrait;
 
 #[derive(Clone, DebugCustom)]
 #[debug(fmt = "ApplicationDatabase")]
@@ -18,7 +18,7 @@ pub struct ApplicationDatabase {
 }
 
 impl ApplicationDatabase {
-    pub(crate) async fn init() -> Self {
+    pub async fn init() -> Self {
         Self {
             source: source::ApplicationSourceDatabase::init().await,
             redis: redis::ApplicationRedisDatabase::init().await,

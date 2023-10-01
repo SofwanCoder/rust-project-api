@@ -1,4 +1,4 @@
-use crate::helpers::error::AppError;
+use common::helpers::error::AppError;
 use lettre::AsyncTransport;
 use std::fmt::Debug;
 

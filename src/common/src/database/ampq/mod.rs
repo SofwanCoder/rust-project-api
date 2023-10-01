@@ -6,9 +6,9 @@ use crate::{
     helpers::error::AppError,
 };
 use derive_more::DebugCustom;
-use log::debug;
 use manager::AmpqConnectionManager;
 use mobc::Pool;
+use tracing::debug;
 
 pub type AmpqConnection = mobc::Connection<AmpqConnectionManager>;
 pub type AmpqPool = Pool<AmpqConnectionManager>;
@@ -37,7 +37,7 @@ impl ApplicationAmpqDatabase {
         ApplicationAmpqDatabase { connection_pool }
     }
 
-    pub(crate) async fn get_connection(&self) -> Result<AmpqConnection, AppError> {
+    pub async fn get_connection(&self) -> Result<AmpqConnection, AppError> {
         debug!("Getting AMPQ connection from pool");
         return self
             .connection_pool

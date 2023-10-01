@@ -19,7 +19,7 @@ pub(super) fn get_web_scope() -> actix_web::Scope {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use actix_web::test;
+    use actix_web::{http::StatusCode, test, App};
 
     #[actix_web::test]
     async fn test_health_check() {

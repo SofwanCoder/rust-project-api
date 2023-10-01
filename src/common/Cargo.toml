@@ -1,0 +1,25 @@
+[package]
+name = "common"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+argon2 = "*"
+actix-web = { version = "4", features = [] }
+ulid = { version = "*", features = ["serde", "uuid"] }
+uuid = { version = "*", features = ["serde", "v4"] }
+redis = { version = "*", features = ["json", "tokio-comp", "log", "ahash", "connection-manager"] }
+mongodb = { version = "2", features = ["bson-chrono-0_4", "bson-uuid-1", "bson-serde_with", "tracing"] }
+mobc = { version = "*", features = [] }
+derive_more = { version = "*", features = [] }
+tracing = { version = "*", features = ["log", "async-await", "release_max_level_error"] }
+async-trait = "*"
+sea-orm = { version = "*", features = [ "sqlx-postgres", "runtime-tokio", "runtime-tokio-rustls", "macros", "debug-print" ] }
+lapin = { version = "2", features = ["serde_json"] }
+url = "2"
+lettre = { version = "*", features = ["tokio1", "tokio1-native-tls", "tracing"] }
+serde = { version = "1", features = ["derive"] }
+
+

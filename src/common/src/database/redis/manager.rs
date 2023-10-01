@@ -1,7 +1,6 @@
-use log::debug;
 use mobc::{async_trait, Manager};
-use redis::aio::Connection;
-use redis::{Client, ErrorKind};
+use redis::{aio::Connection, Client, ErrorKind};
+use tracing::debug;
 
 #[derive(Debug, Clone)]
 pub struct RedisConnectionManager {

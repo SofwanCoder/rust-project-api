@@ -1,10 +1,10 @@
 use crate::{
     emails::{password_changed_email::PasswordChangedEmail, Email},
     events::AppEvent,
-    helpers::error::AppError,
     ApplicationContext,
 };
 use async_trait::async_trait;
+use common::helpers::error::AppError;
 use derive_more::{Constructor, From};
 use serde::{Deserialize, Serialize};
 use tracing::{info, instrument};

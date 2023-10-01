@@ -1,11 +1,10 @@
 use crate::{
     contracts::auth_contract::{CreateTokenPayload, GrantType},
-    database::ApplicationDatabase,
     helpers,
-    helpers::error::AppError,
     repositories::{auth::AuthRepository, user::UserRepository},
     types::auth_types::{AuthToken, AuthenticatedData, CreateAuthModel},
 };
+use common::{database::ApplicationDatabase, helpers::error::AppError};
 use tracing::{debug, error, field::debug, instrument};
 
 #[instrument(skip_all)]

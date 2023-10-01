@@ -1,11 +1,10 @@
 use crate::{
-    database::DBConnection,
-    helpers::error::AppError,
     models,
     models::user::{Entity as UserEntity, Model as UserModel},
     repositories::Repository,
     types::user_types::{CreateUser, UpdateUser},
 };
+use common::{database::DBConnection, helpers::error::AppError};
 use futures_util::TryFutureExt;
 use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, EntityTrait, QueryFilter};
 use tracing::instrument;

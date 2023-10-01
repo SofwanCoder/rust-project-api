@@ -4,7 +4,7 @@ use tracing::instrument;
 #[instrument(skip_all)]
 pub fn unique_email_validator(
     email: &str,
-    db: &crate::database::ApplicationDatabase,
+    db: &common::database::ApplicationDatabase,
 ) -> Result<(), validator::ValidationError> {
     futures::executor::block_on(validate_unique_email(email, db))
 }
@@ -12,7 +12,7 @@ pub fn unique_email_validator(
 #[instrument(skip_all)]
 async fn validate_unique_email(
     email: &str,
-    db: &crate::database::ApplicationDatabase,
+    db: &common::database::ApplicationDatabase,
 ) -> Result<(), validator::ValidationError> {
     let connection = &db
         .source

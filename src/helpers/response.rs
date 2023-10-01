@@ -1,5 +1,5 @@
-use crate::configs::constant;
 use actix_web::{http::StatusCode, HttpResponse};
+use common::configs::constant;
 use serde::{ser::SerializeStruct, Serialize, Serializer};
 #[derive(Debug, Clone)]
 pub enum AppResponse<'a, T> {

@@ -1,10 +1,11 @@
 use crate::{
     contracts::user_contract::{CreateUserPayload, UpdatePasswordPayload, UpdateUserPayload},
-    helpers::{error::AppError, response},
+    helpers::response,
     types::auth_types::AuthenticatedData,
     utilities::error::{map_err_to_internal_err, map_validation_err_to_app_err},
 };
 use actix_web::{web, HttpMessage, HttpRequest, Responder, Result};
+use common::helpers::error::AppError;
 use tracing::instrument;
 use uuid::Uuid;
 use validator::{Validate, ValidateArgs};

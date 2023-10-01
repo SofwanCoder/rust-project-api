@@ -1,8 +1,8 @@
 #![allow(dead_code)]
 
 use crate::helpers::error::AppError;
-use log::debug;
 use sea_orm::ConnectOptions;
+use tracing::{debug, log};
 
 pub type PooledDatabaseConnection = sea_orm::DatabaseConnection;
 
@@ -35,7 +35,7 @@ impl ApplicationSourceDatabase {
         Self { connection_pool }
     }
 
-    pub(crate) async fn get_connection(&self) -> Result<PooledDatabaseConnection, AppError> {
+    pub async fn get_connection(&self) -> Result<PooledDatabaseConnection, AppError> {
         debug!("Getting Mysql connection from pool");
         return Ok(self.connection_pool.clone());
     }

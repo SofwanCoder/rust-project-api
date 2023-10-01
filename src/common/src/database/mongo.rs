@@ -4,9 +4,8 @@ use crate::{
     configs::constant::{CONNECTION_POOL_MAX_IDLE, CONNECTION_POOL_MAX_OPEN},
     helpers::error::AppError,
 };
-use futures;
-use log::debug;
 use mongodb::{options::ClientOptions, Client, Database};
+use tracing::debug;
 
 #[derive(Debug, Clone)]
 pub struct ApplicationMongoDatabase {
@@ -19,7 +18,7 @@ impl ApplicationMongoDatabase {
 
         let database_url = configs::settings::Variables::mongo_uri();
 
-        let mut manager = futures::executor::block_on(ClientOptions::parse(database_url)).unwrap();
+        let mut manager = ClientOptions::parse(database_url).await.unwrap();
         manager.max_pool_size = Some(CONNECTION_POOL_MAX_OPEN as u32);
         manager.min_pool_size = Some(CONNECTION_POOL_MAX_IDLE as u32);
 
@@ -34,7 +33,7 @@ impl ApplicationMongoDatabase {
         ApplicationMongoDatabase { _db }
     }
 
-    pub(crate) async fn get_connection(&self) -> Result<Database, AppError> {
+    pub async fn get_connection(&self) -> Result<Database, AppError> {
         debug!("Getting Mongo connection from pool");
         return Ok(self._db.clone());
     }

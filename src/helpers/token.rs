@@ -1,9 +1,9 @@
 use crate::{
-    helpers::error::{AppError, AppErrorKind},
     models::{auth::Model as AuthModel, user::Model as UserModel},
     types::auth_types::{AuthenticatedData, RefreshTokenData},
     utilities,
 };
+use common::helpers::error::{AppError, AppErrorKind};
 use tracing::{debug, instrument};
 
 #[instrument(skip_all)]

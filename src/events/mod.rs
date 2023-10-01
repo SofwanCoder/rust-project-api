@@ -1,7 +1,11 @@
 pub mod user;
 
-use crate::{database::ampq::AmpqConnection, helpers::error::AppError, ApplicationContext};
 use async_trait::async_trait;
+use common::{
+    context::ApplicationContext,
+    database::ampq::AmpqConnection,
+    helpers::error::AppError,
+};
 use futures_util::StreamExt;
 use lapin::{
     options::{BasicAckOptions, BasicConsumeOptions, BasicPublishOptions, QueueDeclareOptions},

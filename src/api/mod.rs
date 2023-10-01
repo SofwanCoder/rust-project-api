@@ -1,4 +1,4 @@
-use crate::{configs, middlewares, router, utilities::rand::generate_ulid, ApplicationContext};
+use crate::{middlewares, router, ApplicationContext};
 use actix_web::{
     http::StatusCode,
     middleware::{ErrorHandlers, Logger},
@@ -8,6 +8,7 @@ use actix_web::{
     HttpMessage,
     HttpServer,
 };
+use common::{configs, rand::generate_ulid};
 use derive_more::Display;
 use tracing::info;
 use ulid::Ulid;

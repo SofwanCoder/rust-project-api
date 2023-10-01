@@ -6,10 +6,10 @@ use crate::{
     helpers::error::AppError,
 };
 use derive_more::DebugCustom;
-use log::debug;
 use manager::RedisConnectionManager;
 use mobc::Pool;
 use redis;
+use tracing::debug;
 
 pub type RedisConnection = mobc::Connection<RedisConnectionManager>;
 pub type RedisPool = Pool<RedisConnectionManager>;
@@ -39,7 +39,7 @@ impl ApplicationRedisDatabase {
         ApplicationRedisDatabase { connection_pool }
     }
 
-    pub(crate) async fn get_connection(&self) -> Result<RedisConnection, AppError> {
+    pub async fn get_connection(&self) -> Result<RedisConnection, AppError> {
         debug!("Getting redis connection");
         return self
             .connection_pool

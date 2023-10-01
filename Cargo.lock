@@ -909,6 +909,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "common"
+version = "0.1.0"
+dependencies = [
+ "actix-web",
+ "argon2",
+ "async-trait",
+ "derive_more",
+ "lapin",
+ "lettre",
+ "mobc",
+ "mongodb",
+ "redis",
+ "sea-orm",
+ "serde",
+ "tracing",
+ "ulid",
+ "url",
+ "uuid",
+]
+
+[[package]]
 name = "concurrent-queue"
 version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2973,6 +2994,7 @@ dependencies = [
  "async-global-executor",
  "async-trait",
  "chrono",
+ "common",
  "derive_more",
  "dotenv",
  "fake",

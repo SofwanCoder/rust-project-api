@@ -44,3 +44,7 @@ validator = { version = "*", features = ["derive"] }
 
 ### Tests
 fake = { version = "2", features = ["derive", "chrono", "uuid", "zerocopy"] }
+
+
+### Internal
+common = { path = "src/common" }

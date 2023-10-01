@@ -1,5 +1,6 @@
-use crate::helpers::{error::AppError, response};
+use crate::helpers::response;
 use actix_web::{HttpRequest, Responder, Result};
+use common::helpers::error::AppError;
 use tracing::instrument;
 
 #[instrument(skip_all)]

@@ -1,9 +1,7 @@
 use crate::{
     contracts::user_contract::UpdateUserPayload,
-    database::ApplicationDatabase,
     events::{user::password_changed::UserPasswordChanged, AppEvent},
     helpers,
-    helpers::error::AppError,
     models::user::Model as UserModel,
     repositories::{auth::AuthRepository, user::UserRepository},
     types::{
@@ -12,6 +10,7 @@ use crate::{
     },
     ApplicationContext,
 };
+use common::{database::ApplicationDatabase, helpers::error::AppError};
 use sea_orm::TransactionTrait;
 use tracing::{debug, instrument, trace};
 use uuid::Uuid;

@@ -1,4 +1,4 @@
-use crate::helpers::error::AppError;
+use common::helpers::error::AppError;
 use serde::{de::DeserializeOwned, Serialize};
 use tracing::{debug, error, instrument};
 
@@ -8,7 +8,7 @@ where
     D: Serialize,
 {
     debug!("Attempting to encode data");
-    let secret_key = crate::configs::settings::Variables::jwt_secret_key();
+    let secret_key = common::configs::settings::Variables::jwt_secret_key();
     let secret_key = secret_key.as_bytes();
     let token = jsonwebtoken::encode(
         &jsonwebtoken::Header::default(),
@@ -26,7 +26,7 @@ where
     D: DeserializeOwned,
 {
     debug!("Attempting to decode data");
-    let secret_key = crate::configs::settings::Variables::jwt_secret_key();
+    let secret_key = common::configs::settings::Variables::jwt_secret_key();
     let secret_key = secret_key.as_bytes();
     let token = jsonwebtoken::decode::<D>(
         token,
