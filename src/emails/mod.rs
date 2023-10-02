@@ -3,7 +3,6 @@ use lettre::AsyncTransport;
 use std::fmt::Debug;
 
 pub(crate) mod password_changed_email;
-pub(crate) mod transports;
 pub(crate) mod welcome_email;
 
 #[async_trait::async_trait]

@@ -3,7 +3,7 @@
 pub mod configs;
 pub mod context;
 pub mod database;
-pub mod emails;
+pub mod drivers;
 pub mod helpers;
 pub mod rand;
 
