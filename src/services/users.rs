@@ -132,7 +132,7 @@ pub async fn update_a_user_password(
         })?;
 
     debug!("Verifying current password");
-    helpers::password::verify_password(user.password, data.current_password)
+    common::helpers::password::verify_password(user.password, data.current_password)
         .map_err(|_| AppError::unauthorized("Invalid password"))?;
 
     debug!("Updating user password");

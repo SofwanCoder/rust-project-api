@@ -1,11 +1,12 @@
 #![allow(dead_code)]
-use crate::{helpers::response::AppResponse, types::auth_types::AuthenticatedData};
+use crate::types::auth_types::AuthenticatedData;
 use actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
     http::StatusCode,
     Error,
     HttpMessage,
 };
+use common::helpers::response::AppResponse;
 use futures_util::future::{Either, LocalBoxFuture};
 use log::debug;
 use std::future::{ready, Ready};

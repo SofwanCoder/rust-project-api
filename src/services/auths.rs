@@ -57,7 +57,7 @@ pub async fn login_with_password(
         .ok_or(AppError::unauthorized("Invalid Account or password"))?;
 
     debug!("Verifying password");
-    helpers::password::verify_password(user.password.clone(), body.password.unwrap())
+    common::helpers::password::verify_password(user.password.clone(), body.password.unwrap())
         .map_err(|_| AppError::unauthorized("Invalid account or Password"))?;
 
     debug!("Creating auth session");

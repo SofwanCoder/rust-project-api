@@ -1,10 +1,10 @@
-use crate::helpers::response::AppResponse;
 use actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
     http::StatusCode,
     Error,
     HttpMessage,
 };
+use common::helpers::response::AppResponse;
 use futures_util::future::{Either, LocalBoxFuture};
 use std::future::{ready, Ready};
 use tracing::{error, instrument, trace, warn, Instrument};
@@ -106,11 +106,12 @@ where
         let what = decrypt_authorization_fn();
 
         let either = match what {
-            WhatHappened::NotBearer => {
-                let r = AppResponse::Error::<()>("Bearer token expected", None)
-                    .to_http_response(StatusCode::IM_A_TEAPOT);
-                Either::Left(req.into_response(r))
-            }
+            WhatHappened::NotBearer => Either::Left(
+                req.into_response(
+                    AppResponse::Error::<()>("Bearer token expected", None)
+                        .to_http_response(StatusCode::IM_A_TEAPOT),
+                ),
+            ),
             _ => Either::Right(self.service.call(req)),
         };
 

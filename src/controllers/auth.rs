@@ -1,10 +1,9 @@
 use crate::{
     contracts::auth_contract::CreateTokenPayload,
-    helpers::response,
     utilities::error::map_validation_err_to_app_err,
 };
 use actix_web::{web, HttpMessage, HttpRequest, Responder, Result};
-use common::helpers::error::AppError;
+use common::helpers::{error::AppError, response};
 use std::ops::Deref;
 use tracing::instrument;
 use validator::ValidateArgs;

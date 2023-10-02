@@ -1,6 +1,5 @@
-use crate::helpers::password::hash_password;
 use async_trait::async_trait;
-use common::rand::generate_uuid;
+use common::{helpers::password::hash_password, rand::generate_uuid};
 use log::trace;
 use sea_orm::{entity::prelude::*, ActiveValue::Set};
 use serde::{Deserialize, Serialize};
