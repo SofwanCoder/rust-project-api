@@ -10,7 +10,7 @@ use crate::{
     },
     ApplicationContext,
 };
-use common::{database::ApplicationDatabase, helpers::error::AppError};
+use common::{database::ApplicationDatabase, error::AppError};
 use sea_orm::TransactionTrait;
 use tracing::{debug, instrument, trace};
 use uuid::Uuid;

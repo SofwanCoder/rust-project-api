@@ -1,5 +1,5 @@
 use crate::emails::Email;
-use common::helpers::error::AppError;
+use common::error::AppError;
 use handlebars::Handlebars;
 use lettre::{message::header::ContentType, AsyncTransport, Message};
 use std::fmt::Debug;

@@ -4,7 +4,7 @@ use crate::{
     repositories::{auth::AuthRepository, user::UserRepository},
     types::auth_types::{AuthToken, AuthenticatedData, CreateAuthModel},
 };
-use common::{database::ApplicationDatabase, helpers::error::AppError};
+use common::{database::ApplicationDatabase, error::AppError};
 use tracing::{debug, error, field::debug, instrument};
 
 #[instrument(skip_all)]

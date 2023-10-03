@@ -1,4 +1,4 @@
-use common::helpers::error::AppError;
+use common::error::AppError;
 use lettre::AsyncTransport;
 use std::fmt::Debug;
 

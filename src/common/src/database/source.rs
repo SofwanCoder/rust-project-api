@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use crate::helpers::error::AppError;
+use crate::error::AppError;
 use sea_orm::ConnectOptions;
 use tracing::{debug, log};
 

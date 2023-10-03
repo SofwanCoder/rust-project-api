@@ -4,7 +4,7 @@ use crate::{
     ApplicationContext,
 };
 use async_trait::async_trait;
-use common::helpers::error::AppError;
+use common::error::AppError;
 use derive_more::{Constructor, From};
 use serde::{Deserialize, Serialize};
 use tracing::{info, instrument};

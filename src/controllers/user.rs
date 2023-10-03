@@ -4,7 +4,7 @@ use crate::{
     utilities::error::{map_err_to_internal_err, map_validation_err_to_app_err},
 };
 use actix_web::{web, HttpMessage, HttpRequest, Responder, Result};
-use common::helpers::{error::AppError, response};
+use common::{error::AppError, helpers::response};
 use tracing::instrument;
 use uuid::Uuid;
 use validator::{Validate, ValidateArgs};

@@ -2,7 +2,7 @@
 use crate::{
     configs,
     configs::constant::{CONNECTION_POOL_MAX_IDLE, CONNECTION_POOL_MAX_OPEN},
-    helpers::error::AppError,
+    error::AppError,
 };
 use mongodb::{options::ClientOptions, Client, Database};
 use tracing::debug;

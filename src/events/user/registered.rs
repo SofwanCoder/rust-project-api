@@ -4,7 +4,7 @@ use crate::{
     ApplicationContext,
 };
 use async_trait::async_trait;
-use common::helpers::error::AppError;
+use common::error::AppError;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use tracing::{info, instrument};

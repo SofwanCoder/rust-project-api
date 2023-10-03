@@ -1,4 +1,4 @@
-use common::helpers::error::AppError;
+use common::error::AppError;
 use std::{borrow::Cow, collections::HashMap, error::Error};
 use validator::{ValidationErrors, ValidationErrorsKind};
 
@@ -65,7 +65,7 @@ mod tests {
     #[test]
     fn test_map_err_to_internal_err() {
         let err = map_err_to_internal_err(AppError::internal_server(""));
-        assert_eq!(err.kind, crate::helpers::error::AppErrorKind::InternalError);
+        assert_eq!(err.kind, crate::error::AppErrorKind::InternalError);
         assert_eq!(err.message, "Error handling request");
     }
 }

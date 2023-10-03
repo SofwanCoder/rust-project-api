@@ -1,11 +1,7 @@
 pub mod user;
 
 use async_trait::async_trait;
-use common::{
-    context::ApplicationContext,
-    database::ampq::AmpqConnection,
-    helpers::error::AppError,
-};
+use common::{context::ApplicationContext, database::ampq::AmpqConnection, error::AppError};
 use futures_util::StreamExt;
 use lapin::{
     options::{BasicAckOptions, BasicConsumeOptions, BasicPublishOptions, QueueDeclareOptions},

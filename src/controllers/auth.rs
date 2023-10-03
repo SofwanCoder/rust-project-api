@@ -3,7 +3,7 @@ use crate::{
     utilities::error::map_validation_err_to_app_err,
 };
 use actix_web::{web, HttpMessage, HttpRequest, Responder, Result};
-use common::helpers::{error::AppError, response};
+use common::{error::AppError, helpers::response};
 use std::ops::Deref;
 use tracing::instrument;
 use validator::ValidateArgs;

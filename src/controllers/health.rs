@@ -1,5 +1,5 @@
 use actix_web::{HttpRequest, Responder, Result};
-use common::helpers::{error::AppError, response};
+use common::{error::AppError, helpers::response};
 use tracing::instrument;
 
 #[instrument(skip_all)]

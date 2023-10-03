@@ -4,7 +4,7 @@ use crate::{
     repositories::Repository,
     types::auth_types::CreateAuthModel,
 };
-use common::{database::DBConnection, helpers::error::AppError, rand::generate_uuid};
+use common::{database::DBConnection, error::AppError, rand::generate_uuid};
 use futures_util::TryFutureExt;
 use sea_orm::{ActiveModelTrait, ActiveValue::Set, DeleteResult, EntityTrait};
 use uuid::Uuid;

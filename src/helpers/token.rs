@@ -3,7 +3,7 @@ use crate::{
     types::auth_types::{AuthenticatedData, RefreshTokenData},
     utilities,
 };
-use common::helpers::error::{AppError, AppErrorKind};
+use common::error::{AppError, AppErrorKind};
 use tracing::{debug, instrument};
 
 #[instrument(skip_all)]

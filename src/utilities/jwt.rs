@@ -1,4 +1,4 @@
-use common::helpers::error::AppError;
+use common::error::AppError;
 use serde::{de::DeserializeOwned, Serialize};
 use tracing::{debug, error, instrument};
 
