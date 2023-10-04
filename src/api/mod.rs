@@ -8,8 +8,6 @@ use actix_web::{
     HttpMessage,
     HttpResponse,
     HttpServer,
-    Responder,
-    ResponseError,
 };
 use common::{configs, error::AppError, rand::generate_ulid};
 use derive_more::Display;
