@@ -43,6 +43,6 @@ impl ApplicationAmpqDatabase {
             .connection_pool
             .get()
             .await
-            .map_err(|e| AppError::connection_error(e));
+            .map_err(AppError::connection_error);
     }
 }

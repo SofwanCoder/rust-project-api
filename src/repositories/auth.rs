@@ -20,7 +20,7 @@ impl AuthRepository {
     ) -> Option<AuthModel> {
         AuthEntity::find_by_id(auth_id)
             .one(connection)
-            .map_err(|e| AppError::database_error(e))
+            .map_err(AppError::database_error)
             .await
             .expect("Database error")
     }
@@ -37,7 +37,7 @@ impl AuthRepository {
         };
         auth.insert(connection)
             .await
-            .map_err(|e| AppError::database_error(e))
+            .map_err(AppError::database_error)
     }
 
     pub async fn delete_auth_by_id<C: DBConnection>(
@@ -46,7 +46,7 @@ impl AuthRepository {
     ) -> Result<u64, AppError> {
         let delete_result: DeleteResult = AuthEntity::delete_by_id(auth_id)
             .exec(connection)
-            .map_err(|e| AppError::database_error(e))
+            .map_err(AppError::database_error)
             .await?;
         Ok(delete_result.rows_affected)
     }

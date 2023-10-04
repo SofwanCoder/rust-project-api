@@ -19,7 +19,7 @@ impl UserRepository {
     pub async fn find_users<C: DBConnection>(connection: &C) -> Vec<UserModel> {
         UserEntity::find()
             .all(connection)
-            .map_err(|e| AppError::database_error(e))
+            .map_err(AppError::database_error)
             .await
             .expect("Database error")
     }
@@ -31,7 +31,7 @@ impl UserRepository {
     ) -> Option<UserModel> {
         UserEntity::find_by_id(user_id)
             .one(connection)
-            .map_err(|e| AppError::database_error(e))
+            .map_err(AppError::database_error)
             .await
             .expect("Database error")
     }
@@ -44,7 +44,7 @@ impl UserRepository {
         UserEntity::find()
             .filter(models::user::Column::Email.eq(user_email))
             .one(connection)
-            .map_err(|e| AppError::database_error(e))
+            .map_err(AppError::database_error)
             .await
             .expect("Database error")
     }
@@ -62,7 +62,7 @@ impl UserRepository {
         };
         user.insert(connection)
             .await
-            .map_err(|e| AppError::database_error(e))
+            .map_err(AppError::database_error)
     }
 
     #[instrument(skip(connection))]
@@ -80,6 +80,6 @@ impl UserRepository {
         };
         user.update(connection)
             .await
-            .map_err(|e| AppError::database_error(e))
+            .map_err(AppError::database_error)
     }
 }
