@@ -1,4 +1,5 @@
 #![feature(trait_alias)]
+#![feature(type_alias_impl_trait)]
 
 use dotenv;
 use tracing::debug;

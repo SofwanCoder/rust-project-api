@@ -6,12 +6,19 @@ use actix_web::{
     Error,
     FromRequest,
     HttpMessage,
+    HttpResponse,
     HttpServer,
+    Responder,
+    ResponseError,
 };
-use common::{configs, rand::generate_ulid};
+use common::{configs, error::AppError, rand::generate_ulid};
 use derive_more::Display;
 use tracing::info;
 use ulid::Ulid;
+
+// R impl Responder
+// E impl ResponseError
+pub type ApiResult<R = HttpResponse, E = AppError> = Result<R, E>;
 
 pub async fn start(app_context: ApplicationContext) -> std::io::Result<()> {
     let host = configs::settings::Variables::host();

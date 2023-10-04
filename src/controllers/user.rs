@@ -1,9 +1,10 @@
 use crate::{
+    api::ApiResult,
     contracts::user_contract::{CreateUserPayload, UpdatePasswordPayload, UpdateUserPayload},
     types::auth_types::AuthenticatedData,
     utilities::error::{map_err_to_internal_err, map_validation_err_to_app_err},
 };
-use actix_web::{web, HttpMessage, HttpRequest, Responder, Result};
+use actix_web::{web, HttpMessage, HttpRequest};
 use common::{error::AppError, helpers::response};
 use tracing::instrument;
 use uuid::Uuid;
@@ -13,7 +14,7 @@ use validator::{Validate, ValidateArgs};
 pub async fn create_user_controller(
     req: HttpRequest,
     body: web::Json<CreateUserPayload>,
-) -> Result<impl Responder, AppError> {
+) -> ApiResult {
     let ctx = req.app_data::<crate::ApplicationContext>().unwrap().clone();
 
     // This is necessary because we're using web::block which runs a function
@@ -37,10 +38,7 @@ pub async fn create_user_controller(
 }
 
 #[instrument(skip_all)]
-pub async fn fetch_user_controller(
-    req: HttpRequest,
-    user_id: web::Path<Uuid>,
-) -> Result<impl Responder, AppError> {
+pub async fn fetch_user_controller(req: HttpRequest, user_id: web::Path<Uuid>) -> ApiResult {
     let ctx = req.app_data::<crate::ApplicationContext>().unwrap().clone();
 
     let user_id = user_id.into_inner();
@@ -51,7 +49,7 @@ pub async fn fetch_user_controller(
 }
 
 #[instrument(skip_all)]
-pub async fn fetch_me_controller(req: HttpRequest) -> Result<impl Responder, AppError> {
+pub async fn fetch_me_controller(req: HttpRequest) -> ApiResult {
     let user_id = req.extensions().get::<AuthenticatedData>().unwrap().user_id;
 
     let web_path_user_id = web::Path::try_from(user_id.clone());
@@ -66,7 +64,7 @@ pub async fn fetch_me_controller(req: HttpRequest) -> Result<impl Responder, App
 }
 
 #[instrument(skip_all)]
-pub async fn fetch_users_controller(req: HttpRequest) -> Result<impl Responder, AppError> {
+pub async fn fetch_users_controller(req: HttpRequest) -> ApiResult {
     let ctx = req.app_data::<crate::ApplicationContext>().unwrap().clone();
 
     let result = crate::services::users::fetch_some_users(&ctx.db).await;
@@ -79,7 +77,7 @@ pub async fn update_user_controller(
     req: HttpRequest,
     user_id: web::Path<Uuid>,
     body: web::Json<UpdateUserPayload>,
-) -> Result<impl Responder, AppError> {
+) -> ApiResult {
     let ctx = req.app_data::<crate::ApplicationContext>().unwrap().clone();
     let user_id = user_id.into_inner();
 
@@ -109,7 +107,7 @@ pub async fn update_password_controller(
     req: HttpRequest,
     user_id: web::Path<Uuid>,
     body: web::Json<UpdatePasswordPayload>,
-) -> Result<impl Responder, AppError> {
+) -> ApiResult {
     body.validate().map_err(map_validation_err_to_app_err)?;
 
     let ctx = req.app_data::<crate::ApplicationContext>().unwrap().clone();

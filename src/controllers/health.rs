@@ -1,9 +1,10 @@
-use actix_web::{HttpRequest, Responder, Result};
+use crate::api::ApiResult;
+use actix_web::{HttpRequest, Result};
 use common::{error::AppError, helpers::response};
 use tracing::instrument;
 
 #[instrument(skip_all)]
-pub async fn check_health_controller(req: HttpRequest) -> Result<impl Responder, AppError> {
+pub async fn check_health_controller(req: HttpRequest) -> ApiResult {
     let _ = req.app_data::<crate::ApplicationContext>();
 
     let result = Result::<(), AppError>::Ok(());

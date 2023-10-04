@@ -1,9 +1,10 @@
 use crate::{
+    api::ApiResult,
     contracts::auth_contract::CreateTokenPayload,
     utilities::error::map_validation_err_to_app_err,
 };
-use actix_web::{web, HttpMessage, HttpRequest, Responder, Result};
-use common::{error::AppError, helpers::response};
+use actix_web::{web, HttpMessage, HttpRequest, Responder, ResponseError};
+use common::helpers::response;
 use std::ops::Deref;
 use tracing::instrument;
 use validator::ValidateArgs;
@@ -12,7 +13,7 @@ use validator::ValidateArgs;
 pub async fn create_token_controller(
     req: HttpRequest,
     body: web::Json<CreateTokenPayload>,
-) -> Result<impl Responder, AppError> {
+) -> ApiResult<impl Responder, impl ResponseError> {
     let ctx = req.app_data::<crate::ApplicationContext>().unwrap().clone();
 
     body.validate_args(body.deref())
@@ -24,7 +25,7 @@ pub async fn create_token_controller(
 }
 
 #[instrument(skip_all)]
-pub async fn delete_token_controller(req: HttpRequest) -> Result<impl Responder, AppError> {
+pub async fn delete_token_controller(req: HttpRequest) -> ApiResult {
     let ctx = req.app_data::<crate::ApplicationContext>().unwrap().clone();
 
     let authenticated_user = req
