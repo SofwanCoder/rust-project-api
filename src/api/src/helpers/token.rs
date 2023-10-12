@@ -1,5 +1,5 @@
 use crate::{
-    entities::{auth::Model as AuthModel, user::Model as UserModel},
+    models::{auth::Model as AuthModel, user::Model as UserModel},
     types::auth_types::{AuthenticatedData, RefreshTokenData},
     utilities,
 };
@@ -53,7 +53,7 @@ pub fn decode_token_data_for_session(token: &String) -> Result<RefreshTokenData,
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::entities::{auth::Model as AuthModel, user::Model as UserModel};
+    use crate::models::{auth::Model as AuthModel, user::Model as UserModel};
     use chrono::NaiveDateTime;
 
     #[test]

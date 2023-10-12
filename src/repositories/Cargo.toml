@@ -1,0 +1,17 @@
+[package]
+name = "repositories"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+uuid = { version = "*", features = ["serde"] }
+tracing = { version = "*", features = ["log", "async-await", "release_max_level_error"] }
+sea-orm = { version = "*", features = [ "sqlx-postgres", "runtime-tokio", "runtime-tokio-rustls", "macros", "debug-print" ] }
+serde = { version = "1", features = ["derive"] }
+chrono = { version = "*", features = ["serde"] }
+
+### Internal
+common = { path = "../common" }
+entities = { path = "../entities" }

@@ -1,24 +1,20 @@
 #![feature(trait_alias)]
 #![feature(type_alias_impl_trait)]
 
+use api;
 use dotenv;
 use tracing::debug;
 use tracing_log::LogTracer;
 
 mod contracts;
-mod controllers;
 mod emails;
 mod events;
 mod helpers;
-mod middlewares;
-mod models;
+mod entities;
 mod repositories;
-mod router;
 mod services;
 mod types;
 mod utilities;
-
-mod api;
 
 pub type ApplicationContext = common::context::ApplicationContext;
 

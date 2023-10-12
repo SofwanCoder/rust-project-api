@@ -48,3 +48,4 @@ fake = { version = "2", features = ["derive", "chrono", "uuid", "zerocopy"] }
 
 ### Internal
 common = { path = "src/common" }
+api = { path = "src/api" }

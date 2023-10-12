@@ -1,10 +1,8 @@
-use crate::{
-    entities::{auth::Model as AuthModel, user::Model as UserModel},
-    types::auth_types::{AuthenticatedData, RefreshTokenData},
-    utilities,
-};
 use common::error::{AppError, AppErrorKind};
+use entities::{auth::Model as AuthModel, user::Model as UserModel};
 use tracing::{debug, instrument};
+use types::auth_types::{AuthenticatedData, RefreshTokenData};
+use utilities;
 
 #[instrument(skip_all)]
 pub fn generate_user_session_access_token(

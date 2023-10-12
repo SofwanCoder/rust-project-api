@@ -7,6 +7,7 @@ pub mod drivers;
 pub mod error;
 pub mod helpers;
 pub mod rand;
+pub mod utilities;
 
 #[cfg(test)]
 mod tests {

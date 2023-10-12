@@ -410,6 +410,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "api"
+version = "0.1.0"
+dependencies = [
+ "actix-web",
+ "actix-web-actors",
+ "actix-web-validator",
+ "argon2",
+ "async-trait",
+ "common",
+ "derive_more",
+ "futures",
+ "lapin",
+ "lettre",
+ "mobc",
+ "mongodb",
+ "redis",
+ "sea-orm",
+ "serde",
+ "services",
+ "tracing",
+ "ulid",
+ "url",
+ "uuid",
+ "validator",
+]
+
+[[package]]
 name = "arc-swap"
 version = "1.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -915,7 +942,10 @@ dependencies = [
  "actix-web",
  "argon2",
  "async-trait",
+ "chrono",
  "derive_more",
+ "fake",
+ "jsonwebtoken",
  "lapin",
  "lettre",
  "mobc",
@@ -1258,6 +1288,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7268b386296a025e474d5140678f75d6de9493ae55a5d709eeb9dd08149945e1"
 dependencies = [
  "cfg-if",
+]
+
+[[package]]
+name = "entities"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "common",
+ "sea-orm",
+ "serde",
+ "tracing",
+ "uuid",
 ]
 
 [[package]]
@@ -2907,6 +2949,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "repositories"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "common",
+ "entities",
+ "sea-orm",
+ "serde",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
 name = "resolv-conf"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2990,6 +3045,7 @@ dependencies = [
  "actix-web",
  "actix-web-actors",
  "actix-web-validator",
+ "api",
  "argon2",
  "async-global-executor",
  "async-trait",
@@ -3409,6 +3465,33 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "services"
+version = "0.1.0"
+dependencies = [
+ "actix",
+ "actix-web",
+ "actix-web-actors",
+ "argon2",
+ "async-trait",
+ "chrono",
+ "common",
+ "derive_more",
+ "entities",
+ "lapin",
+ "lettre",
+ "mobc",
+ "mongodb",
+ "redis",
+ "repositories",
+ "sea-orm",
+ "serde",
+ "tracing",
+ "ulid",
+ "url",
+ "uuid",
 ]
 
 [[package]]
